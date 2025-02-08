@@ -75,25 +75,24 @@
     ]
   },
   "packageFolders": {
-    "/home/samuel/.nuget/packages/": {}
+    "C:\\Users\\elias\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/samuel/andra-kurser/grupp-projekt/feedback/backend/backend.csproj",
+      "projectUniqueName": "E:\\projects\\feedback\\backend\\backend.csproj",
       "projectName": "backend",
-      "projectPath": "/home/samuel/andra-kurser/grupp-projekt/feedback/backend/backend.csproj",
-      "packagesPath": "/home/samuel/.nuget/packages/",
-      "outputPath": "/home/samuel/andra-kurser/grupp-projekt/feedback/backend/obj/",
+      "projectPath": "E:\\projects\\feedback\\backend\\backend.csproj",
+      "packagesPath": "C:\\Users\\elias\\.nuget\\packages\\",
+      "outputPath": "E:\\projects\\feedback\\backend\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/samuel/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\elias\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
-        "/usr/lib/dotnet/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -142,7 +141,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/9.0.102/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
