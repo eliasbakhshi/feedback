@@ -14,12 +14,12 @@ namespace backend.UserDataAccess
         {
             settings = new NpgsqlConnectionStringBuilder();
             settings.Host = "localhost";
-            settings.Username = "postgres";
-            settings.Password = "postgres";
-            settings.Database = "hello";
+            settings.Username = "dbadm";
+            settings.Password = "dbadm";
+            settings.Database = "feedbacker";
         }
 
-        public NpgsqlConnection connect()
+        public NpgsqlConnection connect() // connect to the database
         {
             var db = new NpgsqlConnection(settings?.ConnectionString);
             db.Open();
@@ -27,12 +27,12 @@ namespace backend.UserDataAccess
             return db;
         }
 
-        public void close(NpgsqlConnection db)
+        public void close(NpgsqlConnection db) // close database connection
         {
             db.Close();
         }
 
-        public List<Dictionary<string, object>> command(NpgsqlConnection db, string? query)
+        public List<Dictionary<string, object>> select(NpgsqlConnection db, string? query) // function for SELECT sql query
         {
             var cmd = new NpgsqlCommand(query, db);
             var reader = cmd.ExecuteReader();
@@ -50,6 +50,12 @@ namespace backend.UserDataAccess
             }
 
             return results;
+        }
+
+        public void insert(NpgsqlConnection db, string? query) // function for INSERT sql keyword
+        {
+            var cmd = new NpgsqlCommand(query, db);
+            cmd.ExecuteNonQuery();
         }
     }
 }
