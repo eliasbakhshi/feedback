@@ -25,13 +25,21 @@ namespace backend.Controllers
         [HttpPost]
         public IActionResult Register([FromBody] RegistrationModel registration)
         {
-            var db = dbManager.connect();
-            var query = @$"INSERT INTO account (name, email, password, role) 
-                        VALUES ('{registration.Username}', '{registration.Email}', crypt('{registration.Password}', gen_salt('bf')), '{registration.Role}')";
-            dbManager.insert(db, query);
-            dbManager.close(db);
+            try
+            {
+                var db = dbManager.connect();
+                var query = @$"CALL create_account('{registration.Username}', '{registration.FullName}', '{registration.Email}', '{registration.Password}', '{registration.Role}')";
+                            
+                dbManager.insert(db, query);
+                dbManager.close(db);
 
-            return Ok();
+                return Ok("User registered successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while registering a new user.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+            }
         }
     }
 }
