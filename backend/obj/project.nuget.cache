@@ -1,11 +1,14 @@
 {
   "version": 2,
-  "dgSpecHash": "gChakuSykyE=",
+  "dgSpecHash": "AcdrgoGTbBM=",
   "success": true,
-  "projectFilePath": "E:\\projects\\feedback\\backend\\backend.csproj",
+  "projectFilePath": "/home/samuel/andra-kurser/grupp-projekt/feedback/backend/backend.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\elias\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.1\\microsoft.aspnetcore.openapi.9.0.1.nupkg.sha512",
-    "C:\\Users\\elias\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+    "/home/samuel/.nuget/packages/microsoft.aspnetcore.openapi/9.0.1/microsoft.aspnetcore.openapi.9.0.1.nupkg.sha512",
+    "/home/samuel/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/8.0.2/microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512",
+    "/home/samuel/.nuget/packages/microsoft.extensions.logging.abstractions/8.0.2/microsoft.extensions.logging.abstractions.8.0.2.nupkg.sha512",
+    "/home/samuel/.nuget/packages/microsoft.openapi/1.6.17/microsoft.openapi.1.6.17.nupkg.sha512",
+    "/home/samuel/.nuget/packages/npgsql/9.0.2/npgsql.9.0.2.nupkg.sha512"
   ],
   "logs": []
 }

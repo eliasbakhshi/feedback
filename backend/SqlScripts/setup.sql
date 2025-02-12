@@ -12,14 +12,16 @@ ALTER ROLE dbadm WITH SUPERUSER;
 
 CREATE EXTENSION pgcrypto;
 
+CREATE TYPE ROLES AS ENUM('admin', 'user', 'agent');
+
 /* tables */
 CREATE TABLE accounts (
     id SERIAL PRIMARY KEY,
-    username VARCHAR(255) NOT NULL,
+    username VARCHAR(255) NOT NULL UNIQUE,
     fullname VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role VARCHAR(10) NOT NULL
+    role ROLES
 );
 
 /* procedures*/
@@ -28,10 +30,10 @@ CREATE PROCEDURE create_account(
     fullname VARCHAR(255),
     email VARCHAR(255),
     password VARCHAR(255),
-    role VARCHAR(10)
+    role ROLES
 )
 LANGUAGE SQL
 AS $$
     INSERT INTO accounts (username, fullname, email, password, role)
-    VALUES (username, fullname, email, crypt(password, gen_salt('bf')), role);
+    VALUES (username, fullname, email, crypt(password, gen_salt('bf')), role::ROLES);
 $$;

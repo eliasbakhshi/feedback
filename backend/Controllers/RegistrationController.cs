@@ -29,7 +29,7 @@ namespace backend.Controllers
             {
                 var db = dbManager.connect();
                 var query = @$"CALL create_account('{registration.Username}', '{registration.FullName}', '{registration.Email}', '{registration.Password}', '{registration.Role}')";
-                            
+
                 dbManager.insert(db, query);
                 dbManager.close(db);
 
@@ -38,7 +38,7 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while registering a new user.");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+                return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; format was incorrect.");
             }
         }
     }
