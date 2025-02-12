@@ -52,7 +52,7 @@ namespace backend.UserDataAccess
             return results;
         }
 
-        public void insert(NpgsqlConnection db, string? query) // function for INSERT sql keyword
+        public void insert(NpgsqlConnection db, string? query) // function for all SQL queries which are not SELECT
         {
             var cmd = new NpgsqlCommand(query, db);
             cmd.ExecuteNonQuery();
