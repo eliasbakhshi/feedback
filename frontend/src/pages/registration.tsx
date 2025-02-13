@@ -18,6 +18,11 @@ const Registration = () => {
       toast.error("Alla fält måste fyllas i!", { position: "top-right" });
       return;
     }
+    const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!validEmail.test(email)) {
+      toast.error("Ange en giltig e-postadress!", { position: "top-right" });
+      return;
+    }
 
     if (password.length < 6) {
       toast.warning("Lösenordet måste vara minst 6 tecken långt!", { position: "top-right" });
