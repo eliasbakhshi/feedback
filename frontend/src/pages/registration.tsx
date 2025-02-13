@@ -14,7 +14,6 @@ const Registration = () => {
 
   const handleRegistration = async () => {
     const username = name.trim().toLowerCase().replace(" ", "_");
-    const role = "agent"
     const userData = { username, name, email, password};
     await registerUser(userData);
     navigate("/login");
