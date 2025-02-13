@@ -21,7 +21,7 @@ CREATE TABLE accounts (
     fullname VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role ROLES
+    role ROLES DEFAULT 'user'
 );
 
 /* procedures*/
@@ -30,7 +30,7 @@ CREATE PROCEDURE create_account(
     fullname VARCHAR(255),
     email VARCHAR(255),
     password VARCHAR(255),
-    role ROLES
+    role ROLES DEFAULT 'user'
 )
 LANGUAGE SQL
 AS $$

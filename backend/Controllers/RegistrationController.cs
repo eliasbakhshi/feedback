@@ -29,16 +29,22 @@ namespace backend.Controllers
             {
                 var db = dbManager.connect();
                 var query = @$"CALL create_account('{registration.Username}', '{registration.FullName}', '{registration.Email}', '{registration.Password}', '{registration.Role}')";
-
-                dbManager.insert(db, query);
-                dbManager.close(db);
-
-                return Ok("User registered successfully");
+                
+                if (dbManager.insert(db, query))
+                {
+                    dbManager.close(db);
+                    return Ok("User registered successfully.");
+                }
+                else
+                {
+                    dbManager.close(db);
+                    return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; database error.");
+                }
             }
-            catch (Exception ex)
+            catch (NullReferenceException ex)
             {
                 _logger.LogError(ex, "An error occurred while registering a new user.");
-                return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; format was incorrect.");
+                return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; missing arguments.");
             }
         }
     }
