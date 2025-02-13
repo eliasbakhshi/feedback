@@ -10,9 +10,9 @@ export const mainApi = apiSlice.injectEndpoints({
             providesTags: ["User"],
             keepUnusedDataFor: 0,
         }),
-        registerUser: builder.mutation<any, { name: string; email: string; password: string }>({
+        registerUser: builder.mutation<any, {username: string; name: string; email: string; password: string; role: string; }>({
             query: (userData) => ({
-                url: "api/registration",
+                url: "http://localhost:5172/api/registration",
                 method: "POST",
                 body: userData,
                 headers: { "Content-Type": "application/json" } 
