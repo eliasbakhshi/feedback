@@ -2,10 +2,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRegisterUserMutation } from "../store/api/userApiSlice";
-
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Registration = () => {
-  const [name, setName] = useState("");
+  const [fullname, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -13,10 +14,25 @@ const Registration = () => {
   const [registerUser, { isLoading}] = useRegisterUserMutation();
 
   const handleRegistration = async () => {
-    const username = name.trim().toLowerCase().replace(" ", "_");
-    const userData = { username, name, email, password};
-    await registerUser(userData);
-    navigate("/login");
+    if (!fullname.trim() || !email.trim() || !password.trim()) {
+      toast.error("Alla fält måste fyllas i!", { position: "top-right" });
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.warning("Lösenordet måste vara minst 6 tecken långt!", { position: "top-right" });
+      return;
+    }
+    
+    try {
+      const username = fullname.trim().toLowerCase().replace(" ", "_");
+      const userData = { username, fullname, email, password };
+      await registerUser(userData);
+      toast.success(`Välkommen ${fullname}!`, { position: "top-right" });
+      navigate("/login");
+    } catch (error) {
+      toast.error("Något gick fel, försök igen!", { position: "top-right" });
+    }
   };
 
   return (
@@ -33,7 +49,7 @@ const Registration = () => {
           <input
             type="text"
             placeholder="Förnamn Efternamn"
-            value={name}
+            value={fullname}
             onChange={(e) => setName(e.target.value)}
             className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
