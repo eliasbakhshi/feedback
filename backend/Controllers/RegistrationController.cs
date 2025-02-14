@@ -14,7 +14,7 @@ namespace backend.Controllers
 {
     [Route("api/registration")]
     public class RegistrationController : Controller
-    {
+    {   
         DBManager dbManager = new DBManager();
         private readonly ILogger<RegistrationController> _logger;
 
@@ -22,7 +22,6 @@ namespace backend.Controllers
         {
             _logger = logger;
         }
-       
 
         [HttpPost]
         public IActionResult Register([FromBody] RegistrationModel registration)
@@ -48,6 +47,7 @@ namespace backend.Controllers
                 if (dbManager.insert(db, query))
                 {
                     dbManager.close(db);
+                    _logger.LogInformation($"User {registration.Email} registered successfully.");
                     return Ok("User registered successfully.");
                 }
                 else
