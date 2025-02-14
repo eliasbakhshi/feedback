@@ -8,12 +8,12 @@ using backend.UserDataAccess;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-
+                                    
 namespace backend.Controllers
 {
     [Route("api/registration")]
     public class RegistrationController : Controller
-    {
+    {   
         DBManager dbManager = new DBManager();
         private readonly ILogger<RegistrationController> _logger;
 
@@ -28,11 +28,12 @@ namespace backend.Controllers
             try
             {
                 var db = dbManager.connect();
-                var query = @$"CALL create_account('{registration.Username}', '{registration.FullName}', '{registration.Email}', '{registration.Password}', '{registration.Role}')";
+                var query = @$"CALL create_account('{registration.FullName}', '{registration.Email}', '{registration.Password}', '{registration.Role}')";
                 
                 if (dbManager.insert(db, query))
                 {
                     dbManager.close(db);
+                    _logger.LogInformation($"User {registration.Email} registered successfully.");
                     return Ok("User registered successfully.");
                 }
                 else
