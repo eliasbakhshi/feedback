@@ -33,12 +33,13 @@ namespace backend.Controllers
                 string checkEmail = $"SELECT COUNT(*) FROM accounts WHERE email = '{registration.Email}';";
                 using (var check = new NpgsqlCommand(checkEmail, db))
                 {
-                    bool exists = (long)check.ExecuteScalar() > 0; 
+                    var result = check.ExecuteScalar() as long?;
+                    bool exists = result.HasValue && result.Value > 0;
 
                     if (exists)
                     {
                         dbManager.close(db);
-                        return StatusCode(StatusCodes.Status400BadRequest, "User already exists.");
+                        return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; user already exists.");
                     }
                 }
 
