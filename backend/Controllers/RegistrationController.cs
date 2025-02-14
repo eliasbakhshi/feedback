@@ -30,19 +30,19 @@ namespace backend.Controllers
             {
                 var db = dbManager.connect();
 
-                string checkUser = "SELECT COUNT(*) FROM accounts WHERE username = @Username;";
-                using (var check = new NpgsqlCommand(checkUser, db))
+                string checkEmail = $"SELECT COUNT(*) FROM accounts WHERE email = '{registration.Email}';";
+                using (var check = new NpgsqlCommand(checkEmail, db))
                 {
                     bool exists = (long)check.ExecuteScalar() > 0; 
 
                     if (exists)
                     {
                         dbManager.close(db);
-                        return StatusCode(StatusCodes.Status400BadRequest, "Username already exists.");
+                        return StatusCode(StatusCodes.Status400BadRequest, "User already exists.");
                     }
                 }
 
-                var query = @$"CALL create_account('{registration.Username}', '{registration.FullName}', '{registration.Email}', '{registration.Password}', '{registration.Role}')";
+                var query = @$"CALL create_account('{registration.FullName}', '{registration.Email}', '{registration.Password}', '{registration.Role}')";
                 
                 if (dbManager.insert(db, query))
                 {
