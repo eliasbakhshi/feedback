@@ -8,6 +8,7 @@ using backend.UserDataAccess;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 
 namespace backend.Controllers
 {
@@ -21,6 +22,7 @@ namespace backend.Controllers
         {
             _logger = logger;
         }
+       
 
         [HttpPost]
         public IActionResult Register([FromBody] RegistrationModel registration)
@@ -28,6 +30,19 @@ namespace backend.Controllers
             try
             {
                 var db = dbManager.connect();
+
+                string checkUser = "SELECT COUNT(*) FROM accounts WHERE username = @Username;";
+                using (var check = new NpgsqlCommand(checkUser, db))
+                {
+                    bool exists = (long)check.ExecuteScalar() > 0; 
+
+                    if (exists)
+                    {
+                        dbManager.close(db);
+                        return StatusCode(StatusCodes.Status400BadRequest, "Username already exists.");
+                    }
+                }
+
                 var query = @$"CALL create_account('{registration.Username}', '{registration.FullName}', '{registration.Email}', '{registration.Password}', '{registration.Role}')";
                 
                 if (dbManager.insert(db, query))
