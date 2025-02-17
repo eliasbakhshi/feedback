@@ -1,5 +1,6 @@
 DROP PROCEDURE IF EXISTS create_account;
 
+
 CREATE PROCEDURE create_account(
     fullname VARCHAR(255),
     email VARCHAR(255),

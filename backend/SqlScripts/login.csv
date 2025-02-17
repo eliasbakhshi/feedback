@@ -1,3 +1,3 @@
-id,fullname,email,password,role
-1,Ahmad Darwich,ahmad@gmail.com,123,admin
-2,AndyGud,samuel@gmail.com,1234,admin
+fullname,email,password,role
+Ahmad Darwich,ahmad@gmail.com,123,admin
+AndyGud,samuel@gmail.com,1234,admin

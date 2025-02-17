@@ -22,3 +22,4 @@ CREATE TABLE accounts (
     role ROLES DEFAULT 'operator'
 );
 
+\i procedures.sql
