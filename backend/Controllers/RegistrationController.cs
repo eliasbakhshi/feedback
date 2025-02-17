@@ -27,31 +27,32 @@ namespace backend.Controllers
         {
             try
             {
-                var db = dbManager.connect();
-
-                string checkEmail = $"SELECT COUNT(*) FROM accounts WHERE email = '{registration.Email}';";
-                var check = dbManager.select(db, checkEmail);
-                var result = check.FirstOrDefault()?["count"] as long?;
-                bool exists = result.HasValue && result.Value > 0;
-
-                if (exists)
+                using (var dbCheck = dbManager.connect())
                 {
-                    dbManager.close(db);
-                    return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; user already exists.");
+                    string checkEmail = $"SELECT COUNT(*) FROM accounts WHERE email = '{registration.Email}';";
+                    var check = dbManager.select(dbCheck, checkEmail);
+                    var result = check.FirstOrDefault()?["count"] as long?;
+                    bool exists = result.HasValue && result.Value > 0;
+
+                    if (exists)
+                    {
+                        return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; user already exists.");
+                    }
                 }
 
-                var query = @$"CALL create_account('{registration.FullName}', '{registration.Email}', '{registration.Password}', '{registration.Role}')";
-                
-                if (dbManager.insert(db, query))
+                using (var dbInsert = dbManager.connect())
                 {
-                    dbManager.close(db);
-                    _logger.LogInformation($"User {registration.Email} registered successfully.");
-                    return Ok("User registered successfully.");
-                }
-                else
-                {
-                    dbManager.close(db);
-                    return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; database error.");
+                    var query = @$"CALL create_account('{registration.FullName}', '{registration.Email}', '{registration.Password}', '{registration.Role}')";
+                    
+                    if (dbManager.insert(dbInsert, query))
+                    {
+                        _logger.LogInformation($"User {registration.Email} registered successfully.");
+                        return Ok("User registered successfully.");
+                    }
+                    else
+                    {
+                        return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; database error.");
+                    }
                 }
             }
             catch (NullReferenceException ex)
