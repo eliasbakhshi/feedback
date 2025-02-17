@@ -8,7 +8,6 @@ using backend.UserDataAccess;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Npgsql;
 
 namespace backend.Controllers
 {
@@ -31,16 +30,14 @@ namespace backend.Controllers
                 var db = dbManager.connect();
 
                 string checkEmail = $"SELECT COUNT(*) FROM accounts WHERE email = '{registration.Email}';";
-                using (var check = new NpgsqlCommand(checkEmail, db))
-                {
-                    var result = check.ExecuteScalar() as long?;
-                    bool exists = result.HasValue && result.Value > 0;
+                var check = dbManager.select(db, checkEmail);
+                var result = check.FirstOrDefault()?["count"] as long?;
+                bool exists = result.HasValue && result.Value > 0;
 
-                    if (exists)
-                    {
-                        dbManager.close(db);
-                        return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; user already exists.");
-                    }
+                if (exists)
+                {
+                    dbManager.close(db);
+                    return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; user already exists.");
                 }
 
                 var query = @$"CALL create_account('{registration.FullName}', '{registration.Email}', '{registration.Password}', '{registration.Role}')";
