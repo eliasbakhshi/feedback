@@ -2,7 +2,6 @@
 DROP DATABASE IF EXISTS feedbacker;
 DROP ROLE IF EXISTS dbadm;
 DROP TABLE IF EXISTS accounts;
-DROP PROCEDURE IF EXISTS create_account;
 DROP EXTENSION IF EXISTS pgcrypto;
 
 CREATE DATABASE feedbacker;
@@ -23,15 +22,3 @@ CREATE TABLE accounts (
     role ROLES DEFAULT 'operator'
 );
 
-/* procedures*/
-CREATE PROCEDURE create_account(
-    fullname VARCHAR(255),
-    email VARCHAR(255),
-    password VARCHAR(255),
-    role ROLES DEFAULT 'operator'
-)
-LANGUAGE SQL
-AS $$
-    INSERT INTO accounts (fullname, email, password, role)
-    VALUES (fullname, email, crypt(password, gen_salt('bf')), role::ROLES);
-$$;

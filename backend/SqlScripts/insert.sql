@@ -1,0 +1,1 @@
+\copy accounts FROM '/home/ahda23/feedback/backend/SqlScripts/login.csv' DELIMITER ',' CSV HEADER;
