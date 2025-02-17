@@ -30,8 +30,7 @@ const Registration = () => {
     }
     
     try {
-      const username = fullname.trim().toLowerCase().replace(" ", "_");
-      const userData = { username, fullname, email, password };
+      const userData = {fullname, email, password };
       await registerUser(userData);
       toast.success(`Välkommen ${fullname}!`, { position: "top-right" });
       navigate("/login");
