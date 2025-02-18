@@ -37,6 +37,7 @@ namespace backend.Controllers
                     return Unauthorized("Invalid email or password");
 
                 var userData = user[0];
+                _logger.LogInformation($"User with email {loginCredentials.Email} logged in.");
                 return Ok(new
                 {
                     Message = "Login successful",
