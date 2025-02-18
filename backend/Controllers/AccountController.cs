@@ -51,16 +51,33 @@ namespace backend.Controllers
         {
             try
             {
-                var db = dbManager.connect();
-                var query = $"UPDATE accounts SET password = crypt('{updatePasswordRequest.NewPassword}', gen_salt('bf')) WHERE id = {updatePasswordRequest.UserId};";
-
-                int affectedRows = dbManager.update(db, query);
-                dbManager.close(db);
-
-                if (affectedRows == 0)
+                if (updatePasswordRequest.CurrentPassword == updatePasswordRequest.NewPassword)
                 {
-                    return NotFound("User not found.");
+                    return BadRequest("New password must be different from the current password.");
                 }
+
+                using (var dbCheck = dbManager.connect())
+                {    
+                    var passwordQuery = $"SELECT password FROM accounts WHERE password = crypt('{updatePasswordRequest.CurrentPassword}', password);";
+                    var passwordResult = dbManager.select(dbCheck, passwordQuery);
+                    if (passwordResult.Count == 0)
+                    {
+                        return Unauthorized("Invalid password.");
+                    }
+                }
+
+                using (var dbUpdate = dbManager.connect())
+                {
+                    var query = $"UPDATE accounts SET password = crypt('{updatePasswordRequest.NewPassword}', gen_salt('bf')) WHERE id = {updatePasswordRequest.UserId};";
+
+                    int affectedRows = dbManager.update(dbUpdate, query);
+                    dbManager.close(dbUpdate);
+
+                    if (affectedRows == 0)
+                    {
+                        return NotFound("User not found.");
+                    }
+                }  
 
                 _logger.LogInformation($"Password updated for user with ID {updatePasswordRequest.UserId}.");
                 return Ok("Password updated successfully.");
@@ -68,7 +85,7 @@ namespace backend.Controllers
             catch (NullReferenceException ex)
             {
                 _logger.LogError(ex, "An error occurred while updating user password.");
-                return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; database error.");
+                return StatusCode(StatusCodes.Status400BadRequest, "Failed to update password; missing arguments.");
             }
             catch (Exception ex)
             {
