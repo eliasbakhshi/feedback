@@ -64,10 +64,15 @@ namespace backend.Controllers
 
                 return Ok("Password updated successfully.");
             }
+            catch (NullReferenceException ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating user password.");
+                return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; database error.");
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while updating user password.");
-                return StatusCode(500, "Failed to update user password.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to update user password.");
             }
         }
     }
