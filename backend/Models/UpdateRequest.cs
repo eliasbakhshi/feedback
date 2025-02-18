@@ -5,9 +5,10 @@ using System.Threading.Tasks;
 
 namespace backend.Models
 {
-    public class UpdatePasswordRequest
+    public class UpdateRequest
     {
-        public string? NewPassword { get; set; }
         public int UserId { get; set; }
+        public string? NewPassword { get; set; }
+        public string? NewName { get; set; }
     }
 }

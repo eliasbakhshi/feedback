@@ -47,7 +47,7 @@ namespace backend.Controllers
         }
 
         [HttpPut("update-password")]
-        public IActionResult UpdatePassword([FromBody] UpdatePasswordRequest updatePasswordRequest)
+        public IActionResult UpdatePassword([FromBody] UpdateRequest updatePasswordRequest)
         {
             try
             {
@@ -62,6 +62,7 @@ namespace backend.Controllers
                     return NotFound("User not found.");
                 }
 
+                _logger.LogInformation($"Password updated for user with ID {updatePasswordRequest.UserId}.");
                 return Ok("Password updated successfully.");
             }
             catch (NullReferenceException ex)
@@ -73,6 +74,37 @@ namespace backend.Controllers
             {
                 _logger.LogError(ex, "An error occurred while updating user password.");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to update user password.");
+            }
+        }
+
+        [HttpPut("update-name")]
+        public IActionResult UpdateName([FromBody] UpdateRequest updateNameRequest)
+        {
+            try
+            {
+                var db = dbManager.connect();
+                var query = $"UPDATE accounts SET fullname = '{updateNameRequest.NewName}' WHERE id = {updateNameRequest.UserId};";
+
+                int affectedRows = dbManager.update(db, query);
+                dbManager.close(db);
+
+                if (affectedRows == 0)
+                {
+                    return NotFound("User not found.");
+                }
+
+                _logger.LogInformation($"User with ID {updateNameRequest.UserId} updated name to {updateNameRequest.NewName}.");
+                return Ok("Name updated successfully.");
+            }
+            catch (NullReferenceException ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating user name.");
+                return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; database error.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating user name.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to update user name.");
             }
         }
     }
