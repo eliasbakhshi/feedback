@@ -14,6 +14,7 @@ namespace backend.Controllers
     public class AccountController : Controller
     {
         DBManager dbManager = new DBManager();
+
         private readonly ILogger<AccountController> _logger;
 
         public AccountController(ILogger<AccountController> logger)
@@ -21,22 +22,21 @@ namespace backend.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        public IActionResult GetUser([FromBody] UserModel userModel)
+        [HttpGet("user/{id}")]
+        public IActionResult GetUser(int id)
         {
             try
             {
                 var db = dbManager.connect();
-                var query = $"SELECT * FROM accounts where id = {userModel.Id};";
+                var query = $"SELECT * FROM accounts where id = {id};";
                 var result = dbManager.select(db, query);
+                dbManager.close(db);
 
                 if (result.Count == 0)
                 {
-                    dbManager.close(db);
                     return NotFound("User not found.");
                 }
 
-                dbManager.close(db);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -46,7 +46,7 @@ namespace backend.Controllers
             }
         }
 
-        [HttpPost("update-password")]
+        [HttpPut("update-password")]
         public IActionResult UpdatePassword([FromBody] UpdatePasswordRequest updatePasswordRequest)
         {
             try
@@ -54,13 +54,14 @@ namespace backend.Controllers
                 var db = dbManager.connect();
                 var query = $"UPDATE accounts SET password = crypt('{updatePasswordRequest.NewPassword}', gen_salt('bf')) WHERE id = {updatePasswordRequest.UserId};";
 
-                if (!dbManager.insert(db, query))
+                int affectedRows = dbManager.update(db, query);
+                dbManager.close(db);
+
+                if (affectedRows == 0)
                 {
-                    dbManager.close(db);
                     return NotFound("User not found.");
                 }
 
-                dbManager.close(db);
                 return Ok("Password updated successfully.");
             }
             catch (Exception ex)
