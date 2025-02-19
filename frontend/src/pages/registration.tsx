@@ -31,11 +31,20 @@ const Registration = () => {
     
     try {
       const userData = {fullname, email, password };
-      await registerUser(userData);
-      toast.success(`Välkommen ${fullname}!`, { position: "top-right" });
-      navigate("/login");
-    } catch (error) {
-      toast.error("Något gick fel, försök igen!", { position: "top-right" });
+      await registerUser(userData).unwrap();
+    } catch (error: any) {
+      const errorMessage = error.originalStatus;
+      switch (errorMessage) {
+        case 200:
+          toast.success(`Välkommen ${fullname}!`, { position: "top-right" });
+          navigate("/login");
+          break;
+        case 400:
+          toast.error("Användaren finns redan!", { position: "top-right" });
+          break;
+        default:
+          toast.error("Något gick fel!", { position: "top-right" });  
+    }
     }
   };
 
