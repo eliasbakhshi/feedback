@@ -46,7 +46,7 @@ namespace backend.Controllers
             }
         }
 
-        [HttpPut("update-password")]
+        [HttpPut("user/update-password")]
         public IActionResult UpdatePassword([FromBody] UpdateRequest updatePasswordRequest)
         {
             try
@@ -94,7 +94,7 @@ namespace backend.Controllers
             }
         }
 
-        [HttpPut("update-name")]
+        [HttpPut("user/update-name")]
         public IActionResult UpdateName([FromBody] UpdateRequest updateNameRequest)
         {
             try
