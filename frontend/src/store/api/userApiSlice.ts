@@ -1,3 +1,4 @@
+import { stringify } from "querystring";
 import apiSlice from "./apiSlice";
 
 export const mainApi = apiSlice.injectEndpoints({
@@ -20,6 +21,32 @@ export const mainApi = apiSlice.injectEndpoints({
             invalidatesTags: ["User"],
 
         }),
+        getAccountInfo: builder.query<any, number>({
+            query: (id) => ({
+                url: `http://localhost:5172/api/account/user/${id}`,
+                method: "GET",
+                headers: { "Content-Type": "application/json" } 
+            }),
+            providesTags: ["User"],
+        }),
+        updatePassword: builder.mutation<any, { UserId: string; CurrentPassword: string; NewPassword: string }>({
+            query: (userData) => ({
+                url: "http://localhost:5172/api/account/user/update-password",
+                method: "PUT",
+                body: userData,
+                headers: { "Content-Type": "application/json" } 
+            }),
+            invalidatesTags: ["User"],
+        }),
+        updateName: builder.mutation<any, {UserId: string; NewName: string}>({
+            query: (userData) => ({
+                url: "http://localhost:5172/api/account/user/update-name",
+                method: "PUT",
+                body: userData,
+                headers: { "Content-Type": "application/json" } 
+            }),
+            invalidatesTags: ["User"],
+        }),
 
         // createUser: builder.mutation<any, any>({
         //   query: (info) => ({
@@ -35,5 +62,8 @@ export const mainApi = apiSlice.injectEndpoints({
 export const {
     useGetUsersQuery,
     useRegisterUserMutation,
+    useGetAccountInfoQuery,
+    useUpdatePasswordMutation,
+    useUpdateNameMutation,
     // useCreateUserMutation,
 } = mainApi;
