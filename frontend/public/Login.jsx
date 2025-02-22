@@ -12,32 +12,47 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <img
-          src="public/TV_logo_Horisontal_rod_RGB.png"
-          alt="logo"
-          className="logo"
-        />
-        <div className="login-form">
-          <h1 className="form-title">Login</h1>
-          <p className="form-subtitle">Email</p>
+    <div className="flex justify-center items-center min-h-screen bg-gray-900 bg-cover bg-center"
+        style={{ backgroundImage: "url('/src/images/image.png')" }}>
+      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+        
+        {/* Trafikverket Logotyp */}
+        <div className="flex justify-center mb-6">
+          <img
+            src="/TV_logo_Horisontal_rod_RGB.png"
+            alt="Trafikverket Logo"
+            className="w-40"
+          />
+        </div>
+
+        {/* Login Form */}
+        <div className="flex flex-col">
+          <h1 className="text-2xl font-bold text-red-600 text-center mb-4">
+            Login
+          </h1>
+
+          <label className="text-gray-700 font-medium mb-1">Email</label>
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
+            className="border border-gray-300 rounded-lg p-2 mb-3 w-full focus:ring-2 focus:ring-red-400"
           />
-          <p className="form-subtitle">Password</p>
+
+          <label className="text-gray-700 font-medium mb-1">Password</label>
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            style={{ width: "100%", padding: "8px" }}
+            className="border border-gray-300 rounded-lg p-2 mb-4 w-full focus:ring-2 focus:ring-red-400"
           />
-          <button className="login-btn" onClick={handleLogin}>
+
+          <button
+            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition"
+            onClick={handleLogin}
+          >
             Login
           </button>
         </div>
