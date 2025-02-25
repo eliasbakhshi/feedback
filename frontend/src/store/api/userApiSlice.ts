@@ -12,7 +12,7 @@ export const mainApi = apiSlice.injectEndpoints({
         }),
         registerUser: builder.mutation<any, {fullname: string; email: string; password: string;}>({
             query: (userData) => ({
-                url: "http://localhost:5172/api/registration",
+                url: "/api/registration",
                 method: "POST",
                 body: userData,
                 headers: { "Content-Type": "application/json" } 

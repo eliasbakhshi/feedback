@@ -49,7 +49,7 @@ const Registration = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen bg-[url('./public/highway.jpg')] bg-cover bg-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <img
           src="/TV_logo_Horisontal_rod_RGB.png"
@@ -64,7 +64,7 @@ const Registration = () => {
             placeholder="Förnamn Efternamn"
             value={fullname}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-zinc-900 focus:outline-none"
           />
           <p className="block text-sm font-medium text-gray-600">Email</p>
           <input
@@ -72,7 +72,7 @@ const Registration = () => {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-zinc-900 focus:outline-none"
           />
           <p className="block text-sm font-medium text-gray-600">Lösenord</p>
           <input
@@ -80,9 +80,9 @@ const Registration = () => {
             placeholder="Lösenord"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-zinc-900 focus:outline-none"
           />
-          <button className="w-20 py-2 mt-4 text-white bg-red-600 rounded-lg hover:bg-red-700 transition duration-300" onClick={handleRegistration} disabled={isLoading}>
+          <button className="w-24 py-2 mt-4 text-white bg-red-600 rounded-lg hover:bg-red-700 transition duration-300" onClick={handleRegistration} disabled={isLoading}>
             Registrera
           </button>
         </div>
