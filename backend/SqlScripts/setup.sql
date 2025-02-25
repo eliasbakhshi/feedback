@@ -1,11 +1,16 @@
 /* factory reset*/
-DROP DATABASE IF EXISTS feedbacker;
+
+
 DROP ROLE IF EXISTS dbadm;
 DROP TABLE IF EXISTS accounts;
 DROP PROCEDURE IF EXISTS create_account;
 DROP EXTENSION IF EXISTS pgcrypto;
 
+\c postgres
+DROP DATABASE IF EXISTS feedbacker;
+
 CREATE DATABASE feedbacker;
+\c feedbacker
 
 CREATE ROLE dbadm LOGIN PASSWORD 'dbadm';
 ALTER ROLE dbadm WITH SUPERUSER;
