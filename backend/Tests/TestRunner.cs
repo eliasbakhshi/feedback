@@ -20,14 +20,12 @@ namespace backend.Tests
             if (!TestDatabaseConnection(dbManager))
             {
                 allTestOK = false;
-                Console.WriteLine("Database connection failed");
                 return;
             }
 
             if (!TestRegistrationController(dbManager))
             {
                 allTestOK = false;
-                Console.WriteLine("Registration controller failed");
                 return;
             }
 
@@ -45,59 +43,47 @@ namespace backend.Tests
                 var db = dbManager.connect();
 
                 if (db.State == System.Data.ConnectionState.Open)
-                {
                     okTest = true;
-                }
-                else
-                {
-                    okTest = false;
-                }
-                    
+
             }
             catch (Exception e)
             {
                 okTest = false;
-                Console.WriteLine(e.Message);
+                Console.WriteLine("Database connection failed: " + e.Message);
             }
             return okTest;
         }
 
-    private static bool TestRegistrationController(DBManager dbManager)
-    {
-        bool okTest = false;
-
-        try
+        private static bool TestRegistrationController(DBManager dbManager)
         {
-            var mockLogger = new Mock<ILogger<RegistrationController>>();
+            bool okTest = false;
 
-            RegistrationController registrationController = new RegistrationController(mockLogger.Object);
-            
-            RegistrationModel registration = new RegistrationModel
+            try
             {
-                FullName = "Test User",
-                Email = "test.user10@testmail.com",
-                Password = "password"
-            };
+                var mockLogger = new Mock<ILogger<RegistrationController>>();
 
-            var result = registrationController.Register(registration);
+                RegistrationController registrationController = new RegistrationController(mockLogger.Object);
 
-            if (result is ObjectResult objectResult)
-            {
-                if (objectResult.StatusCode == 200)
+                RegistrationModel registration = new RegistrationModel
                 {
-                    Console.WriteLine($"Message from RegistrationController: {objectResult.Value}");
-                    okTest = true;
+                    FullName = "Test User",
+                    Email = "test.user10@testmail.com",
+                    Password = "password"
+                };
+
+                var result = registrationController.Register(registration);
+
+                if (result is ObjectResult objectResult)
+                {
+                    if (objectResult.StatusCode == 200)
+                        okTest = true;
+                    else
+                        Console.WriteLine($"Registration controller failed: {objectResult.Value}");
                 }
                 else
                 {
-                    Console.WriteLine($"Error message from RegistrationController: {objectResult.Value}");
                     okTest = false;
                 }
-            }
-            else
-            {
-                okTest = false;
-            }
             }
             catch (Exception e)
             {
@@ -105,7 +91,7 @@ namespace backend.Tests
                 Console.WriteLine(e.Message);
             }
 
-        return okTest;
+            return okTest;
         }
     }
 }

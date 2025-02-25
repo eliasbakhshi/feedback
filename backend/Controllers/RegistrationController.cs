@@ -13,7 +13,7 @@ namespace backend.Controllers
 {
     [Route("api/registration")]
     public class RegistrationController : Controller
-    {   
+    {
         DBManager dbManager = new DBManager();
         private readonly ILogger<RegistrationController> _logger;
 
@@ -43,16 +43,11 @@ namespace backend.Controllers
                 using (var dbInsert = dbManager.connect())
                 {
                     var query = @$"CALL create_account('{registration.FullName}', '{registration.Email}', '{registration.Password}', '{registration.Role}')";
-                    
+
                     if (dbManager.insert(dbInsert, query))
-                    {
-                        _logger.LogInformation($"User {registration.Email} registered successfully.");
                         return Ok("User registered successfully.");
-                    }
                     else
-                    {
                         return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; database error.");
-                    }
                 }
             }
             catch (NullReferenceException ex)
