@@ -20,13 +20,16 @@ namespace backend.Tests
             if (!TestDatabaseConnection(dbManager))
             {
                 allTestOK = false;
-                return;
             }
 
-            if (!TestRegistrationController(dbManager))
+            if (!TestRegistrationController())
             {
                 allTestOK = false;
-                return;
+            }
+
+            if (!TestLoginController(dbManager))
+            {
+                allTestOK = false;
             }
 
 
@@ -44,7 +47,6 @@ namespace backend.Tests
 
                 if (db.State == System.Data.ConnectionState.Open)
                     okTest = true;
-
             }
             catch (Exception e)
             {
@@ -54,7 +56,7 @@ namespace backend.Tests
             return okTest;
         }
 
-        private static bool TestRegistrationController(DBManager dbManager)
+        private static bool TestRegistrationController()
         {
             bool okTest = false;
 
@@ -88,7 +90,63 @@ namespace backend.Tests
             catch (Exception e)
             {
                 okTest = false;
-                Console.WriteLine(e.Message);
+                Console.WriteLine("Registration exception: " + e.Message);
+            }
+
+            return okTest;
+        }
+
+        private static bool TestLoginController(DBManager dbManager)
+        {
+            bool okTest = false;
+
+            try
+            {
+                var mockLogger = new Mock<ILogger<LoginController>>();
+
+                LoginController loginController = new LoginController(mockLogger.Object);
+
+                LoginModel correctLogin = new LoginModel
+                {
+                    Email = "test.user10@testmail.com",
+                    Password = "password"
+                };
+
+                var resultCorrectLogin = loginController.Login(correctLogin);
+
+                if (resultCorrectLogin is ObjectResult objectResult) // expect correct login
+                {
+                    if (objectResult.StatusCode == 200)
+                        okTest = true;
+                    else
+                        Console.WriteLine($"LoginController failed, expected objectResult.StatusCode == 200 but got: {objectResult.Value}");
+                }
+                else
+                    okTest = false;
+
+
+                LoginModel incorrectLogin = new LoginModel
+                {
+                    Email = "test.user10@mail",
+                    Password = "possword"
+                };
+
+                var resultIncorrectLogin = loginController.Login(incorrectLogin);
+
+                if (resultIncorrectLogin is ObjectResult objectResult2) // expect incorrect login
+                {
+                    if (objectResult2.StatusCode == 401)
+                        okTest = true;
+                    else
+                        Console.WriteLine($"LoginController failed, expected objectResult.StatusCode == 401 but got: {objectResult2.Value}");
+                }
+                else
+                    okTest = false;
+            }
+            catch (Exception e)
+            {
+                okTest = false;
+                Console.WriteLine("Login exception: " + e.Message);
             }
 
             return okTest;
