@@ -13,7 +13,7 @@ export const mainApi = apiSlice.injectEndpoints({
         }),
         registerUser: builder.mutation<any, {fullname: string; email: string; password: string;}>({
             query: (userData) => ({
-                url: "http://localhost:5172/api/registration",
+                url: "/api/registration",
                 method: "POST",
                 body: userData,
                 headers: { "Content-Type": "application/json" } 
@@ -23,7 +23,7 @@ export const mainApi = apiSlice.injectEndpoints({
         }),
         getAccountInfo: builder.query<any, number>({
             query: (id) => ({
-                url: `http://localhost:5172/api/account/user/${id}`,
+                url: `/api/account/user/${id}`,
                 method: "GET",
                 headers: { "Content-Type": "application/json" } 
             }),
@@ -31,7 +31,7 @@ export const mainApi = apiSlice.injectEndpoints({
         }),
         updatePassword: builder.mutation<any, { UserId: string; CurrentPassword: string; NewPassword: string }>({
             query: (userData) => ({
-                url: "http://localhost:5172/api/account/user/update-password",
+                url: "/api/account/user/update-password",
                 method: "PUT",
                 body: userData,
                 headers: { "Content-Type": "application/json" } 
@@ -40,7 +40,7 @@ export const mainApi = apiSlice.injectEndpoints({
         }),
         updateName: builder.mutation<any, {UserId: string; NewName: string}>({
             query: (userData) => ({
-                url: "http://localhost:5172/api/account/user/update-name",
+                url: "/api/account/user/update-name",
                 method: "PUT",
                 body: userData,
                 headers: { "Content-Type": "application/json" } 
