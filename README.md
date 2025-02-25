@@ -39,9 +39,14 @@ Ensure you have the following installed on your machine:
     npm install
     ```
 
-3. Go to the main folder and start the application:
+3. Go to the root and install packages:
     ```sh
     cd ..
+    npm install
+    ```
+
+4. Start application:
+    ```sh
     npm start
     ```
 
