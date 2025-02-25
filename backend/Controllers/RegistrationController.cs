@@ -13,7 +13,7 @@ namespace backend.Controllers
 {
     [Route("api/registration")]
     public class RegistrationController : Controller
-    {
+    {   
         DBManager dbManager = new DBManager();
         private readonly ILogger<RegistrationController> _logger;
 
@@ -27,18 +27,38 @@ namespace backend.Controllers
         {
             try
             {
-                var db = dbManager.connect();
-                var query = @$"CALL create_account('{registration.Username}', '{registration.FullName}', '{registration.Email}', '{registration.Password}', '{registration.Role}')";
+                using (var dbCheck = dbManager.connect())
+                {
+                    string checkEmail = $"SELECT COUNT(*) FROM accounts WHERE email = '{registration.Email}';";
+                    var check = dbManager.select(dbCheck, checkEmail);
+                    var result = check.FirstOrDefault()?["count"] as long?;
+                    bool exists = result.HasValue && result.Value > 0;
 
-                dbManager.insert(db, query);
-                dbManager.close(db);
+                    if (exists)
+                    {
+                        return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; user already exists.");
+                    }
+                }
 
-                return Ok("User registered successfully");
+                using (var dbInsert = dbManager.connect())
+                {
+                    var query = @$"CALL create_account('{registration.FullName}', '{registration.Email}', '{registration.Password}', '{registration.Role}')";
+                    
+                    if (dbManager.insert(dbInsert, query))
+                    {
+                        _logger.LogInformation($"User {registration.Email} registered successfully.");
+                        return Ok("User registered successfully.");
+                    }
+                    else
+                    {
+                        return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; database error.");
+                    }
+                }
             }
-            catch (Exception ex)
+            catch (NullReferenceException ex)
             {
                 _logger.LogError(ex, "An error occurred while registering a new user.");
-                return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; format was incorrect.");
+                return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; missing arguments.");
             }
         }
     }
