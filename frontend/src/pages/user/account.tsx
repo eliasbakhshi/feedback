@@ -61,13 +61,12 @@ const Account = () => {
 
     try {
       await updatePassword({ UserId: "1", CurrentPassword: currentPassword, NewPassword: newPassword }).unwrap();
+      toast.success("Lösenord uppdaterad!", { position: "top-right" });
+      setIsEditingPassword(false);
     } catch (error: any) {
+      console.log("error", error);
       const statusCode = error?.originalStatus;
       switch (statusCode) {
-        case 200:
-          toast.success("Lösenord uppdaterad!", { position: "top-right" });
-          setIsEditingPassword(false);
-          break;
         case 400:
           toast.error("Ditt nya lösenord får inte vara samma som ditt gamla!", { position: "top-right" });
           break;
@@ -106,7 +105,7 @@ const Account = () => {
                   <p className="text-lg font-medium text-gray-600">Namn</p>
                   <img 
                     src="/pen.png" 
-                    alt="edit" 
+                    alt="edit name" 
                     className="w-5 cursor-pointer" 
                     onClick={() => setIsEditingName(!isEditingName)}
                   />
@@ -117,6 +116,7 @@ const Account = () => {
                     value={fullname} 
                     onChange={(e) => setFullname(e.target.value)}
                     className="w-full p-2 border rounded-md"
+                    aria-label="Namn"
                   />
                 ) : (
                   <p className="text-sm font-medium text-gray-600">{fullname}</p>
@@ -135,7 +135,7 @@ const Account = () => {
                   <p className="text-lg font-medium text-gray-600 mt-2">Nuvarande lösenord</p>
                   <img 
                     src="/pen.png" 
-                    alt="edit" 
+                    alt="edit password" 
                     className="w-5 cursor-pointer" 
                     onClick={() => setIsEditingPassword(!isEditingPassword)}
                   />
@@ -143,9 +143,10 @@ const Account = () => {
                 {isEditingPassword ? (
                   <input 
                     type="password" 
-                    value={currentPassword} 
+                    value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     className="w-full p-2 border rounded-md"
+                    aria-label="Nuvarande lösenord"
                   />
                 ) : (
                   <p className="text-sm font-medium text-gray-600 mt-2">**********</p>
@@ -162,6 +163,7 @@ const Account = () => {
                       value={newPassword} 
                       onChange={(e) => setNewPassword(e.target.value)}
                       className="w-full p-2 border rounded-md"
+                      aria-label="Nytt lösenord"
                     />
                   </div>
                   <div className="mt-2 mb-2">
@@ -171,6 +173,7 @@ const Account = () => {
                       value={confirmPassword} 
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       className="w-full p-2 border rounded-md"
+                      aria-label="Bekräfta lösenord"
                     />
                   </div>
                 </>
