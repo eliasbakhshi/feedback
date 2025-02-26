@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRegisterUserMutation } from "../store/api/userApiSlice";
@@ -32,19 +31,17 @@ const Registration = () => {
     try {
       const userData = {fullname, email, password };
       await registerUser(userData).unwrap();
+      toast.success(`Välkommen ${fullname}!`, { position: "top-right" });
+      navigate("/login");
     } catch (error: any) {
       const errorMessage = error.originalStatus;
       switch (errorMessage) {
-        case 200:
-          toast.success(`Välkommen ${fullname}!`, { position: "top-right" });
-          navigate("/login");
-          break;
         case 400:
           toast.error("Användaren finns redan!", { position: "top-right" });
           break;
         default:
           toast.error("Något gick fel!", { position: "top-right" });  
-    }
+      }
     }
   };
 
@@ -90,7 +87,5 @@ const Registration = () => {
     </div>
   );
 };
-
-  
 
 export default Registration;
