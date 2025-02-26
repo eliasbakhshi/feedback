@@ -1,28 +1,43 @@
-import React, { useState } from "react"; // This is a hook that allows us to store the user's state
-import { useNavigate } from "react-router-dom"; // This is a hook that allows us to navigate to different pages
-
-// A fake user object that we will use to simulate a user logging in
-const fakeUser = {
-  email: "test@example.com", // The user's email
-  password: "password", // The user's password
-};
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useLoginUserMutation } from "../store/api/userApiSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../store";
+import { setUser } from "../store/authSlice";
 
 const LoginPage: React.FC = () => {
-    const [email, setEmail] = useState(""); // The user's email
-    const [password, setPassword] = useState(""); // The user's password
-    const [error, setError] = useState(""); // The error message to display to the user
-    const navigate = useNavigate(); // The navigate function that we will use to navigate to different pages
+    const [email, setEmail] = useState<string>(""); // Typad state
+    const [password, setPassword] = useState<string>("");
+    const dispatch = useDispatch<AppDispatch>(); // Typad dispatch
+    const navigate = useNavigate();
 
-    const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+    const state = useSelector((state: RootState) => state);
+    console.log("Redux state:", state);
+    console.table(state);
+    // Hämta status från Redux store
+    // const { loading, error } = useSelector((state: RootState) => state.auth);
+
+    const { userId, role, loading, error } = useSelector((state: RootState) => state.auth) || {
+        userId: null,
+        role: null,
+        loading: false,
+        error: null
+    };
+
+
+    //Använd API-hook för inloggning
+    const [loginUser, { isLoading }] = useLoginUserMutation();
+
+
+    const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setError(""); // Clear the error message
 
-        // Simulate a login request
-        if (email === fakeUser.email && password === fakeUser.password) {
-            localStorage.setItem("token", "fakeToken"); // Save the token to local storage
-            navigate("/"); // Navigate to the home page
-        } else {
-            setError("Fel e-post eller lösenord"); // Set the error message
+        try {
+            const userData = await loginUser({ email, password }).unwrap();
+            dispatch(setUser(userData)); //Spara användaren i Redux
+            navigate("/"); // Omdirigera vid lyckad inloggning
+        } catch (err) {
+            console.error("Login failed:", err);
         }
     };
 
@@ -53,8 +68,9 @@ const LoginPage: React.FC = () => {
                         <button
                             type="submit"
                             className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition"
+                            disabled={loading} // Inaktivera knapp vid laddning
                         >
-                            Logga in
+                            {loading ? "Loggar in..." : "Logga in"}
                         </button>
                         {error && <p className="text-red-500 text-center mt-3">{error}</p>}
                 </form>
