@@ -1,4 +1,12 @@
-/* factory reset*/
+/* factory reset */
+DO $$
+BEGIN
+    PERFORM pg_terminate_backend(pg_stat_activity.pid)
+    FROM pg_stat_activity
+    WHERE pg_stat_activity.datname = 'feedbacker'
+      AND pid <> pg_backend_pid();
+END $$;
+
 DROP DATABASE IF EXISTS feedbacker;
 DROP ROLE IF EXISTS dbadm;
 DROP TABLE IF EXISTS accounts;
@@ -6,15 +14,22 @@ DROP EXTENSION IF EXISTS pgcrypto;
 
 CREATE DATABASE feedbacker;
 
+\c feedbacker
+
 CREATE ROLE dbadm LOGIN PASSWORD 'dbadm';
 ALTER ROLE dbadm WITH SUPERUSER;
 
-CREATE EXTENSION pgcrypto;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
-CREATE TYPE ROLES AS ENUM('admin', 'operator');
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'roles') THEN
+        CREATE TYPE ROLES AS ENUM('admin', 'operator');
+    END IF;
+END $$;
 
 /* tables */
-CREATE TABLE accounts (
+CREATE TABLE IF NOT EXISTS accounts (
     id SERIAL PRIMARY KEY,
     fullname VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
