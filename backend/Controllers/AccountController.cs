@@ -46,7 +46,7 @@ namespace backend.Controllers
             }
         }
 
-        [HttpPut("user/update-password")]
+        [HttpPut("update-password")]
         public IActionResult UpdatePassword([FromBody] UpdateRequest updatePasswordRequest)
         {
             try
@@ -58,12 +58,13 @@ namespace backend.Controllers
 
                 using (var dbCheck = dbManager.connect())
                 {    
-                    var passwordQuery = $"SELECT password FROM accounts WHERE password = crypt('{updatePasswordRequest.CurrentPassword}', password);";
+                    var passwordQuery = $"CALL update_password({updatePasswordRequest.UserId}, '{updatePasswordRequest.CurrentPassword}', '{updatePasswordRequest.NewPassword}');";
+
                     var passwordResult = dbManager.select(dbCheck, passwordQuery);
-                    if (passwordResult.Count == 0)
-                    {
-                        return Unauthorized("Invalid password.");
-                    }
+                    // if (passwordResult.Count == 0)
+                    // {
+                    //     return Unauthorized("Invalid password.");
+                    // }
                 }
 
                 using (var dbUpdate = dbManager.connect())
