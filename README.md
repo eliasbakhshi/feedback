@@ -39,7 +39,6 @@ Ensure you have the following installed on your machine:
     npm install
     ```
 
-<<<<<<< HEAD
 3. Go to the root and install packages:
     ```sh
     cd ..
@@ -48,11 +47,6 @@ Ensure you have the following installed on your machine:
 
 4. Start application:
     ```sh
-=======
-3. Go to the main folder and start the application:
-    ```sh
-    cd ..
->>>>>>> origin/loginpageDesign
     npm start
     ```
 
