@@ -10,7 +10,11 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
+<<<<<<< HEAD
         target: 'http://localhost:5172',
+=======
+        target: 'https://jsonplaceholder.typicode.com',
+>>>>>>> origin/loginpageDesign
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, '')

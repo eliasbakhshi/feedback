@@ -39,9 +39,6 @@ CREATE TABLE IF NOT EXISTS accounts (
     role ROLES DEFAULT 'operator'
 );
 
-<<<<<<< HEAD
-\i procedures.sql
-=======
 /* procedures*/
 CREATE PROCEDURE create_account(
     username VARCHAR(255),
@@ -68,4 +65,3 @@ AS $$
     WHERE email = user_email 
     AND password = crypt(user_password, password);
 $$;
->>>>>>> origin/loginAPI

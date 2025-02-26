@@ -4,7 +4,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Registration from './pages/registration';
 import Account from './pages/user/account';
-
+import LoginPage from './pages/loginPage.tsx';
 const App: React.FC = () => {
     return (
         <Router>
@@ -12,6 +12,7 @@ const App: React.FC = () => {
             <Routes>
                 <Route path="/registration" element={<Registration />} />
                 <Route path="/user/account" element={<Account />} />
+                <Route path="/login" element={<LoginPage />} />
             </Routes>
         </Router>
     );

@@ -9,7 +9,19 @@
     "start": "npx cross-env NODE_ENV=development concurrently \"npm run backend\" \"npm run frontend\""
   },
   "devDependencies": {
+<<<<<<< HEAD
     "concurrently": "^9.1.2",
     "cross-env":"^7.0.3"
+=======
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.2",
+    "postcss": "^8.5.2",
+    "tailwindcss": "^4.0.6"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.5.1",
+    "@tailwindcss/postcss": "^4.0.7",
+    "react-redux": "^9.2.0"
+>>>>>>> origin/loginpageDesign
   }
 }

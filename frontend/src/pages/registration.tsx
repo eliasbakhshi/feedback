@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRegisterUserMutation } from "../store/api/userApiSlice";
@@ -6,10 +7,21 @@ import "react-toastify/dist/ReactToastify.css";
 
 const Registration = () => {
   const [fullname, setName] = useState("");
+=======
+
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useRegisterUserMutation } from "../store/api/userApiSlice";
+
+
+const Registration = () => {
+  const [name, setName] = useState("");
+>>>>>>> origin/loginpageDesign
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+<<<<<<< HEAD
   const [registerUser, { isLoading}] = useRegisterUserMutation();
 
   const handleRegistration = async () => {
@@ -47,6 +59,17 @@ const Registration = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[url('./public/highway.jpg')] bg-cover bg-center">
+=======
+  const [registerUser, { isloading, error}] = useRegisterUserMutation();
+
+  const handleRegistration = () => {
+    alert(`Välkommen ${name}!`);
+    navigate("/login");
+  };
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+>>>>>>> origin/loginpageDesign
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <img
           src="/TV_logo_Horisontal_rod_RGB.png"
@@ -59,9 +82,15 @@ const Registration = () => {
           <input
             type="text"
             placeholder="Förnamn Efternamn"
+<<<<<<< HEAD
             value={fullname}
             onChange={(e) => setName(e.target.value)}
             className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-zinc-900 focus:outline-none"
+=======
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+>>>>>>> origin/loginpageDesign
           />
           <p className="block text-sm font-medium text-gray-600">Email</p>
           <input
@@ -69,7 +98,11 @@ const Registration = () => {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+<<<<<<< HEAD
             className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-zinc-900 focus:outline-none"
+=======
+            className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+>>>>>>> origin/loginpageDesign
           />
           <p className="block text-sm font-medium text-gray-600">Lösenord</p>
           <input
@@ -77,10 +110,17 @@ const Registration = () => {
             placeholder="Lösenord"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+<<<<<<< HEAD
             className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-zinc-900 focus:outline-none"
           />
           <button className="w-24 py-2 mt-4 text-white bg-red-600 rounded-lg hover:bg-red-700 transition duration-300" onClick={handleRegistration} disabled={isLoading}>
             Registrera
+=======
+            className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
+          <button className="w-20 py-2 mt-4 text-white bg-red-600 rounded-lg hover:bg-red-700 transition duration-300" onClick={handleRegistration}>
+            Logga in
+>>>>>>> origin/loginpageDesign
           </button>
         </div>
       </div>
@@ -88,4 +128,9 @@ const Registration = () => {
   );
 };
 
+<<<<<<< HEAD
+=======
+  
+
+>>>>>>> origin/loginpageDesign
 export default Registration;
