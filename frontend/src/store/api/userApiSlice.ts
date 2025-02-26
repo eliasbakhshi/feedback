@@ -46,7 +46,7 @@ export const mainApi = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ["User"],
         }),
-        login: builder.mutation<any, {UserId: string; Role: string}>({
+        login: builder.mutation<any, {email: string; password: string}>({
             query: (userData) => ({
               url: "/api/login",
               method: "POST",

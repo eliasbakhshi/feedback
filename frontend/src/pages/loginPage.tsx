@@ -17,18 +17,18 @@ const LoginPage = () => {
             return;
         }
         try {
-            const userData = { UserId: "1" , Role: "user" };
+            const userData = { email, password};
             await loginUser(userData).unwrap();
             toast.success("Välkommen!", { position: "top-right" });
             navigate("/user/account");
         } catch (error: any) {
-            const errorMessage = error.originalStatus;
-            switch (errorMessage) {
+            const errorMessage = error.data?.Message || "Något gick fel!";
+            switch (error.originalStatus) {
                 case 401:
                     toast.error("Fel e-post eller lösenord!", { position: "top-right" });
                     break;
                 default:
-                    toast.error("Något gick fel!", { position: "top-right" });
+                    toast.error(errorMessage, { position: "top-right" });
             }
         }
     };

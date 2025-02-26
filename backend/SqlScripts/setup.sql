@@ -10,8 +10,6 @@ END $$;
 DROP DATABASE IF EXISTS feedbacker;
 DROP ROLE IF EXISTS dbadm;
 DROP TABLE IF EXISTS accounts;
-DROP PROCEDURE IF EXISTS create_account;
-DROP FUNCTION IF EXISTS check_login_credentials;
 DROP EXTENSION IF EXISTS pgcrypto;
 
 CREATE DATABASE feedbacker;
@@ -39,7 +37,6 @@ CREATE TABLE IF NOT EXISTS accounts (
     role ROLES DEFAULT 'operator'
 );
 
-/* procedures*/
 CREATE PROCEDURE create_account(
     username VARCHAR(255),
     fullname VARCHAR(255),
@@ -53,6 +50,7 @@ AS $$
     VALUES (username, fullname, email, crypt(password, gen_salt('bf')), role::ROLES);
 $$;
 
+
 CREATE FUNCTION check_login_credentials(
     user_email VARCHAR(255),
     user_password VARCHAR(255)
@@ -65,3 +63,5 @@ AS $$
     WHERE email = user_email 
     AND password = crypt(user_password, password);
 $$;
+
+\i procedures.sql

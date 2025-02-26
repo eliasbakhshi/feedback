@@ -34,7 +34,7 @@ namespace backend.Controllers
                 var user = dbManager.select(db, query);
 
                 if (user == null || user.Count == 0)
-                    return Unauthorized("Invalid email or password");
+                    return Unauthorized(new { Message = "Invalid email or password" });
 
                 var userData = user[0];
                 _logger.LogInformation($"User with email {loginCredentials.Email} logged in.");
@@ -48,7 +48,7 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred when logging in.");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to login user.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Failed to login user." });
             }
         }
     }
