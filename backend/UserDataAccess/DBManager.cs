@@ -52,11 +52,10 @@ namespace backend.UserDataAccess
             return results;
         }
 
-<<<<<<< HEAD
         public bool insert(NpgsqlConnection db, string? query) // function for INSERT sql query
         {
             bool success = false;
-            try 
+            try
             {
                 var cmd = new NpgsqlCommand(query, db);
                 cmd.ExecuteNonQuery();
@@ -72,7 +71,7 @@ namespace backend.UserDataAccess
 
         public int update(NpgsqlConnection db, string? query) // function for UPDATE sql query
         {
-            try 
+            try
             {
                 var cmd = new NpgsqlCommand(query, db);
                 return cmd.ExecuteNonQuery();
@@ -82,12 +81,6 @@ namespace backend.UserDataAccess
                 Console.WriteLine("Bad input error: \n" + ex.Message);
                 return 0;
             }
-=======
-        public void insert(NpgsqlConnection db, string? query) // function for all SQL queries which are not SELECT
-        {
-            var cmd = new NpgsqlCommand(query, db);
-            cmd.ExecuteNonQuery();
->>>>>>> origin/loginpageDesign
         }
     }
 }

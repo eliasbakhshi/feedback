@@ -1,49 +1,43 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLoginUserMutation } from "../store/api/userApiSlice";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../store";
-import { setUser } from "../store/authSlice";
+import { useLoginMutation } from "../store/api/userApiSlice";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const LoginPage: React.FC = () => {
-    const [email, setEmail] = useState<string>(""); // Typad state
-    const [password, setPassword] = useState<string>("");
-    const dispatch = useDispatch<AppDispatch>(); // Typad dispatch
+const LoginPage = () => {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const navigate = useNavigate();
+    const [loginUser, { isLoading }] = useLoginMutation();
 
-    const state = useSelector((state: RootState) => state);
-    console.log("Redux state:", state);
-    console.table(state);
-    // Hämta status från Redux store
-    // const { loading, error } = useSelector((state: RootState) => state.auth);
-
-    const { userId, role, loading, error } = useSelector((state: RootState) => state.auth) || {
-        userId: null,
-        role: null,
-        loading: false,
-        error: null
-    };
-
-
-    //Använd API-hook för inloggning
-    const [loginUser, { isLoading }] = useLoginUserMutation();
-
-
-    const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-
+        if (!email.trim() || !password.trim()) {
+            toast.error("Alla fält måste fyllas i!", { position: "top-right" });
+            return;
+        }
         try {
-            const userData = await loginUser({ email, password }).unwrap();
-            dispatch(setUser(userData)); //Spara användaren i Redux
-            navigate("/"); // Omdirigera vid lyckad inloggning
-        } catch (err) {
-            console.error("Login failed:", err);
+            const userData = { UserId: "1" , Role: "user" };
+            await loginUser(userData).unwrap();
+            toast.success("Välkommen!", { position: "top-right" });
+            navigate("/user/account");
+        } catch (error: any) {
+            const errorMessage = error.originalStatus;
+            switch (errorMessage) {
+                case 401:
+                    toast.error("Fel e-post eller lösenord!", { position: "top-right" });
+                    break;
+                default:
+                    toast.error("Något gick fel!", { position: "top-right" });
+            }
         }
     };
 
     return (
-        <div className="flex justify-center items-center h-screen bg-gray-900 bg-cover bg-center"
-        style={{ backgroundImage: "url('/src/images/login.png')" }}>
+        <div
+            className="flex justify-center items-center h-screen bg-gray-900 bg-cover bg-center"
+            style={{ backgroundImage: "url('/src/images/login.png')" }}
+        >
             <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
                 <h2 className="text-2xl font-bold text-red-600 text-center mb-4">Logga in</h2>
                 <form onSubmit={handleLogin} className="flex flex-col">
@@ -55,24 +49,23 @@ const LoginPage: React.FC = () => {
                         onChange={(e) => setEmail(e.target.value)}
                         required
                         className="border border-gray-300 rounded-lg p-2 mb-3 w-full focus:ring-2 focus:ring-red-400"
-                        />
-                        <label className="text-gray-700 font-medium mb-1">Lösenord</label>
-                        <input
-                            type="password"
-                            placeholder="Lösenord"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            className="border border-gray-300 rounded-lg p-2 mb-4 w-full focus:ring-2 focus:ring-red-400"
-                        />
-                        <button
-                            type="submit"
-                            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition"
-                            disabled={loading} // Inaktivera knapp vid laddning
-                        >
-                            {loading ? "Loggar in..." : "Logga in"}
-                        </button>
-                        {error && <p className="text-red-500 text-center mt-3">{error}</p>}
+                    />
+                    <label className="text-gray-700 font-medium mb-1">Lösenord</label>
+                    <input
+                        type="password"
+                        placeholder="Lösenord"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="border border-gray-300 rounded-lg p-2 mb-4 w-full focus:ring-2 focus:ring-red-400"
+                    />
+                    <button
+                        type="submit"
+                        className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition"
+                        disabled={isLoading}
+                    >
+                        {isLoading ? "Loggar in..." : "Logga in"}
+                    </button>
                 </form>
             </div>
         </div>
@@ -80,3 +73,4 @@ const LoginPage: React.FC = () => {
 };
 
 export default LoginPage;
+

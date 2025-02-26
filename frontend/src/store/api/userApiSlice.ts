@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/loginpageDesign
 import apiSlice from "./apiSlice";
 
 export const mainApi = apiSlice.injectEndpoints({
@@ -14,15 +10,9 @@ export const mainApi = apiSlice.injectEndpoints({
             providesTags: ["User"],
             keepUnusedDataFor: 0,
         }),
-<<<<<<< HEAD
         registerUser: builder.mutation<any, {fullname: string; email: string; password: string;}>({
             query: (userData) => ({
                 url: "/api/registration",
-=======
-        registerUser: builder.mutation<any, { name: string; email: string; password: string }>({
-            query: (userData) => ({
-                url: "api/registration",
->>>>>>> origin/loginpageDesign
                 method: "POST",
                 body: userData,
                 headers: { "Content-Type": "application/json" } 
@@ -30,7 +20,6 @@ export const mainApi = apiSlice.injectEndpoints({
             invalidatesTags: ["User"],
 
         }),
-<<<<<<< HEAD
         getAccountInfo: builder.query<any, number>({
             query: (id) => ({
                 url: `/api/account/user/${id}`,
@@ -57,8 +46,13 @@ export const mainApi = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ["User"],
         }),
-=======
->>>>>>> origin/loginpageDesign
+        login: builder.mutation<any, {UserId: string; Role: string}>({
+            query: (userData) => ({
+              url: "/api/login",
+              method: "POST",
+              body: userData,
+            }),
+          }),
 
         // createUser: builder.mutation<any, any>({
         //   query: (info) => ({
@@ -74,11 +68,9 @@ export const mainApi = apiSlice.injectEndpoints({
 export const {
     useGetUsersQuery,
     useRegisterUserMutation,
-<<<<<<< HEAD
     useGetAccountInfoQuery,
     useUpdatePasswordMutation,
     useUpdateNameMutation,
-=======
->>>>>>> origin/loginpageDesign
+    useLoginMutation,
     // useCreateUserMutation,
 } = mainApi;

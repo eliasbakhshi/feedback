@@ -1,12 +1,14 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
+import { RootState } from "../store";
+import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-// Definiera typ för användardata från API
+// Define user data type from API
 interface UserResponse {
   UserId: string;
   Role: string;
 }
 
-// Definiera typ för auth-state
+// Define auth state
 interface AuthState {
   userId: string | null;
   role: string | null;
@@ -14,33 +16,64 @@ interface AuthState {
   error: string | null;
 }
 
-// Initial state
+// Initial state (DO NOT USE LocalStorage for security reasons)
 const initialState: AuthState = {
-  userId: localStorage.getItem("userId") || null,
-  role: localStorage.getItem("role") || null,
+  userId: null,
+  role: null,
   loading: false,
   error: null,
 };
 
-// Skapa slice
+// 🔹 Fetch user session from API
+export const fetchUserSession = createAsyncThunk(
+  "auth/fetchUserSession",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await fetch("http://localhost:5000/api/login/user-info", {
+        credentials: "include", // 🔥 Important! Ensures cookies are sent
+      });
+
+      if (!response.ok) {
+        throw new Error("Not authenticated");
+      }
+
+      return (await response.json()) as UserResponse;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// 🔹 Create slice
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<UserResponse>) => {
-      state.userId = action.payload.UserId;
-      state.role = action.payload.Role;
-      localStorage.setItem("userId", action.payload.UserId);
-      localStorage.setItem("role", action.payload.Role);
-    },
     logout: (state) => {
       state.userId = null;
       state.role = null;
-      localStorage.removeItem("userId");
-      localStorage.removeItem("role");
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchUserSession.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchUserSession.fulfilled, (state, action: PayloadAction<UserResponse>) => {
+        state.userId = action.payload.UserId;
+        state.role = action.payload.Role;
+        state.loading = false;
+      })
+      .addCase(fetchUserSession.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 
-export const { setUser, logout } = authSlice.actions;
+export const { logout } = authSlice.actions;
 export default authSlice.reducer;
+
+// 🔹 Selector to get auth state
+export const selectAuth = (state: RootState) => state.auth;
