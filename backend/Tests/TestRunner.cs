@@ -32,6 +32,8 @@ namespace backend.Tests
                 allTestOK = false;
             }
 
+            // remove temporary user created during the test
+            removeTestUser(dbManager);
 
             if (allTestOK)
                 System.Console.WriteLine("All tests passed!");
@@ -151,6 +153,26 @@ namespace backend.Tests
 
             return okTest;
         }
+
+        private static void removeTestUser(DBManager dbManager)
+        {
+            try
+            {
+                var db = dbManager.connect();
+                //ta bort användare
+                string query = "CALL delete_user('test.user10@testmail.com');";
+
+                bool success = dbManager.insert(db, query);
+
+                if (!success)
+                    Console.WriteLine("Deletion of test user failed.");
+
+                dbManager.close(db);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed to remove test user: " + e.Message);
+            }
+        }
     }
 }
-

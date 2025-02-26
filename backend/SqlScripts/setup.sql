@@ -41,6 +41,15 @@ AS $$
     VALUES (fullname, email, crypt(password, gen_salt('bf')), role::ROLES);
 $$;
 
+CREATE PROCEDURE delete_user(
+    email_to_delete VARCHAR(255)
+)
+LANGUAGE SQL
+AS $$
+    DELETE FROM accounts
+    WHERE email = email_to_delete;
+$$;
+
 /* functions */
 CREATE FUNCTION check_login_credentials(
     user_email VARCHAR(255),
