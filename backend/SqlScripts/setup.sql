@@ -38,7 +38,6 @@ CREATE TABLE IF NOT EXISTS accounts (
 );
 
 CREATE PROCEDURE create_account(
-    username VARCHAR(255),
     fullname VARCHAR(255),
     email VARCHAR(255),
     password VARCHAR(255),
@@ -46,8 +45,8 @@ CREATE PROCEDURE create_account(
 )
 LANGUAGE SQL
 AS $$
-    INSERT INTO accounts (username, fullname, email, password, role)
-    VALUES (username, fullname, email, crypt(password, gen_salt('bf')), role::ROLES);
+    INSERT INTO accounts ( fullname, email, password, role)
+    VALUES ( fullname, email, crypt(password, gen_salt('bf')), role::ROLES);
 $$;
 
 
