@@ -1,4 +1,3 @@
-
 import apiSlice from "./apiSlice";
 
 export const mainApi = apiSlice.injectEndpoints({
@@ -47,6 +46,13 @@ export const mainApi = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ["User"],
         }),
+        login: builder.mutation<any, {email: string; password: string}>({
+            query: (userData) => ({
+              url: "/api/login",
+              method: "POST",
+              body: userData,
+            }),
+          }),
 
         // createUser: builder.mutation<any, any>({
         //   query: (info) => ({
@@ -65,5 +71,6 @@ export const {
     useGetAccountInfoQuery,
     useUpdatePasswordMutation,
     useUpdateNameMutation,
+    useLoginMutation,
     // useCreateUserMutation,
 } = mainApi;

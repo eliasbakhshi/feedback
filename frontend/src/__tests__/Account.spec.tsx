@@ -54,6 +54,11 @@ describe("Account Page Tests", () => {
     (useGetAccountInfoQuery as jest.Mock).mockReturnValue({
       data: [{ fullname: "Andy Gud", email: "andy@gud.com" }],
     });
+    sessionStorage.setItem("userId", "1");
+  });
+
+  afterEach(() => {
+    sessionStorage.clear();
   });
 
   it("Account page displays test", () => {

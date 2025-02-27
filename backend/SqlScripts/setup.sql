@@ -37,4 +37,30 @@ CREATE TABLE IF NOT EXISTS accounts (
     role ROLES DEFAULT 'operator'
 );
 
+CREATE PROCEDURE create_account(
+    fullname VARCHAR(255),
+    email VARCHAR(255),
+    password VARCHAR(255),
+    role ROLES
+)
+LANGUAGE SQL
+AS $$
+    INSERT INTO accounts ( fullname, email, password, role)
+    VALUES ( fullname, email, crypt(password, gen_salt('bf')), role::ROLES);
+$$;
+
+
+CREATE FUNCTION check_login_credentials(
+    user_email VARCHAR(255),
+    user_password VARCHAR(255)
+)
+RETURNS TABLE (id INT, role ROLES)
+LANGUAGE SQL
+AS $$
+    SELECT id, role
+    FROM accounts
+    WHERE email = user_email 
+    AND password = crypt(user_password, password);
+$$;
+
 \i procedures.sql

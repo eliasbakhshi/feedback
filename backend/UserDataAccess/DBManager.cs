@@ -55,7 +55,7 @@ namespace backend.UserDataAccess
         public bool insert(NpgsqlConnection db, string? query) // function for INSERT sql query
         {
             bool success = false;
-            try 
+            try
             {
                 var cmd = new NpgsqlCommand(query, db);
                 cmd.ExecuteNonQuery();
@@ -71,7 +71,7 @@ namespace backend.UserDataAccess
 
         public int update(NpgsqlConnection db, string? query) // function for UPDATE sql query
         {
-            try 
+            try
             {
                 var cmd = new NpgsqlCommand(query, db);
                 return cmd.ExecuteNonQuery();
