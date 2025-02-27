@@ -6,8 +6,9 @@ import "react-toastify/dist/ReactToastify.css";
 
 const Account = () => {
   const navigate = useNavigate();
+  const userId = sessionStorage.getItem("userId");
 
-  const { data: userData } = useGetAccountInfoQuery(1); {/* hårdkodad user id */}
+  const { data: userData } = useGetAccountInfoQuery(Number(userId)); {/* använd userId från session storage */}
   const [updateName] = useUpdateNameMutation();
   const [updatePassword] = useUpdatePasswordMutation();
 
@@ -34,7 +35,11 @@ const Account = () => {
       if (!fullname.trim()) {
         toast.error("Fältet måste fyllas i!", { position: "top-right" });
       } else {
-        await updateName({ UserId: "1", NewName: fullname });
+        if (userId) {
+          await updateName({ UserId: userId, NewName: fullname });
+        } else {
+          toast.error("Något gick fel!", { position: "top-right" });
+        }
         setIsEditingName(false);
         toast.success("Namn uppdaterad!", { position: "top-right" });
       }
@@ -60,7 +65,11 @@ const Account = () => {
     }
 
     try {
-      await updatePassword({ UserId: "1", CurrentPassword: currentPassword, NewPassword: newPassword }).unwrap();
+      if (userId) {
+        await updatePassword({ UserId: userId, CurrentPassword: currentPassword, NewPassword: newPassword }).unwrap();
+      } else {
+        toast.error("Något gick fel!", { position: "top-right" });
+      }
       toast.success("Lösenord uppdaterad!", { position: "top-right" });
       setIsEditingPassword(false);
     } catch (error: any) {

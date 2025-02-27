@@ -17,8 +17,10 @@ const LoginPage = () => {
             return;
         }
         try {
-            const userData = { email, password};
-            await loginUser(userData).unwrap();
+            const userData = { email, password };
+            const response = await loginUser(userData).unwrap();
+            sessionStorage.setItem("userId", response.userId);
+            sessionStorage.setItem("userRole", response.role);
             toast.success("Välkommen!", { position: "top-right" });
             navigate("/user/account");
         } catch (error: any) {
