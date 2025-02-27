@@ -57,7 +57,7 @@ namespace backend.Controllers
                 }
 
                 using (var dbCheck = dbManager.connect())
-                {    
+                {
                     var passwordQuery = $"SELECT password FROM accounts WHERE password = crypt('{updatePasswordRequest.CurrentPassword}', password);";
                     var passwordResult = dbManager.select(dbCheck, passwordQuery);
                     if (passwordResult.Count == 0)
@@ -77,10 +77,10 @@ namespace backend.Controllers
                     {
                         return NotFound("User not found.");
                     }
-                }  
+                }
 
                 _logger.LogInformation($"Password updated for user with ID {updatePasswordRequest.UserId}.");
-                return Ok("Password updated successfully.");
+                return Ok(new { message = "Password updated successfully." });
             }
             catch (NullReferenceException ex)
             {
