@@ -1,5 +1,4 @@
 DROP PROCEDURE IF EXISTS create_account;
-DROP PROCEDURE IF EXISTS update_password;
 
 CREATE PROCEDURE create_account(
     fullname VARCHAR(255),
@@ -13,26 +12,37 @@ AS $$
     VALUES (fullname, email, crypt(password, gen_salt('bf')), role::ROLES);
 $$;
 
-CREATE PROCEDURE update_password(
-    IN userid INT,
-    IN currentpassword VARCHAR,
-    IN newpassword VARCHAR
-)
-LANGUAGE plpgsql
+CREATE OR REPLACE FUNCTION check_password(pass text)
+  RETURNS integer
+  LANGUAGE plpgsql
 AS $$
 DECLARE
-    storedpassword TEXT;
+    count integer;
 BEGIN
-    SELECT password
-    INTO storedpassword
-    FROM accounts
-    WHERE id = userid
-      AND password = crypt(currentpassword, password);
+    SELECT COUNT(*)
+      INTO count
+      FROM accounts
+     WHERE password = crypt(pass, password);
+
+    RETURN count; 
+END;
+$$;
 
 
+
+CREATE OR REPLACE FUNCTION update_password(user_id int, new_pass text)
+  RETURNS integer
+  LANGUAGE plpgsql
+AS $$
+DECLARE
+    affected int;
+BEGIN
     UPDATE accounts
-    SET password = crypt(newpassword, gen_salt('bf'))
-    WHERE id = userid;
+       SET password = crypt(new_pass, gen_salt('bf'))
+     WHERE id = user_id;
 
+    GET DIAGNOSTICS affected = ROW_COUNT;
+
+    RETURN affected;
 END;
 $$;
