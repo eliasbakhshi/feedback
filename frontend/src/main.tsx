@@ -1,31 +1,30 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import "./App.css";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import store from "./store/index.ts";
-import { Route, RouterProvider, createRoutesFromElements } from "react-router";
-import { createBrowserRouter } from "react-router-dom";
-
-import Login from "./pages/auth/login.tsx";
-import Registration from "./pages/auth/registration.tsx";
+import { Route, RouterProvider, createRoutesFromElements, createBrowserRouter } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
+import Login from "./pages/auth/Login.tsx";
+import Registration from "./pages/auth/Registration.tsx";
+import UserRoutes from "./pages/user/UserRoutes.tsx";
+import Account from "./pages/user/Account.tsx";
+import ErrorPage from "./pages/Error404.tsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
       <Route path="login" element={<Login />} />
-      <Route path="registration" element={<Registration />} />
+      <Route path="register" element={<Registration />} />
       
+    <Route element={<UserRoutes />}>
+      <Route path="account" element={<Account />} />
+    </Route>
 
       {/* Registered users 
-      <Route element={<UserRoutes />}>
-        <Route path="profile" element={<Profile />} />
-        <Route path="boxes" element={<Boxes />} />
-        <Route path="boxes/:boxId/items" element={<Items />} />
-        <Route path="labels/:labelId" element={<Labels />} />
-      </Route>
+     
 
       <Route path="admin" element={<AdminRoutes />}>
         <Route path="" element={<Users />} />
@@ -33,6 +32,7 @@ const router = createBrowserRouter(
       </Route>
 
       <Route path="*" element={<Home />} /> */}
+      <Route path="error404" element={<ErrorPage />} />
     </Route>,
   ),
 );
