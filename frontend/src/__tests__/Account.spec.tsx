@@ -3,7 +3,7 @@ import "@testing-library/jest-dom";
 import { MemoryRouter, useNavigate } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "../store";
-import Account from "../pages/user/account";
+import Account from "../pages/user/Account";
 import { useGetAccountInfoQuery, useUpdatePasswordMutation, useUpdateNameMutation } from "../store/api/userApiSlice";
 import { toast } from "react-toastify";
 
