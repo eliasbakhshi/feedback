@@ -1,79 +1,55 @@
-import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
-import { RootState } from "../store";
-import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createSlice } from "@reduxjs/toolkit";
 
-// Define user data type from API
-interface UserResponse {
-  UserId: string;
-  Role: string;
-}
+// TODO: Get the current expirationTime and set it again if there is not any other remember option
 
-// Define auth state
-interface AuthState {
-  userId: string | null;
-  role: string | null;
-  loading: boolean;
-  error: string | null;
-}
 
-// Initial state (DO NOT USE LocalStorage for security reasons)
-const initialState: AuthState = {
-  userId: null,
-  role: null,
-  loading: false,
-  error: null,
-};
+const initialState = (() => {
+  const userInfo = localStorage.getItem("userInfo")
+    ? JSON.parse(localStorage.getItem("userInfo"))
+    : null;
+  const expirationTime = localStorage.getItem("expirationTime")
+    ? JSON.parse(localStorage.getItem("expirationTime"))
+    : null;
 
-// 🔹 Fetch user session from API
-export const fetchUserSession = createAsyncThunk(
-  "auth/fetchUserSession",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await fetch("http://localhost:5000/api/login/user-info", {
-        credentials: "include", // 🔥 Important! Ensures cookies are sent
-      });
-
-      if (!response.ok) {
-        throw new Error("Not authenticated");
-      }
-
-      return (await response.json()) as UserResponse;
-    } catch (error: any) {
-      return rejectWithValue(error.message);
+  // Check if the expirationTime is less than the current time
+  if (expirationTime) {
+    const expirationDate = new Date(expirationTime);
+    if (new Date().getTime() > expirationDate.getTime()) {
+      localStorage.removeItem("userInfo");
+      localStorage.removeItem("expirationTime");
+      return {
+        userInfo: null,
+        expirationTime: null,
+      };
     }
   }
-);
 
-// 🔹 Create slice
-const authSlice = createSlice({
+  return {
+    userInfo,
+    expirationTime,
+  };
+})();
+
+export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    logout: (state) => {
-      state.userId = null;
-      state.role = null;
+    setCredentials: (state, action) => {
+      const duration = action.payload.remember ? 30 : 1;
+      const expirationTime =
+        new Date().getTime() + 24 * 60 * 60 * 1000 * duration;
+      state.userInfo = action.payload.user;
+      state.expirationTime = expirationTime;
+      localStorage.setItem("userInfo", JSON.stringify(action.payload.user));
+      localStorage.setItem("expirationTime", expirationTime);
     },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchUserSession.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchUserSession.fulfilled, (state, action: PayloadAction<UserResponse>) => {
-        state.userId = action.payload.UserId;
-        state.role = action.payload.Role;
-        state.loading = false;
-      })
-      .addCase(fetchUserSession.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      });
+    removeCredentials: (state) => {
+      state.userInfo = null;
+      localStorage.removeItem("userInfo");
+      localStorage.removeItem("expirationTime");
+    },
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { setCredentials, removeCredentials } = authSlice.actions;
 export default authSlice.reducer;
-
-// 🔹 Selector to get auth state
-export const selectAuth = (state: RootState) => state.auth;
