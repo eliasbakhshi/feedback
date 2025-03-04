@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLoginMutation } from "../store/api/userApiSlice";
+import { useLoginMutation } from "../../store/api/userApiSlice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
