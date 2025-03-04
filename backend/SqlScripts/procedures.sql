@@ -1,5 +1,7 @@
 DROP PROCEDURE IF EXISTS create_account;
+DROP PROCEDURE IF EXISTS create_survey;
 
+DROP FUNCTION IF EXISTS check_login_credentials;
 
 CREATE PROCEDURE create_account(
     fullname VARCHAR(255),
@@ -11,4 +13,29 @@ LANGUAGE SQL
 AS $$
     INSERT INTO accounts (fullname, email, password, role)
     VALUES (fullname, email, crypt(password, gen_salt('bf')), role::ROLES);
+$$;
+
+CREATE PROCEDURE create_survey(
+    creator INT,
+    title VARCHAR(255),
+    description TEXT
+)
+LANGUAGE SQL
+AS $$
+    INSERT INTO surveys (creator, title, description)
+    VALUES (creator, title, description);
+$$;
+
+
+CREATE FUNCTION check_login_credentials(
+    user_email VARCHAR(255),
+    user_password VARCHAR(255)
+)
+RETURNS TABLE (id INT, role ROLES)
+LANGUAGE SQL
+AS $$
+    SELECT id, role
+    FROM accounts
+    WHERE email = user_email 
+    AND password = crypt(user_password, password);
 $$;

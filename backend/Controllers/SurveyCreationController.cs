@@ -14,7 +14,7 @@ namespace FeedbackBackend.Controllers
     [Route("api/survey")]
     public class SurveyCreationController : Controller
     {
-        DBManager dBManager = new DBManager();
+        DBManager dbManager = new DBManager();
         private readonly ILogger<SurveyCreationController> _logger;
 
         public SurveyCreationController(ILogger<SurveyCreationController> logger)
@@ -23,11 +23,22 @@ namespace FeedbackBackend.Controllers
         }
 
         [HttpPost("create-survey")]
-        public IActionResult CreateSurvey([FromBody] string? surveyTitle)
+        public IActionResult CreateSurvey([FromBody] SurveyModel surveyModel)
         {
-            var db = dBManager.connect();
+            var db = dbManager.connect();
+            var query = @$"CALL create_survey('{surveyModel.SurveyCreator}', '{surveyModel.SurveyName}', '{surveyModel.SurveyDescription}');";
+            if (dbManager.insert(db, query))
+            {
+                _logger.LogInformation($"Survey {surveyModel.SurveyName} created successfully.");
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, "Failed to create survey; database error.");
+            }
+            dbManager.close(db);
 
-            return Ok();
+
+            return Ok(new { message = "Survey created successfully." });
         }
     }
 }

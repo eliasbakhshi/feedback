@@ -9,7 +9,11 @@ END $$;
 
 DROP DATABASE IF EXISTS feedbacker;
 DROP ROLE IF EXISTS dbadm;
+
+DROP TABLE IF EXISTS surveys;
 DROP TABLE IF EXISTS accounts;
+
+
 DROP EXTENSION IF EXISTS pgcrypto;
 
 CREATE DATABASE feedbacker;
@@ -29,7 +33,7 @@ BEGIN
 END $$;
 
 /* tables */
-CREATE TABLE IF NOT EXISTS accounts (
+CREATE TABLE accounts (
     id SERIAL PRIMARY KEY,
     fullname VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -37,30 +41,12 @@ CREATE TABLE IF NOT EXISTS accounts (
     role ROLES DEFAULT 'operator'
 );
 
-CREATE PROCEDURE create_account(
-    fullname VARCHAR(255),
-    email VARCHAR(255),
-    password VARCHAR(255),
-    role ROLES
-)
-LANGUAGE SQL
-AS $$
-    INSERT INTO accounts ( fullname, email, password, role)
-    VALUES ( fullname, email, crypt(password, gen_salt('bf')), role::ROLES);
-$$;
-
-
-CREATE FUNCTION check_login_credentials(
-    user_email VARCHAR(255),
-    user_password VARCHAR(255)
-)
-RETURNS TABLE (id INT, role ROLES)
-LANGUAGE SQL
-AS $$
-    SELECT id, role
-    FROM accounts
-    WHERE email = user_email 
-    AND password = crypt(user_password, password);
-$$;
+CREATE TABLE surveys (
+    id SERIAL PRIMARY KEY,
+    creator INT REFERENCES accounts(id),
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
 
 \i procedures.sql
