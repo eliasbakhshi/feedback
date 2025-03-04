@@ -45,7 +45,7 @@ const LoginPage = () => {
 
     return (
         <div
-            className="flex justify-center items-center h-screen bg-gray-900 bg-[url('./public/highway.jpg')] bg-cover bg-center"
+            className="flex justify-center items-center h-screen bg-gray-900 bg-[url('./highway.jpg')] bg-cover bg-center"
         >
             <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
                 <h2 className="text-2xl font-bold text-red-600 text-center mb-4">Logga in</h2>
