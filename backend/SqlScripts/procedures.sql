@@ -3,6 +3,8 @@ DROP PROCEDURE IF EXISTS create_survey;
 
 DROP FUNCTION IF EXISTS check_login_credentials;
 
+
+/* procedures */
 CREATE PROCEDURE create_account(
     fullname VARCHAR(255),
     email VARCHAR(255),
@@ -26,7 +28,7 @@ AS $$
     VALUES (creator, title, description);
 $$;
 
-
+/* functions */
 CREATE FUNCTION check_login_credentials(
     user_email VARCHAR(255),
     user_password VARCHAR(255)
