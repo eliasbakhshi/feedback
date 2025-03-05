@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace backend.Models
 {
-    public class SurveyModel
+    public class SurveyCreationModel
     {
         public int SurveyCreator { get; set; }
         public string? SurveyName { get; set; }

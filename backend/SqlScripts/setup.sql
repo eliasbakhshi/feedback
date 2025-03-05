@@ -10,6 +10,7 @@ END $$;
 DROP DATABASE IF EXISTS feedbacker;
 DROP ROLE IF EXISTS dbadm;
 
+DROP TABLE IF EXISTS questions;
 DROP TABLE IF EXISTS surveys;
 DROP TABLE IF EXISTS accounts;
 
@@ -47,6 +48,12 @@ CREATE TABLE surveys (
     title VARCHAR(255) NOT NULL,
     description TEXT,
     created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE questions (
+    id SERIAL PRIMARY KEY,
+    survey_id INT REFERENCES surveys(id),
+    question TEXT NOT NULL
 );
 
 \i procedures.sql

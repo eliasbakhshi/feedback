@@ -1,5 +1,6 @@
 DROP PROCEDURE IF EXISTS create_account;
 DROP PROCEDURE IF EXISTS create_survey;
+DROP PROCEDURE IF EXISTS add_question;
 
 DROP FUNCTION IF EXISTS check_login_credentials;
 
@@ -26,6 +27,16 @@ LANGUAGE SQL
 AS $$
     INSERT INTO surveys (creator, title, description)
     VALUES (creator, title, description);
+$$;
+
+CREATE PROCEDURE add_question(
+    survey_id INT,
+    question TEXT
+)
+LANGUAGE SQL
+AS $$
+    INSERT INTO questions (survey_id, question)
+    VALUES (survey_id, question);
 $$;
 
 /* functions */
