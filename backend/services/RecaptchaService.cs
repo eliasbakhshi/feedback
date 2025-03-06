@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 public class RecaptchaService
 {
@@ -12,11 +13,13 @@ public class RecaptchaService
     {
         _httpClient = httpClient;
         _secretKey = configuration["Recaptcha:SecretKey"] ?? throw new ArgumentNullException(nameof(configuration), "Recaptcha secret key is not configured.");
+
+        Console.WriteLine($"recaptcha key: {_secretKey}");
     }
 
     public async Task<bool> VerifyRecaptchaAsync(string? token)
     {
-        Console.WriteLine($"reCAPTCHA verification result: {token}");
+        //Console.WriteLine($"reCAPTCHA verification result: {token}");
 
         if (string.IsNullOrEmpty(token))
         {
@@ -32,15 +35,21 @@ public class RecaptchaService
             return false;
         }
 
+        Console.WriteLine($"reCAPTCHA verification result: {response.StatusCode}");
+
         var jsonResponse = await response.Content.ReadAsStringAsync();
+        //Console.WriteLine($"reCAPTCHA API raw result: {jsonResponse}");
+
         var recaptchaResponse = JsonSerializer.Deserialize<RecaptchaResponse>(jsonResponse);
+        //Console.WriteLine($"Parsed reCAPTCHA API result: {recaptchaResponse.Success}");
 
         return recaptchaResponse?.Success ?? false;
     }
 }
 
 public class RecaptchaResponse
-{
+{   
+    [JsonPropertyName("success")]
     public bool Success { get; set; }
     public string? ChallengeTs { get; set; } // Make nullable
     public string? Hostname { get; set; } // Make nullable
