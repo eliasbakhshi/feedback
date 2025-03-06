@@ -19,13 +19,16 @@ const Sidebar = () => {
 
       <nav className="flex flex-col gap-4">
         <Link to="/" className="p-2 rounded hover:bg-gray-300 flex items-center gap-2">
-          <LiaFolderSolid  />
+          <LiaFolderSolid />
+          {!collapsed && <p>Hem</p>}
         </Link>
         <Link to="/" className="p-2 rounded hover:bg-gray-300 flex items-center gap-2">
-          <LiaFolderPlusSolid  />
+          <LiaFolderPlusSolid />
+          {!collapsed && <p>Skapa Enkät</p>}
         </Link>
         <Link to="/account" className="p-2 rounded hover:bg-gray-300 flex items-center gap-2">
           <LiaUser />
+          {!collapsed && <p>Konto</p>}
         </Link>
       </nav>
     </div>
