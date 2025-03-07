@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGetAccountInfoQuery, useUpdatePasswordMutation, useUpdateNameMutation } from "../../store/api/userApiSlice";
 import "react-toastify/dist/ReactToastify.css";
 
 const Account = () => {
-  const navigate = useNavigate();
   const userId = sessionStorage.getItem("userId");
 
   const { data: userData } = useGetAccountInfoQuery(Number(userId)); {/* använd userId från session storage */}
