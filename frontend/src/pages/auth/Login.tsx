@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLoginMutation } from "../store/api/userApiSlice";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../../store/authSlice";
+import { useLoginMutation } from "../../store/api/userApiSlice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -8,6 +10,7 @@ const LoginPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [loginUser, { isLoading }] = useLoginMutation();
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -19,10 +22,15 @@ const LoginPage = () => {
         try {
             const userData = { email, password };
             const response = await loginUser(userData).unwrap();
+
+            dispatch(setCredentials({ user: response }));
+
             sessionStorage.setItem("userId", response.userId);
             sessionStorage.setItem("userRole", response.role);
+
             toast.success("Välkommen!", { position: "top-right" });
-            navigate("/user/account");
+
+            navigate("/account", { replace: true });
         } catch (error: any) {
             const errorMessage = error.data?.Message || "Något gick fel!";
             switch (error.originalStatus) {
@@ -37,8 +45,7 @@ const LoginPage = () => {
 
     return (
         <div
-            className="flex justify-center items-center h-screen bg-gray-900 bg-cover bg-center"
-            style={{ backgroundImage: "url('/src/images/login.png')" }}
+            className="flex justify-center items-center h-screen bg-gray-900 bg-[url('./highway.jpg')] bg-cover bg-center"
         >
             <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
                 <h2 className="text-2xl font-bold text-red-600 text-center mb-4">Logga in</h2>

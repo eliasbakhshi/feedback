@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useRegisterUserMutation } from "../store/api/userApiSlice";
+import { useRegisterUserMutation } from "../../store/api/userApiSlice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -46,7 +46,7 @@ const Registration = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[url('./public/highway.jpg')] bg-cover bg-center">
+    <div className="flex items-center justify-center min-h-screen bg-[url('./highway.jpg')] bg-cover bg-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <img
           src="/TV_logo_Horisontal_rod_RGB.png"
