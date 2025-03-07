@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Registration from './pages/registration';
 import Account from './pages/user/account';
 import LoginPage from './pages/loginPage.tsx';
+
 const App: React.FC = () => {
     return (
         <Router>

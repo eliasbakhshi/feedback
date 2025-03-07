@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../store/api/userApiSlice";
 import { toast } from "react-toastify";
+import Cookies from "js-cookie"; // import till cookies
 import "react-toastify/dist/ReactToastify.css";
 
 const LoginPage = () => {
@@ -19,8 +20,16 @@ const LoginPage = () => {
         try {
             const userData = { email, password };
             const response = await loginUser(userData).unwrap();
-            sessionStorage.setItem("userId", response.userId);
-            sessionStorage.setItem("userRole", response.role);
+            //Cookie istället för sessionStorage
+            Cookie.set('userId', response.userId, { expires: 7, secure: true, sameSite: 'strict'}); //skydd mot CSRF
+            Cookie.set('userRole', response.role, { expires: 7, secure: true });
+            //Om backend skickar en auth token
+            if (response.token) { Cookie.set('authToken', response.token, { expires: 7, secure: true, sameSite: 'strict'});
+            }
+            //sessionStorage.setItem("userId", response.userId);
+            //sessionStorage.setItem("userRole", response.role);
+            
+        
             toast.success("Välkommen!", { position: "top-right" });
             navigate("/user/account");
         } catch (error: any) {

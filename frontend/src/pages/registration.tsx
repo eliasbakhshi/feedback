@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useRegisterUserMutation } from "../store/api/userApiSlice";
 import { toast } from "react-toastify";
+import Cookies from "js-cookie";
 import "react-toastify/dist/ReactToastify.css";
 
 const Registration = () => {
@@ -31,6 +32,9 @@ const Registration = () => {
     try {
       const userData = {fullname, email, password };
       await registerUser(userData).unwrap();
+      //Sätt dit cookies efter lyckad registering
+      Cookies.set('fullname', fullname, {expires: 7, secure: true }); //cookie
+      Cookies.set('email', email, {expires: 7, secure: true}); //cookie
       toast.success(`Välkommen ${fullname}!`, { position: "top-right" });
       navigate("/login");
     } catch (error: any) {
