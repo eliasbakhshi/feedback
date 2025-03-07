@@ -31,13 +31,15 @@ $$;
 
 CREATE PROCEDURE add_question(
     survey_id INT,
-    question TEXT
+    question TEXT,
+    answer_type VARCHAR(50)
 )
 LANGUAGE SQL
 AS $$
-    INSERT INTO questions (survey_id, question)
-    VALUES (survey_id, question);
+    INSERT INTO questions (survey_id, question, answer_type)
+    VALUES (survey_id, question, answer_type);
 $$;
+
 
 /* functions */
 CREATE FUNCTION check_login_credentials(

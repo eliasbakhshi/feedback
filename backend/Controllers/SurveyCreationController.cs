@@ -42,13 +42,13 @@ namespace FeedbackBackend.Controllers
         }
 
         [HttpPost("add-question")]
-        public IActionResult AddQuestion([FromBody] QuestionCreationModel questionModel)
+        public IActionResult AddQuestion([FromBody] QuestionCreationModel questionCreationModel)
         {
             var db = dbManager.connect();
-            var query = @$"CALL add_question('{questionModel.SurveyId}', '{questionModel.QuestionText}');";
+            var query = @$"CALL add_question('{questionCreationModel.SurveyId}', '{questionCreationModel.QuestionText}', '{questionCreationModel.AnswerType}');";
             if (dbManager.insert(db, query))
             {
-                _logger.LogInformation($"Question {questionModel.QuestionText} added successfully.");
+                _logger.LogInformation($"Question added successfully.");
             }
             else
             {

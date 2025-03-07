@@ -10,6 +10,7 @@ END $$;
 DROP DATABASE IF EXISTS feedbacker;
 DROP ROLE IF EXISTS dbadm;
 
+DROP TABLE IF EXISTS answers;
 DROP TABLE IF EXISTS questions;
 DROP TABLE IF EXISTS surveys;
 DROP TABLE IF EXISTS accounts;
@@ -53,7 +54,18 @@ CREATE TABLE surveys (
 CREATE TABLE questions (
     id SERIAL PRIMARY KEY,
     survey_id INT REFERENCES surveys(id),
-    question TEXT NOT NULL
+    question TEXT NOT NULL,
+    answer_type VARCHAR(50) NOT NULL        /* FreeText, TrueFalse, Scale */
+);
+
+CREATE TABLE answers
+(
+    id SERIAL PRIMARY KEY,
+    question_id INT REFERENCES questions(id),
+    yes_no_answer BOOLEAN,
+    scale_answer INT CHECK (scale_answer BETWEEN 1 AND 5),
+    text_answer TEXT,
+    answer_type VARCHAR(50) NOT NULL        
 );
 
 \i procedures.sql

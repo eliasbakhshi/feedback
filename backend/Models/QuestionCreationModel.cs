@@ -9,6 +9,6 @@ namespace backend.Models
     {
         public int SurveyId { get; set; }
         public string? QuestionText { get; set; }
-        
+        public string? AnswerType { get; set; }
     }
 }
