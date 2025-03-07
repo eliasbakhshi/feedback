@@ -7,10 +7,12 @@ function App() {
   return (
     <>
       <ToastContainer />
-      <NavigationBar />
-      <main>
-        <Outlet />
-      </main>
+      <div className="flex">
+        <NavigationBar />
+        <main className="flex-grow">
+          <Outlet />
+        </main>
+      </div>
     </>
   );
 }
