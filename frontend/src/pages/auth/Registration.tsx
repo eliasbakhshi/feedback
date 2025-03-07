@@ -32,7 +32,7 @@ const Registration = () => {
       const userData = {fullname, email, password };
       await registerUser(userData).unwrap();
       toast.success(`Välkommen ${fullname}!`, { position: "top-right" });
-      navigate("/login");
+      navigate("/verify");
     } catch (error: any) {
       const errorMessage = error.originalStatus;
       switch (errorMessage) {
