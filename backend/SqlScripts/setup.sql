@@ -34,6 +34,13 @@ BEGIN
     END IF;
 END $$;
 
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'traffic_lights') THEN
+        CREATE TYPE TRAFFIC_LIGHTS AS ENUM('red', 'yellow', 'green');
+    END IF;
+END $$;
+
 /* tables */
 CREATE TABLE accounts (
     id SERIAL PRIMARY KEY,
@@ -55,7 +62,7 @@ CREATE TABLE questions (
     id SERIAL PRIMARY KEY,
     survey_id INT REFERENCES surveys(id),
     question TEXT NOT NULL,
-    answer_type VARCHAR(50) NOT NULL        /* FreeText, TrueFalse, Scale */
+    answer_type VARCHAR(50) NOT NULL        /* FreeText, TrueFalse, Scale, TrafficLight */
 );
 
 CREATE TABLE answers
@@ -65,6 +72,7 @@ CREATE TABLE answers
     yes_no_answer BOOLEAN,
     scale_answer INT CHECK (scale_answer BETWEEN 1 AND 5),
     text_answer TEXT,
+    traffic_light_answer TRAFFIC_LIGHTS,
     answer_type VARCHAR(50) NOT NULL        
 );
 
