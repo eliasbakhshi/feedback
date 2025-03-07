@@ -91,12 +91,6 @@ const Account = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <button 
-        onClick={() => navigate("/")}
-        className="text-2xl absolute top-4 left-4 p-2 cursor-pointer text-gray-800 hover:text-gray-600"
-      >
-        ←
-      </button>
       <div className="w-full max-w-md">
         <div className="space-y-4">
           <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">Konto inställningar</h1>
