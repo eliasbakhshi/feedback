@@ -13,6 +13,7 @@ import UserRoutes from "./pages/user/UserRoutes.tsx";
 import Account from "./pages/user/Account.tsx";
 import ErrorPage from "./pages/Error404.tsx";
 import VerifyAccount from "./pages/auth/VerifyAccount.tsx";
+import Verified from "./pages/auth/verifiedAccount.tsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -20,6 +21,7 @@ const router = createBrowserRouter(
       <Route path="login" element={<Login />} />
       <Route path="register" element={<Registration />} />
       <Route path="verify" element={<VerifyAccount />} />
+      <Route path="verified" element={<Verified />} />
       <Route element={<UserRoutes />}>
         <Route path="account" element={<Account />} />
       </Route>
