@@ -54,3 +54,11 @@ AS $$
     WHERE email = user_email 
     AND password = crypt(user_password, password);
 $$;
+
+CREATE FUNCTION get_all_users()
+RETURNS TABLE (id INT, fullname VARCHAR(255), email VARCHAR(255), role ROLES)
+LANGUAGE SQL
+AS $$
+    SELECT id, fullname, email, role
+    FROM accounts;
+$$;

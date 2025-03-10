@@ -124,5 +124,26 @@ namespace backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to update user name.");
             }
         }
+
+        [HttpGet("all-users")]
+        public IActionResult AllUsers()
+        {
+            try
+            {
+                var db = dbManager.connect();
+                var query = "SELECT * FROM get_all_users();";
+                
+                var result = dbManager.select(db, query);
+                dbManager.close(db);
+                
+                return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching all users.");
+                return StatusCode(500, "Failed to fetch all users.");
+            }
+        }
     }
 }
