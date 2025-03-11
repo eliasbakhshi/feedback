@@ -35,7 +35,8 @@ namespace backend.Controllers
 
                 if (!isHuman)
                 {
-                    return StatusCode(StatusCodes.Status400BadRequest, "reCAPTCHA verification failed.");
+                        return BadRequest(new { message = "reCAPTCHA verification failed." });
+
                 }
 
                 using (var dbCheck = dbManager.connect())
@@ -47,7 +48,8 @@ namespace backend.Controllers
 
                     if (exists)
                     {
-                        return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; user already exists.");
+                        return BadRequest(new { message = "Failed to register user; user already exists." });
+
                     }
                 }
 
@@ -62,7 +64,7 @@ namespace backend.Controllers
                     }
                     else
                     {
-                        return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; database error.");
+                        return BadRequest(new { message = "Failed to register user; database error." });
                     }
                 }
             }
