@@ -11,5 +11,7 @@ namespace backend.Models
         public string? CurrentPassword { get; set; }
         public string? NewPassword { get; set; }
         public string? NewName { get; set; }
+        public string? NewRole { get; set; }
+        public string? NewEmail { get; set; }
     }
 }
