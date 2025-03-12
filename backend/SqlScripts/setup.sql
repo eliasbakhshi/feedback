@@ -7,13 +7,17 @@ BEGIN
       AND pid <> pg_backend_pid();
 END $$;
 
-DROP DATABASE IF EXISTS feedbacker;
 DROP ROLE IF EXISTS dbadm;
 DROP TABLE IF EXISTS accounts;
 DROP EXTENSION IF EXISTS pgcrypto;
 
-CREATE DATABASE feedbacker;
+DROP PROCEDURE IF EXISTS add_token;
+DROP FUNCTION IF EXISTS check_login_credentials;
 
+\c postgres
+DROP DATABASE IF EXISTS feedbacker;
+
+CREATE DATABASE feedbacker;
 \c feedbacker
 
 CREATE ROLE dbadm LOGIN PASSWORD 'dbadm';
@@ -34,7 +38,8 @@ CREATE TABLE IF NOT EXISTS accounts (
     fullname VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role ROLES DEFAULT 'operator'
+    role ROLES DEFAULT 'operator',
+    token VARCHAR(64)
 );
 
 CREATE PROCEDURE create_account(
@@ -49,6 +54,27 @@ AS $$
     VALUES ( fullname, email, crypt(password, gen_salt('bf')), role::ROLES);
 $$;
 
+CREATE PROCEDURE add_token(
+    new_token VARCHAR(64),
+    userID INT
+)
+LANGUAGE SQL
+AS $$
+    UPDATE accounts
+    SET token = new_token
+    WHERE id = userID
+$$;
+
+CREATE FUNCTION get_hashed_token(
+    userID INT
+)
+RETURNS VARCHAR(64)
+LANGUAGE SQL
+AS $$
+    SELECT crypt(token, gen_salt('bf')) 
+    FROM accounts 
+    WHERE id = userID;
+$$;
 
 CREATE FUNCTION check_login_credentials(
     user_email VARCHAR(255),

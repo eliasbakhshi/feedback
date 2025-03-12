@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 using backend.Models;
 using backend.UserDataAccess;
 using Microsoft.AspNetCore.Http;
@@ -28,21 +29,47 @@ namespace backend.Controllers
         {
             try
             {
-                var db = dbManager.connect();
-                var query = @$"SELECT * FROM check_login_credentials('{loginCredentials.Email}', '{loginCredentials.Password}')";
+                int userID;
+                string role;
 
-                var user = dbManager.select(db, query);
+                using (var db = dbManager.connect())
+                {
+                    var query = @$"SELECT * FROM check_login_credentials('{loginCredentials.Email}', '{loginCredentials.Password}')";
+                    var user = dbManager.select(db, query);
 
-                if (user == null || user.Count == 0)
-                    return Unauthorized(new { Message = "Invalid email or password" });
+                    if (user == null || user.Count == 0)
+                        return Unauthorized(new { Message = "Invalid email or password" });
 
-                var userData = user[0];
-                _logger.LogInformation($"User with email {loginCredentials.Email} logged in.");
+                    var userData = user[0];
+                    _logger.LogInformation($"User with email {loginCredentials.Email} logged in.");
+
+                    userID = (int)userData["id"];
+                    role = userData["role"].ToString();
+                }
+
+                using (var db = dbManager.connect())
+                {
+                    string token = createToken();
+
+                    string saveTokenQuery = @$"CALL add_token('{token}', {userID})";
+                    var result = dbManager.select(db, saveTokenQuery);
+                }
+
+                string hashedToken;
+                using (var db = dbManager.connect())
+                {
+                    var getTokenQuery = @$"SELECT * FROM get_hashed_token({userID})";
+                    var result = dbManager.select(db, getTokenQuery);
+
+                    hashedToken = result[0]["get_hashed_token"].ToString();
+                }
+
                 return Ok(new
                 {
                     Message = "Login successful",
-                    UserId = (int)userData["id"],
-                    Role = userData["role"].ToString()
+                    token = hashedToken,
+                    UserId = userID,
+                    Role = role
                 });
             }
             catch (Exception ex)
@@ -50,6 +77,12 @@ namespace backend.Controllers
                 _logger.LogError(ex, "An error occurred when logging in.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Failed to login user." });
             }
+        }
+
+        public string createToken()
+        {
+            byte[] tokenBytes = RandomNumberGenerator.GetBytes(32);
+            return Convert.ToBase64String(tokenBytes);
         }
     }
 }
