@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState,useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../../store/authSlice";
 import { useLoginMutation } from "../../store/api/userApiSlice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const LoginPage = () => {
     const [email, setEmail] = useState("");
@@ -12,15 +13,23 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [loginUser, { isLoading }] = useLoginMutation();
+    const recaptcha = useRef<ReCAPTCHA>(null);
+
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!email.trim() || !password.trim()) {
-            toast.error("Alla fält måste fyllas i!", { position: "top-right" });
+            toast.error("Alla fält måste fyllas i!");
+            return;
+        }
+        // /* Check the recaptcha before submitting */
+        const recaptchaToken = recaptcha.current?.getValue();
+        if(!recaptchaToken){
+            toast.error('Vänligen skicka in Captcha')
             return;
         }
         try {
-            const userData = { email, password };
+            const userData = { email, password, recaptchaToken };
             const response = await loginUser(userData).unwrap();
 
             dispatch(setCredentials({ user: response }));
@@ -28,18 +37,12 @@ const LoginPage = () => {
             sessionStorage.setItem("userId", response.userId);
             sessionStorage.setItem("userRole", response.role);
 
-            toast.success("Välkommen!", { position: "top-right" });
+            toast.success("Välkommen!");
 
             navigate("/account", { replace: true });
         } catch (error: any) {
-            const errorMessage = error.data?.Message || "Något gick fel!";
-            switch (error.originalStatus) {
-                case 401:
-                    toast.error("Fel e-post eller lösenord!", { position: "top-right" });
-                    break;
-                default:
-                    toast.error(errorMessage, { position: "top-right" });
-            }
+            const errorMessage = error.data?.message || "Något gick fel!";
+            toast.error(errorMessage);
         }
     };
 
@@ -68,6 +71,7 @@ const LoginPage = () => {
                         required
                         className="border border-gray-300 rounded-lg p-2 mb-4 w-full focus:ring-2 focus:ring-red-400"
                     />
+                    <ReCAPTCHA sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY} ref={recaptcha} className="my-3"/>
                     <button
                         type="submit"
                         className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition"

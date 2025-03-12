@@ -1,3 +1,4 @@
+// filepath: /e:/projects/feedback/backend/Controllers/RegistrationController.cs
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,19 +15,30 @@ namespace backend.Controllers
     [Route("api/registration")]
     public class RegistrationController : Controller
     {
-        DBManager dbManager = new DBManager();
+        private readonly DBManager dbManager = new DBManager();
         private readonly ILogger<RegistrationController> _logger;
+        private readonly RecaptchaService _recaptchaService;
 
-        public RegistrationController(ILogger<RegistrationController> logger)
+        public RegistrationController(ILogger<RegistrationController> logger, RecaptchaService recaptchaService)
         {
             _logger = logger;
+            _recaptchaService = recaptchaService;
         }
 
         [HttpPost]
-        public IActionResult Register([FromBody] RegistrationModel registration)
+        public async Task<IActionResult> Register([FromBody] RegistrationModel registration)
         {
             try
             {
+                // Verify reCAPTCHA token
+                var isHuman = await _recaptchaService.VerifyRecaptchaAsync(registration.RecaptchaToken);
+
+                if (!isHuman)
+                {
+                        return BadRequest(new { message = "reCAPTCHA verification failed." });
+
+                }
+
                 using (var dbCheck = dbManager.connect())
                 {
                     string checkEmail = $"SELECT COUNT(*) FROM accounts WHERE email = '{registration.Email}';";
@@ -36,7 +48,8 @@ namespace backend.Controllers
 
                     if (exists)
                     {
-                        return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; user already exists.");
+                        return BadRequest(new { message = "Failed to register user; user already exists." });
+
                     }
                 }
 
@@ -53,11 +66,10 @@ namespace backend.Controllers
                     {
                         _logger.LogInformation($"User {registration.Email} registered successfully.");
                         return Ok(new { message = "User registered successfully." });
-
                     }
                     else
                     {
-                        return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; database error.");
+                        return BadRequest(new { message = "Failed to register user; database error." });
                     }
                 }
             }
