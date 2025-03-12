@@ -55,7 +55,12 @@ namespace backend.Controllers
 
                 using (var dbInsert = dbManager.connect())
                 {
-                    var query = @$"CALL create_account('{registration.FullName}', '{registration.Email}', '{registration.Password}', '{registration.Role}')";
+                    if (registration.Password?.Length < 6)
+                    {
+                        return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; password must be at least 6 characters.");
+                    }
+
+                    var query = @$"CALL create_account('{registration.FirstName}', '{registration.LastName}', '{registration.Email}', '{registration.Password}', '{registration.Role}')";
 
                     if (dbManager.insert(dbInsert, query))
                     {

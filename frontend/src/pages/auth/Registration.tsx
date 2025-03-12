@@ -6,7 +6,8 @@ import ReCAPTCHA from "react-google-recaptcha";
 import "react-toastify/dist/ReactToastify.css";
 
 const Registration = () => {
-  const [fullname, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -15,8 +16,8 @@ const Registration = () => {
   const [registerUser, { isLoading}] = useRegisterUserMutation();
 
   const handleRegistration = async () => {
-    if (!fullname.trim() || !email.trim() || !password.trim()) {
-      toast.error("Alla fält måste fyllas i!");
+    if (!firstName.trim() || !lastName.trim() || !email.trim() || !password.trim()) {
+      toast.error("Alla fält måste fyllas i!", { position: "top-right" });
       return;
     }
     // // /* Check the recaptcha before submitting */
@@ -38,9 +39,9 @@ const Registration = () => {
     }
 
     try {
-      const userData = {fullname, email, password, recaptchaToken, role: "operator" };
+      const userData = {firstName, lastName, email, password, recaptchaToken, role: "operator" };
       await registerUser(userData).unwrap();
-      toast.success(`Välkommen ${fullname}!`);
+      toast.success(`Välkommen!`);
       navigate("/login");
     } catch (error: any) {
       console.log(error);
@@ -59,12 +60,20 @@ const Registration = () => {
         />
         <div className="space-y-4">
           <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">Registrera konto</h1>
-          <p className="block text-sm font-medium text-gray-600">Namn</p>
+          <p className="block text-sm font-medium text-gray-600">Förnamn</p>
           <input
             type="text"
-            placeholder="Förnamn Efternamn"
-            value={fullname}
-            onChange={(e) => setName(e.target.value)}
+            placeholder="Förnamn"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-zinc-900 focus:outline-none"
+          />
+          <p className="block text-sm font-medium text-gray-600">Efternamn</p>
+          <input
+            type="text"
+            placeholder="Efternamn"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
             className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-zinc-900 focus:outline-none"
           />
           <p className="block text-sm font-medium text-gray-600">Email</p>
