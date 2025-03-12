@@ -44,36 +44,11 @@ END $$;
 /* tables */
 CREATE TABLE accounts (
     id SERIAL PRIMARY KEY,
-    fullname VARCHAR(255) NOT NULL,
+    firstname VARCHAR(255) NOT NULL,
+    lastname VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role ROLES DEFAULT 'operator'
-);
-
-CREATE TABLE surveys (
-    id SERIAL PRIMARY KEY,
-    creator INT REFERENCES accounts(id),
-    title VARCHAR(255) NOT NULL,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE TABLE questions (
-    id SERIAL PRIMARY KEY,
-    survey_id INT REFERENCES surveys(id),
-    question TEXT NOT NULL,
-    answer_type VARCHAR(50) NOT NULL        /* FreeText, TrueFalse, Scale, TrafficLight */
-);
-
-CREATE TABLE answers
-(
-    id SERIAL PRIMARY KEY,
-    question_id INT REFERENCES questions(id),
-    yes_no_answer BOOLEAN,
-    scale_answer INT CHECK (scale_answer BETWEEN 1 AND 5),
-    text_answer TEXT,
-    traffic_light_answer TRAFFIC_LIGHTS,
-    answer_type VARCHAR(50) NOT NULL        
 );
 
 \i procedures.sql

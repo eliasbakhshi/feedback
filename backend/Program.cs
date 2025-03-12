@@ -15,6 +15,9 @@ builder.Services.AddCors(options =>
                       });
 });
 
+builder.Services.AddHttpClient<RecaptchaService>();
+builder.Services.AddSingleton<RecaptchaService>();
+
 var app = builder.Build();
 
 app.UseCors(MyAllowSpecificOrigins);
