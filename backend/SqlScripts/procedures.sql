@@ -32,7 +32,7 @@ $$;
 CREATE PROCEDURE add_question(
     survey_id INT,
     question TEXT,
-    answer_type VARCHAR(50)
+    answer_type ANSWER_TYPES
 )
 LANGUAGE SQL
 AS $$
