@@ -32,18 +32,25 @@ export default function SurveyCreation() {
     if (!over) return;
 
     const taskId = active.id as string;
+    console.log("taskId", taskId);
     const newStatus = over.id as Task['status'];
+    console.log("newStatus", newStatus);
 
-    setTasks(() =>
-      tasks.map((task) =>
-        task.id === taskId
-          ? {
-              ...task,
-              status: newStatus,
-            }
-          : task,
-      ),
-    );
+    const originalTask = tasks.find((Task) => Task.id === taskId);
+    console.log("originalTask", originalTask);
+    if (!originalTask) return;
+
+    if (originalTask.status === "Objekt" && newStatus === "Formulär") {
+      const newTask: Task = {
+        ...originalTask,
+        id: `${originalTask.id}-copy-${Date.now()}`,
+        status: newStatus,
+      };
+      console.log("newTask", newTask);
+      setTasks((prevTasks) => [...prevTasks, newTask]);
+    } else if (originalTask.status === "Formulär" && newStatus === "Objekt") {
+      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+    }
   }
 
   return (
