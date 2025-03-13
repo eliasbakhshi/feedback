@@ -48,7 +48,7 @@ export default function SurveyCreation() {
 
   return (
     <div className="p-4 h-full bg-gray-300">
-      <div className="flex gap-8 w-full h-full">
+      <div className="flex gap-6 w-full h-full w-full">
         <DndContext onDragEnd={handleDragEnd}>
           {COLUMNS.map((column) => {
             const width = column.id === 'Objekt' ? '30%' : '70%';
