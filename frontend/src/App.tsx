@@ -1,20 +1,23 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import NavigationBar from "./navbar.tsx"
+import Sidebar from "./navbar";
 
 function App() {
+  const location = useLocation();
+  const hideSidebar = location.pathname === "/login" || location.pathname === "/register";
+
   return (
     <>
       <ToastContainer />
-      <NavigationBar />
-      <main>
-        <Outlet />
-      </main>
+      <div className="flex h-screen w-full">
+        {!hideSidebar && <Sidebar />}
+        <main className={hideSidebar ? "w-full" : ""}>
+          <Outlet />
+        </main>
+      </div>
     </>
   );
 }
 
 export default App;
-
-
