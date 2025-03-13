@@ -100,7 +100,7 @@ namespace backend.Controllers
             try
             {
                 var db = dbManager.connect();
-                var query = $"UPDATE accounts SET fullname = '{updateNameRequest.NewFirstName}' WHERE id = {updateNameRequest.UserId};";
+                var query = $"UPDATE accounts SET firstname = '{updateNameRequest.NewFirstName}' WHERE id = {updateNameRequest.UserId};";
 
                 int affectedRows = dbManager.update(db, query);
                 dbManager.close(db);
@@ -131,7 +131,7 @@ namespace backend.Controllers
             try
             {
                 var db = dbManager.connect();
-                var query = $"UPDATE accounts SET fullname = '{updateNameRequest.NewLastName}' WHERE id = {updateNameRequest.UserId};";
+                var query = $"UPDATE accounts SET lastname = '{updateNameRequest.NewLastName}' WHERE id = {updateNameRequest.UserId};";
 
                 int affectedRows = dbManager.update(db, query);
                 dbManager.close(db);
