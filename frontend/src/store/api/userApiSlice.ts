@@ -37,9 +37,18 @@ export const mainApi = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ["User"],
         }),
-        updateName: builder.mutation<any, {UserId: string; NewName: string}>({
+        updateFirstName: builder.mutation<any, {UserId: string; newFirstName: string}>({
             query: (userData) => ({
-                url: "/api/user/update-name",
+                url: "/api/user/update-first-name",
+                method: "PUT",
+                body: userData,
+                headers: { "Content-Type": "application/json" } 
+            }),
+            invalidatesTags: ["User"],
+        }),
+        updateLastName: builder.mutation<any, {UserId: string; newLastName: string}>({
+            query: (userData) => ({
+                url: "/api/user/update-last-name",
                 method: "PUT",
                 body: userData,
                 headers: { "Content-Type": "application/json" } 
@@ -70,7 +79,8 @@ export const {
     useRegisterUserMutation,
     useGetAccountInfoQuery,
     useUpdatePasswordMutation,
-    useUpdateNameMutation,
+    useUpdateFirstNameMutation,
+    useUpdateLastNameMutation,
     useLoginMutation,
     // useCreateUserMutation,
 } = mainApi;
