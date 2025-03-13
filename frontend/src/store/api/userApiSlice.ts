@@ -12,7 +12,7 @@ export const mainApi = apiSlice.injectEndpoints({
         }),
         registerUser: builder.mutation<any, {firstName: string; lastName: string; email: string; password: string;}>({
             query: (userData) => ({
-                url: "/api/registration",
+                url: "/api/main/register",
                 method: "POST",
                 body: userData,
                 headers: { "Content-Type": "application/json" } 
@@ -22,7 +22,7 @@ export const mainApi = apiSlice.injectEndpoints({
         }),
         getAccountInfo: builder.query<any, number>({
             query: (id) => ({
-                url: `/api/account/user/${id}`,
+                url: `/api/user/${id}`,
                 method: "GET",
                 headers: { "Content-Type": "application/json" } 
             }),
@@ -30,7 +30,7 @@ export const mainApi = apiSlice.injectEndpoints({
         }),
         updatePassword: builder.mutation<any, { UserId: string; CurrentPassword: string; NewPassword: string }>({
             query: (userData) => ({
-                url: "/api/account/user/update-password",
+                url: "/api/user/update-password",
                 method: "PUT",
                 body: userData,
                 headers: { "Content-Type": "application/json" } 
@@ -39,7 +39,7 @@ export const mainApi = apiSlice.injectEndpoints({
         }),
         updateName: builder.mutation<any, {UserId: string; NewName: string}>({
             query: (userData) => ({
-                url: "/api/account/user/update-name",
+                url: "/api/user/update-name",
                 method: "PUT",
                 body: userData,
                 headers: { "Content-Type": "application/json" } 
@@ -48,7 +48,7 @@ export const mainApi = apiSlice.injectEndpoints({
         }),
         login: builder.mutation<any, {email: string; password: string}>({
             query: (userData) => ({
-              url: "/api/login",
+              url: "/api/main/login",
               method: "POST",
               body: userData,
             }),

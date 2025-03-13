@@ -10,6 +10,7 @@ namespace backend.Models
         public int UserId { get; set; }
         public string? CurrentPassword { get; set; }
         public string? NewPassword { get; set; }
-        public string? NewName { get; set; }
+        public string? NewFirstName { get; set; }
+        public string? NewLastName { get; set; }
     }
 }
