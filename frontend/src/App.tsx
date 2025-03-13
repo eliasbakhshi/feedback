@@ -12,7 +12,7 @@ function App() {
       <ToastContainer />
       <div className="flex h-screen w-full">
         {!hideSidebar && <Sidebar />}
-        <main className={hideSidebar ? "w-full" : ""}>
+        <main className={hideSidebar ? "w-full" : "flex-1"}>
           <Outlet />
         </main>
       </div>
