@@ -10,62 +10,22 @@ using Microsoft.Extensions.Logging;
 
 namespace backend.Controllers
 {
-    [Route("api/account")]
-    public class AccountController : Controller
+    [Route("api/admin")]
+    public class AdminController : Controller
     {
         DBManager dbManager = new DBManager();
+        private readonly ILogger<AdminController> _logger;
 
-        private readonly ILogger<AccountController> _logger;
-
-        public AccountController(ILogger<AccountController> logger)
+        public AdminController(ILogger<AdminController> logger)
         {
             _logger = logger;
         }
 
-        [HttpGet("user/{id}")]
-        public IActionResult GetUser(int id)
-        {
-            try
-            {
-                var db = dbManager.connect();
-                var query = $"SELECT * FROM accounts where id = {id};";
-                var result = dbManager.select(db, query);
-                dbManager.close(db);
-
-                if (result.Count == 0)
-                {
-                    return NotFound("User not found.");
-                }
-
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while fetching user data.");
-                return StatusCode(500, "Failed to fetch user data.");
-            }
-        }
-
-        [HttpPut("user/update-password")]
+        [HttpPut("update-password")]
         public IActionResult UpdatePassword([FromBody] UpdateRequest updatePasswordRequest)
         {
             try
             {
-                if (updatePasswordRequest.CurrentPassword == updatePasswordRequest.NewPassword)
-                {
-                    return BadRequest("New password must be different from the current password.");
-                }
-
-                using (var dbCheck = dbManager.connect())
-                {
-                    var passwordQuery = $"SELECT password FROM accounts WHERE password = crypt('{updatePasswordRequest.CurrentPassword}', password);";
-                    var passwordResult = dbManager.select(dbCheck, passwordQuery);
-                    if (passwordResult.Count == 0)
-                    {
-                        return Unauthorized("Invalid password.");
-                    }
-                }
-
                 using (var dbUpdate = dbManager.connect())
                 {
                     var query = $"UPDATE accounts SET password = crypt('{updatePasswordRequest.NewPassword}', gen_salt('bf')) WHERE id = {updatePasswordRequest.UserId};";
@@ -94,7 +54,7 @@ namespace backend.Controllers
             }
         }
 
-        [HttpPut("user/update-name")]
+        [HttpPut("update-name")]
         public IActionResult UpdateName([FromBody] UpdateRequest updateNameRequest)
         {
             try
@@ -111,7 +71,7 @@ namespace backend.Controllers
                 }
 
                 _logger.LogInformation($"User with ID {updateNameRequest.UserId} updated name to {updateNameRequest.NewName}.");
-                return Ok( new { message = "Name updated successfully."});
+                return Ok(new { message = "Name updated successfully."});
             }
             catch (NullReferenceException ex)
             {
@@ -122,6 +82,68 @@ namespace backend.Controllers
             {
                 _logger.LogError(ex, "An error occurred while updating user name.");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to update user name.");
+            }
+        }
+
+        [HttpPut("update-role")]
+        public IActionResult UpdateRole([FromBody] UpdateRequest updateRoleRequest)
+        {
+            try
+            {
+                var db = dbManager.connect();
+                var query = $"UPDATE accounts SET role = '{updateRoleRequest.NewRole}' WHERE id = {updateRoleRequest.UserId};";
+
+                int affectedRows = dbManager.update(db, query);
+                dbManager.close(db);
+
+                if (affectedRows == 0)
+                {
+                    return NotFound("User not found.");
+                }
+
+                _logger.LogInformation($"User with ID {updateRoleRequest.UserId} updated role to {updateRoleRequest.NewRole}.");
+                return Ok(new { message = "Role updated successfully."});
+            }
+            catch (NullReferenceException ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating user role.");
+                return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; database error.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating user role.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to update user role.");
+            }
+        }
+
+        [HttpPut("update-email")]
+        public IActionResult UpdateEmail([FromBody] UpdateRequest updateEmailRequest)
+        {
+            try
+            {
+                var db = dbManager.connect();
+                var query = $"UPDATE accounts SET email = '{updateEmailRequest.NewEmail}' WHERE id = {updateEmailRequest.UserId};";
+
+                int affectedRows = dbManager.update(db, query);
+                dbManager.close(db);
+
+                if (affectedRows == 0)
+                {
+                    return NotFound("User not found.");
+                }
+
+                _logger.LogInformation($"User with ID {updateEmailRequest.UserId} updated email to {updateEmailRequest.NewEmail}.");
+                return Ok(new { message = "Email updated successfully."});
+            }
+            catch (NullReferenceException ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating user email.");
+                return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; database error.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating user email.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to update user email.");
             }
         }
     }

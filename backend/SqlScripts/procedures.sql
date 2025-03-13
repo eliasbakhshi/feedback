@@ -2,6 +2,7 @@ DROP PROCEDURE IF EXISTS create_account;
 DROP FUNCTION IF EXISTS check_login_credentials;
 
 
+/* procedures */
 CREATE PROCEDURE create_account(
     firstname VARCHAR(255),
     lastname VARCHAR(255),

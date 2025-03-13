@@ -9,7 +9,13 @@ END $$;
 
 DROP DATABASE IF EXISTS feedbacker;
 DROP ROLE IF EXISTS dbadm;
+
+DROP TABLE IF EXISTS answers;
+DROP TABLE IF EXISTS questions;
+DROP TABLE IF EXISTS surveys;
 DROP TABLE IF EXISTS accounts;
+
+
 DROP EXTENSION IF EXISTS pgcrypto;
 
 CREATE DATABASE feedbacker;
@@ -28,8 +34,15 @@ BEGIN
     END IF;
 END $$;
 
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'traffic_lights') THEN
+        CREATE TYPE TRAFFIC_LIGHTS AS ENUM('red', 'yellow', 'green');
+    END IF;
+END $$;
+
 /* tables */
-CREATE TABLE IF NOT EXISTS accounts (
+CREATE TABLE accounts (
     id SERIAL PRIMARY KEY,
     firstname VARCHAR(255) NOT NULL,
     lastname VARCHAR(255) NOT NULL,
