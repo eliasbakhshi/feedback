@@ -67,7 +67,7 @@ namespace backend.Controllers
                 return Ok(new
                 {
                     Message = "Login successful",
-                    token = hashedToken,
+                    Token = hashedToken,
                     UserId = userID,
                     Role = role
                 });

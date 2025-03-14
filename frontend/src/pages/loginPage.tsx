@@ -21,15 +21,15 @@ const LoginPage = () => {
             const userData = { email, password };
             const response = await loginUser(userData).unwrap();
             //Cookie istället för sessionStorage
-            Cookie.set('userId', response.userId, { expires: 7, secure: true, sameSite: 'strict' }); //skydd mot CSRF
-            Cookie.set('userRole', response.role, { expires: 7, secure: true });
-            Cookie.set('token', response.token, { expires: 7, secure: true, sameSite: 'strict' });
+            Cookies.set('userId', response.UserId, { expires: 7, secure: true, sameSite: 'strict' }); //skydd mot CSRF
+            Cookies.set('userRole', response.Role, { expires: 7, secure: true });
+            Cookies.set('token', response.Token, { expires: 7, secure: true, sameSite: 'strict' });
             //Om backend skickar en auth token
-            if (response.token) {
-                Cookie.set('authToken', response.token, { expires: 7, secure: true, sameSite: 'strict' });
+            if (response.Token) {
+                Cookies.set('authToken', response.Token, { expires: 7, secure: true, sameSite: 'strict' });
             }
             // omdirigera baserat på användarens roll
-            if (response.role === 'admin') {
+            if (response.Role === 'admin') {
                 navigate("/admin/dashboard"); //Byt rendering ifall behövs
             } else {
                 navigate("/user/account"); //Byt rendering ifall behövs
