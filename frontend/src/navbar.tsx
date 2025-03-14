@@ -4,7 +4,7 @@ import {Link} from "react-router-dom";
 import logo from "/TV_logo_symbol_rgb_rod.png";
 
 const Sidebar = () => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
 
   return (
     <div className={`h-screen text-gray-800 flex flex-col p-4 transition-all ${collapsed ? "w-20" : "w-60"} border-r border-gray-600`}>

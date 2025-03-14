@@ -10,19 +10,19 @@ using Microsoft.Extensions.Logging;
 
 namespace backend.Controllers
 {
-    [Route("api/account")]
-    public class AccountController : Controller
+    [Route("api/user")]
+    public class UserController : Controller
     {
         DBManager dbManager = new DBManager();
 
-        private readonly ILogger<AccountController> _logger;
+        private readonly ILogger<UserController> _logger;
 
-        public AccountController(ILogger<AccountController> logger)
+        public UserController(ILogger<UserController> logger)
         {
             _logger = logger;
         }
 
-        [HttpGet("user/{id}")]
+        [HttpGet("{id}")]
         public IActionResult GetUser(int id)
         {
             try
@@ -46,7 +46,7 @@ namespace backend.Controllers
             }
         }
 
-        [HttpPut("user/update-password")]
+        [HttpPut("update-password")]
         public IActionResult UpdatePassword([FromBody] UpdateRequest updatePasswordRequest)
         {
             try
@@ -94,13 +94,13 @@ namespace backend.Controllers
             }
         }
 
-        [HttpPut("user/update-name")]
-        public IActionResult UpdateName([FromBody] UpdateRequest updateNameRequest)
+        [HttpPut("update-first-name")]
+        public IActionResult UpdateFirstName([FromBody] UpdateRequest updateNameRequest)
         {
             try
             {
                 var db = dbManager.connect();
-                var query = $"UPDATE accounts SET fullname = '{updateNameRequest.NewName}' WHERE id = {updateNameRequest.UserId};";
+                var query = $"UPDATE accounts SET firstname = '{updateNameRequest.NewFirstName}' WHERE id = {updateNameRequest.UserId};";
 
                 int affectedRows = dbManager.update(db, query);
                 dbManager.close(db);
@@ -110,8 +110,39 @@ namespace backend.Controllers
                     return NotFound("User not found.");
                 }
 
-                _logger.LogInformation($"User with ID {updateNameRequest.UserId} updated name to {updateNameRequest.NewName}.");
-                return Ok( new { message = "Name updated successfully."});
+                _logger.LogInformation($"User with ID {updateNameRequest.UserId} updated name to {updateNameRequest.NewFirstName}.");
+                return Ok("Name updated successfully.");
+            }
+            catch (NullReferenceException ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating user name.");
+                return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; database error.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating user name.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to update user name.");
+            }
+        }
+
+        [HttpPut("update-last-name")]
+        public IActionResult UpdateLastName([FromBody] UpdateRequest updateNameRequest)
+        {
+            try
+            {
+                var db = dbManager.connect();
+                var query = $"UPDATE accounts SET lastname = '{updateNameRequest.NewLastName}' WHERE id = {updateNameRequest.UserId};";
+
+                int affectedRows = dbManager.update(db, query);
+                dbManager.close(db);
+
+                if (affectedRows == 0)
+                {
+                    return NotFound("User not found.");
+                }
+
+                _logger.LogInformation($"User with ID {updateNameRequest.UserId} updated name to {updateNameRequest.NewLastName}.");
+                return Ok("Name updated successfully.");
             }
             catch (NullReferenceException ex)
             {
