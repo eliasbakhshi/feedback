@@ -23,13 +23,22 @@ const LoginPage = () => {
             //Cookie istället för sessionStorage
             Cookie.set('userId', response.userId, { expires: 7, secure: true, sameSite: 'strict'}); //skydd mot CSRF
             Cookie.set('userRole', response.role, { expires: 7, secure: true });
+            Cookie.set('token', response.token, { expires: 7, secure: true, sameSite: 'strict'});
             //Om backend skickar en auth token
             if (response.token) { Cookie.set('authToken', response.token, { expires: 7, secure: true, sameSite: 'strict'});
             }
+            // omdirigera baserat på användarens roll
+            if (response.role === 'admin') {
+                navigate("/admin/dashboard"); //Byt rendering ifall behövs
+            } else {
+                navigate("/user/account"); //Byt rendering ifall behövs
+            }
+            }
+            //if response.roll = 'admin' 
             //sessionStorage.setItem("userId", response.userId);
             //sessionStorage.setItem("userRole", response.role);
             
-        
+            
             toast.success("Välkommen!", { position: "top-right" });
             navigate("/user/account");
         } catch (error: any) {
@@ -42,7 +51,6 @@ const LoginPage = () => {
                     toast.error(errorMessage, { position: "top-right" });
             }
         }
-    };
 
     return (
         <div

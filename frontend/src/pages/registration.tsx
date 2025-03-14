@@ -33,8 +33,8 @@ const Registration = () => {
       const userData = {fullname, email, password };
       await registerUser(userData).unwrap();
       //Sätt dit cookies efter lyckad registering
-      Cookies.set('fullname', fullname, {expires: 7, secure: true }); //cookie
-      Cookies.set('email', email, {expires: 7, secure: true}); //cookie
+      //Cookies.set('fullname', fullname, {expires: 7, secure: true }); //cookie
+      //Cookies.set('email', email, {expires: 7, secure: true}); //cookie
       toast.success(`Välkommen ${fullname}!`, { position: "top-right" });
       navigate("/login");
     } catch (error: any) {
