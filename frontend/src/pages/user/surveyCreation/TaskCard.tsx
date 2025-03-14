@@ -1,4 +1,5 @@
 import { useDraggable } from '@dnd-kit/core';
+import { useSortable } from '@dnd-kit/sortable';
 import { Task } from './Types';
 
 type TaskCardProps = {
@@ -6,19 +7,25 @@ type TaskCardProps = {
 };
 
 export function TaskCard({ task }: TaskCardProps) {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+  const { attributes, listeners, setNodeRef: setDraggableNodeRef, transform: draggableTransform } = useDraggable({
     id: task.id,
   });
 
-  const style = transform
-    ? {
-        transform: `translate(${transform.x}px, ${transform.y}px)`,
-      }
-    : undefined;
+  const { setNodeRef: setSortableNodeRef, transform: sortableTransform, transition } = useSortable({
+    id: task.id,
+  });
+
+  const style = {
+    transform: draggableTransform ? `translate(${draggableTransform.x}px, ${draggableTransform.y}px)` : sortableTransform ? `translate(${sortableTransform.x}px, ${sortableTransform.y}px)` : undefined,
+    transition,
+  };
 
   return (
     <div
-      ref={setNodeRef}
+      ref={(node) => {
+        setDraggableNodeRef(node);
+        setSortableNodeRef(node);
+      }}
       {...listeners}
       {...attributes}
       className="cursor-grab rounded-lg bg-gray-600 p-4 shadow-sm hover:shadow-md"
