@@ -16,7 +16,6 @@ const Account = () => {
   useEffect(() => {
     if (userData && userData.length > 0) {
       const user = userData[0];
-      console.log("user", user);
       setfirstName(user.firstname);
       setlastName(user.lastname);
       setEmail(user.email);
@@ -36,8 +35,6 @@ const Account = () => {
         toast.error("Fältet måste fyllas i!", { position: "top-right" });
       } else {
         if (userId) {
-          console.log("firstname", firstName);
-          console.log("lastname", lastName);
           await updateFirstName({ UserId: userId, newFirstName: firstName });
           await updateLastName({ UserId: userId, newLastName: lastName });
         } else {
