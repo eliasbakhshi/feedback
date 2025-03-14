@@ -54,13 +54,13 @@ namespace backend.Controllers
             }
         }
 
-        [HttpPut("update-name")]
-        public IActionResult UpdateName([FromBody] UpdateRequest updateNameRequest)
+        [HttpPut("update-first-name")]
+        public IActionResult UpdateFirstName([FromBody] UpdateRequest updateNameRequest)
         {
             try
             {
                 var db = dbManager.connect();
-                var query = $"UPDATE accounts SET fullname = '{updateNameRequest.NewName}' WHERE id = {updateNameRequest.UserId};";
+                var query = $"UPDATE accounts SET fullname = '{updateNameRequest.NewFirstName}' WHERE id = {updateNameRequest.UserId};";
 
                 int affectedRows = dbManager.update(db, query);
                 dbManager.close(db);
@@ -70,7 +70,38 @@ namespace backend.Controllers
                     return NotFound("User not found.");
                 }
 
-                _logger.LogInformation($"User with ID {updateNameRequest.UserId} updated name to {updateNameRequest.NewName}.");
+                _logger.LogInformation($"User with ID {updateNameRequest.UserId} updated name to {updateNameRequest.NewFirstName}.");
+                return Ok(new { message = "Name updated successfully."});
+            }
+            catch (NullReferenceException ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating user name.");
+                return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; database error.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating user name.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to update user name.");
+            }
+        }
+
+                [HttpPut("update-first-name")]
+        public IActionResult UpdateLastName([FromBody] UpdateRequest updateNameRequest)
+        {
+            try
+            {
+                var db = dbManager.connect();
+                var query = $"UPDATE accounts SET fullname = '{updateNameRequest.NewLastName}' WHERE id = {updateNameRequest.UserId};";
+
+                int affectedRows = dbManager.update(db, query);
+                dbManager.close(db);
+
+                if (affectedRows == 0)
+                {
+                    return NotFound("User not found.");
+                }
+
+                _logger.LogInformation($"User with ID {updateNameRequest.UserId} updated name to {updateNameRequest.NewLastName}.");
                 return Ok(new { message = "Name updated successfully."});
             }
             catch (NullReferenceException ex)
