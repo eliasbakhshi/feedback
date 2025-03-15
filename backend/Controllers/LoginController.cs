@@ -24,8 +24,8 @@ namespace backend.Controllers {
         [HttpPost]
         public IActionResult Login([FromBody] LoginModel loginCredentials) {
             try {
-                int userID;
-                string role;
+                int? userID = null;
+                string? role = null;
 
                 using (var db = dbManager.connect()) {
                     var query = @$"SELECT * FROM check_login_credentials('{loginCredentials.Email}', '{loginCredentials.Password}')";
@@ -37,8 +37,8 @@ namespace backend.Controllers {
                     var userData = user[0];
                     _logger.LogInformation($"User with email {loginCredentials.Email} logged in.");
 
-                    userID = (int)userData["id"];
-                    role = userData["role"].ToString();
+                    userID = (int)userData["id"] as int?;
+                    role = userData["role"]?.ToString();
                 }
 
                 using (var db = dbManager.connect()) {
@@ -48,12 +48,12 @@ namespace backend.Controllers {
                     var result = dbManager.select(db, saveTokenQuery);
                 }
 
-                string hashedToken;
+                string? hashedToken = null;
                 using (var db = dbManager.connect()) {
                     var getTokenQuery = @$"SELECT * FROM get_hashed_token({userID})";
                     var result = dbManager.select(db, getTokenQuery);
 
-                    hashedToken = result[0]["get_hashed_token"].ToString();
+                    hashedToken = result[0]["get_hashed_token"]?.ToString();
                 }
 
                 return Ok(new {
