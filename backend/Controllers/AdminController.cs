@@ -26,12 +26,12 @@ namespace backend.Controllers
         {
             try
             {
-                using (var dbUpdate = dbManager.connect())
+                using (var db = dbManager.connect())
                 {
                     var query = $"UPDATE accounts SET password = crypt('{updatePasswordRequest.NewPassword}', gen_salt('bf')) WHERE id = {updatePasswordRequest.UserId};";
 
-                    int affectedRows = dbManager.update(dbUpdate, query);
-                    dbManager.close(dbUpdate);
+                    int affectedRows = dbManager.update(db, query);
+                    dbManager.close(db);
 
                     if (affectedRows == 0)
                     {
@@ -59,15 +59,17 @@ namespace backend.Controllers
         {
             try
             {
-                var db = dbManager.connect();
-                var query = $"UPDATE accounts SET firstname = '{updateNameRequest.NewFirstName}' WHERE id = {updateNameRequest.UserId};";
-
-                int affectedRows = dbManager.update(db, query);
-                dbManager.close(db);
-
-                if (affectedRows == 0)
+                using (var db = dbManager.connect())
                 {
-                    return NotFound("User not found.");
+                    var query = $"UPDATE accounts SET firstname = '{updateNameRequest.NewFirstName}' WHERE id = {updateNameRequest.UserId};";
+
+                    int affectedRows = dbManager.update(db, query);
+                    dbManager.close(db);
+
+                    if (affectedRows == 0)
+                    {
+                        return NotFound("User not found.");
+                    }
                 }
 
                 _logger.LogInformation($"User with ID {updateNameRequest.UserId} updated name to {updateNameRequest.NewFirstName}.");
@@ -90,15 +92,17 @@ namespace backend.Controllers
         {
             try
             {
-                var db = dbManager.connect();
-                var query = $"UPDATE accounts SET lastname = '{updateNameRequest.NewLastName}' WHERE id = {updateNameRequest.UserId};";
-
-                int affectedRows = dbManager.update(db, query);
-                dbManager.close(db);
-
-                if (affectedRows == 0)
+                using (var db = dbManager.connect())
                 {
-                    return NotFound("User not found.");
+                    var query = $"UPDATE accounts SET lastname = '{updateNameRequest.NewLastName}' WHERE id = {updateNameRequest.UserId};";
+
+                    int affectedRows = dbManager.update(db, query);
+                    dbManager.close(db);
+
+                    if (affectedRows == 0)
+                    {
+                        return NotFound("User not found.");
+                    }
                 }
 
                 _logger.LogInformation($"User with ID {updateNameRequest.UserId} updated name to {updateNameRequest.NewLastName}.");
@@ -121,15 +125,17 @@ namespace backend.Controllers
         {
             try
             {
-                var db = dbManager.connect();
-                var query = $"UPDATE accounts SET role = '{updateRoleRequest.NewRole}' WHERE id = {updateRoleRequest.UserId};";
-
-                int affectedRows = dbManager.update(db, query);
-                dbManager.close(db);
-
-                if (affectedRows == 0)
+                using (var db = dbManager.connect())
                 {
-                    return NotFound("User not found.");
+                    var query = $"UPDATE accounts SET role = '{updateRoleRequest.NewRole}' WHERE id = {updateRoleRequest.UserId};";
+
+                    int affectedRows = dbManager.update(db, query);
+                    dbManager.close(db);
+
+                    if (affectedRows == 0)
+                    {
+                        return NotFound("User not found.");
+                    }
                 }
 
                 _logger.LogInformation($"User with ID {updateRoleRequest.UserId} updated role to {updateRoleRequest.NewRole}.");
@@ -152,15 +158,17 @@ namespace backend.Controllers
         {
             try
             {
-                var db = dbManager.connect();
-                var query = $"UPDATE accounts SET email = '{updateEmailRequest.NewEmail}' WHERE id = {updateEmailRequest.UserId};";
-
-                int affectedRows = dbManager.update(db, query);
-                dbManager.close(db);
-
-                if (affectedRows == 0)
+                using (var db = dbManager.connect())
                 {
-                    return NotFound("User not found.");
+                    var query = $"UPDATE accounts SET email = '{updateEmailRequest.NewEmail}' WHERE id = {updateEmailRequest.UserId};";
+
+                    int affectedRows = dbManager.update(db, query);
+                    dbManager.close(db);
+
+                    if (affectedRows == 0)
+                    {
+                        return NotFound("User not found.");
+                    }
                 }
 
                 _logger.LogInformation($"User with ID {updateEmailRequest.UserId} updated email to {updateEmailRequest.NewEmail}.");
