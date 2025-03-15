@@ -53,8 +53,12 @@ namespace backend.Controllers {
                     var getTokenQuery = @$"SELECT * FROM get_hashed_token({userID})";
                     var result = dbManager.select(db, getTokenQuery);
 
-                    hashedToken = result[0]["get_hashed_token"]?.ToString();
+                    if (result != null && result.Count > 0)
+                        hashedToken = result[0]["get_hashed_token"]?.ToString();
                 }
+
+                if (hashedToken == null)
+                    return StatusCode(StatusCodes.Status500InternalServerError, new {Message = "Failed to get token"});
 
                 return Ok(new {
                     Message = "Login successful",
