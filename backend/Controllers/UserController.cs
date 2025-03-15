@@ -25,8 +25,7 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public IActionResult GetUser(int id)
         {
-            try
-            {
+            try {
                 var db = dbManager.connect();
                 var query = $"SELECT * FROM accounts where id = {id};";
                 var result = dbManager.select(db, query);
@@ -49,8 +48,7 @@ namespace backend.Controllers
         [HttpPut("update-password")]
         public IActionResult UpdatePassword([FromBody] UpdateRequest updatePasswordRequest)
         {
-            try
-            {
+            try {
                 if (updatePasswordRequest.CurrentPassword == updatePasswordRequest.NewPassword)
                 {
                     return BadRequest("New password must be different from the current password.");
@@ -97,8 +95,7 @@ namespace backend.Controllers
         [HttpPut("update-first-name")]
         public IActionResult UpdateFirstName([FromBody] UpdateRequest updateNameRequest)
         {
-            try
-            {
+            try {
                 var db = dbManager.connect();
                 var query = $"UPDATE accounts SET firstname = '{updateNameRequest.NewFirstName}' WHERE id = {updateNameRequest.UserId};";
 
@@ -128,8 +125,7 @@ namespace backend.Controllers
         [HttpPut("update-last-name")]
         public IActionResult UpdateLastName([FromBody] UpdateRequest updateNameRequest)
         {
-            try
-            {
+            try {
                 var db = dbManager.connect();
                 var query = $"UPDATE accounts SET lastname = '{updateNameRequest.NewLastName}' WHERE id = {updateNameRequest.UserId};";
 
@@ -154,6 +150,43 @@ namespace backend.Controllers
                 _logger.LogError(ex, "An error occurred while updating user name.");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to update user name.");
             }
+        }
+
+        [HttpPost("survey/create-survey")]
+        public IActionResult CreateSurvey([FromBody] SurveyCreationModel surveyModel)
+        {
+            var db = dbManager.connect();
+            var query = @$"CALL create_survey('{surveyModel.SurveyCreator}', '{surveyModel.SurveyName}', '{surveyModel.SurveyDescription}');";
+            if (dbManager.insert(db, query))
+            {
+                _logger.LogInformation($"Survey {surveyModel.SurveyName} created successfully.");
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, "Failed to create survey; database error.");
+            }
+            dbManager.close(db);
+
+
+            return Ok(new { message = "Survey created successfully." });
+        }
+
+        [HttpPost("survey/add-question")]
+        public IActionResult AddQuestion([FromBody] QuestionCreationModel questionCreationModel)
+        {
+            var db = dbManager.connect();
+            var query = @$"CALL add_question('{questionCreationModel.SurveyId}', '{questionCreationModel.QuestionText}', '{questionCreationModel.AnswerType}');";
+            if (dbManager.insert(db, query))
+            {
+                _logger.LogInformation($"Question added successfully.");
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, "Failed to add question; database error.");
+            }
+            dbManager.close(db);
+
+            return Ok(new { message = "Question added successfully." });
         }
     }
 }
