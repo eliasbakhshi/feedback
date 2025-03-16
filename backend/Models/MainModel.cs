@@ -15,4 +15,11 @@ namespace backend.Models
         public string? Role { get; set; } = "operator";
         public required string RecaptchaToken { get; set; }
     }
+
+    public class LoginModel
+    {
+        public required string Email { get; set; }
+        public required string Password { get; set; }
+        public required string RecaptchaToken { get; set; }
+    }
 }
