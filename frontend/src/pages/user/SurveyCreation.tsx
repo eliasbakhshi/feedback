@@ -4,6 +4,7 @@ import { DndContext, closestCenter, DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { arrayMove } from "@dnd-kit/sortable";
+import { toast } from "react-toastify";
 
 function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
   const [showForm, setShowForm] = useState(false);
@@ -22,7 +23,10 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!questionText.trim()) return;
+    if (!questionText.trim()) {
+      toast.error("Frågetexten får inte vara tom!");
+      return;
+    }
 
     await addQuestion({
       SurveyId: surveyId,
@@ -73,7 +77,6 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
               onChange={(e) => setQuestionText(e.target.value)}
               placeholder="Skriv din fråga här..."
               className="w-full p-2 border rounded-md"
-              required
             />
             <select
               value={answerType}
