@@ -81,7 +81,7 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
               className="w-full mt-2 p-2 border rounded-md"
             >
               <option value="truefalse">Ja / Nej</option>
-              <option value="trafficlight">Traffic Light (Röd/Gul/Grön)</option>
+              <option value="trafficlight">Trafikljus (Röd/Gul/Grön)</option>
               <option value="freetext">Fritext</option>
               <option value="scale">1-5</option>
             </select>
