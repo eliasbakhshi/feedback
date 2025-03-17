@@ -75,8 +75,8 @@ namespace FeedbackBackend.Controllers
 
         }
 
-        [HttpPost("delete-question")]
-        public IActionResult DeleteQuestion([FromBody] int questionId)
+        [HttpDelete("delete-question")]
+        public IActionResult DeleteQuestion([FromQuery] int questionId)
         {
             try {
                 using (var db = dbManager.connect())
@@ -101,7 +101,7 @@ namespace FeedbackBackend.Controllers
         }
 
         [HttpGet("get-survey-questions")]
-        public IActionResult GetSurveyQuestions([FromBody] int surveyId)
+        public IActionResult GetSurveyQuestions([FromQuery] int surveyId)
         {
             try {
                 using (var db = dbManager.connect())
