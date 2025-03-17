@@ -30,15 +30,19 @@ namespace FeedbackBackend.Controllers
                 using (var db = dbManager.connect())
                 {
                     var query = @$"CALL create_survey('{surveyModel.SurveyCreator}', '{surveyModel.SurveyName}', '{surveyModel.SurveyDescription}');";
-                    if (dbManager.insert(db, query))
-                    {
-                        _logger.LogInformation($"Survey {surveyModel.SurveyName} created successfully.");
-                        return Ok(new { message = "Survey created successfully." });
-                    }
-                    else
-                    {
-                        return StatusCode(StatusCodes.Status400BadRequest, new { message = "Failed to create survey; database error." });
-                    }
+                    dbManager.insert(db, query);
+
+                    var surveyIdQuery = @$"SELECT id FROM surveys WHERE title = '{surveyModel.SurveyName}';";
+                    var surveyData = dbManager.select(db, surveyIdQuery);
+                    
+                    _logger.LogInformation($"Survey {surveyModel.SurveyName} created successfully.");
+
+                    return Ok(new 
+                    { 
+                        message = "Survey created successfully.",
+                        surveyId = surveyData[0]["id"]
+                    });
+                
                 }
             }
             catch (Exception ex)
