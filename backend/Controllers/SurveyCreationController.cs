@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,38 +26,70 @@ namespace FeedbackBackend.Controllers
         [HttpPost("create-survey")]
         public IActionResult CreateSurvey([FromBody] SurveyCreationModel surveyModel)
         {
-            var db = dbManager.connect();
-            var query = @$"CALL create_survey('{surveyModel.SurveyCreator}', '{surveyModel.SurveyName}', '{surveyModel.SurveyDescription}');";
-            if (dbManager.insert(db, query))
+            using (var db = dbManager.connect())
             {
-                _logger.LogInformation($"Survey {surveyModel.SurveyName} created successfully.");
+                var query = @$"CALL create_survey('{surveyModel.SurveyCreator}', '{surveyModel.SurveyName}', '{surveyModel.SurveyDescription}');";
+                if (dbManager.insert(db, query))
+                {
+                    _logger.LogInformation($"Survey {surveyModel.SurveyName} created successfully.");
+                    return Ok(new { message = "Survey created successfully." });
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "Failed to create survey; database error.");
+                }
             }
-            else
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, "Failed to create survey; database error.");
-            }
-            dbManager.close(db);
-
-
-            return Ok(new { message = "Survey created successfully." });
         }
 
         [HttpPost("add-question")]
         public IActionResult AddQuestion([FromBody] QuestionCreationModel questionCreationModel)
         {
-            var db = dbManager.connect();
-            var query = @$"CALL add_question('{questionCreationModel.SurveyId}', '{questionCreationModel.QuestionText}', '{questionCreationModel.AnswerType}');";
-            if (dbManager.insert(db, query))
+            using (var db = dbManager.connect())
             {
-                _logger.LogInformation($"Question added successfully.");
+                var query = @$"CALL add_question('{questionCreationModel.SurveyId}', '{questionCreationModel.QuestionText}', '{questionCreationModel.AnswerType}');";
+                if (dbManager.insert(db, query))
+                {
+                    _logger.LogInformation($"Question added successfully.");
+                    return Ok(new { message = "Question added successfully." });
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "Failed to add question; database error.");
+                }
             }
-            else
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, "Failed to add question; database error.");
-            }
-            dbManager.close(db);
+        }
 
-            return Ok(new { message = "Question added successfully." });
+        [HttpPost("delete-question")]
+        public IActionResult DeleteQuestion([FromBody] int questionId)
+        {
+            using (var db = dbManager.connect())
+            {
+                var query = @$"DELETE FROM questions WHERE id = '{questionId}';";
+                if (dbManager.delete(db, query) > 0)
+                {
+                    _logger.LogInformation($"Question deleted successfully.");
+                    return Ok(new { message = "Question deleted successfully." });
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "Failed to delete question; database error.");
+                }
+            }
+        }
+
+        [HttpGet("get-survey-questions")]
+        public IActionResult GetSurveyQuestions([FromBody] int surveyId)
+        {
+            using (var db = dbManager.connect())
+            {
+                var query = @$"SELECT * FROM questions WHERE survey_id = '{surveyId}';";
+                var result = dbManager.select(db, query);
+                if (result.Count == 0)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "Failed to retrieve questions; no questions found.");
+                }
+                return Ok(result);
+            }
         }
     }
 }

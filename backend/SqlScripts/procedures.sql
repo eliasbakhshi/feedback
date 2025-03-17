@@ -40,7 +40,6 @@ AS $$
     VALUES (survey_id, question, answer_type);
 $$;
 
-
 /* functions */
 CREATE FUNCTION check_login_credentials(
     user_email VARCHAR(255),
