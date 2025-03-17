@@ -2,15 +2,6 @@ import apiSlice from "./apiSlice";
 
 export const mainApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
-        getUsers: builder.query<any, void>({
-            query: () => ({
-                url: "/api/posts",
-                // url: "https://jsonplaceholder.typicode.com/posts",
-                method: "GET",
-            }),
-            providesTags: ["User"],
-            keepUnusedDataFor: 0,
-        }),
         addSurvey: builder.mutation<any, { SurveyCreator: string; SurveyName: string; SurveyDescription: string }>({
             query: (surveyData) => ({
                 url: "/api/survey/create-survey",
@@ -29,10 +20,27 @@ export const mainApi = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ["Question"],
         }),
+        deleteQuestion: builder.mutation<any, { QuestionId: number }>({
+            query: ({ QuestionId }) => ({
+                url: `/api/survey/delete-question?questionId=${QuestionId}`,
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" }
+            }),
+            invalidatesTags: ["Question"],
+        }),
+        getSurveyQuestions: builder.query<any, { SurveyId: number }>({
+            query: ({ SurveyId }) => ({
+                url: `/api/survey/get-survey-questions?surveyId=${SurveyId}`,
+                method: "GET",
+            }),
+            providesTags: ["Question"],
+        }),
     }),
 });
 
 export const {
-    useGetUsersQuery,
+    useAddSurveyMutation,
     useAddQuestionMutation,
+    useDeleteQuestionMutation,
+    useGetSurveyQuestionsQuery,
 } = mainApi;

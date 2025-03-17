@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { useAddQuestionMutation } from "../../store/api/mainApiSlice";
+import React, { useState, useEffect } from "react";
+import { useAddQuestionMutation, useGetSurveyQuestionsQuery } from "../../store/api/mainApiSlice";
 import { DndContext, closestCenter, DragEndEvent } from "@dnd-kit/core";
-import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { arrayMove } from "@dnd-kit/sortable";
 import { toast } from "react-toastify";
+import QuestionCard from "./components/QuestionCard";
 
 function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
   const [showForm, setShowForm] = useState(false);
@@ -16,10 +16,19 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
     SCALE = "scale"
   }
   const [answerType, setAnswerType] = useState<AnswerTypes>(AnswerTypes.TRUE_FALSE);
-  const [submittedQuestions, setSubmittedQuestions] = useState<
-    { id: number; text: string; answerType: string; answer: string | null }[]
-  >([]);
+  const [submittedQuestions, setSubmittedQuestions] = useState< {id: number; text: string; answerType: string; answer: string | null }[] >([]);
   const [addQuestion, { isLoading }] = useAddQuestionMutation();
+  const { data: existingQuestions } = useGetSurveyQuestionsQuery({ SurveyId: 1 }); /* 1 hårdkodat */
+
+  useEffect(() => {
+        const formattedQuestions = existingQuestions.map((q: any) => ({
+            id: q.id,
+            text: q.question,
+            answerType: q.answer_type,
+            answer: null,
+        }));
+        setSubmittedQuestions(formattedQuestions);
+  }, [existingQuestions]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,15 +38,10 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
     }
 
     await addQuestion({
-      SurveyId: surveyId,
+      SurveyId: 1, /* 1 hårdkodat */
       QuestionText: questionText,
       AnswerType: answerType,
     });
-
-    setSubmittedQuestions((prev) => [
-      ...prev,
-      { id: prev.length + 1, text: questionText, answerType, answer: null },
-    ]);
 
     setShowForm(false);
     setQuestionText("");
@@ -60,7 +64,7 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
   };
 
   return (
-    <div className="flex h-full mr-2 ml-2 mt-2 gap-4 bg-gray-300 rounded-lg">
+    <div className="flex h-full mr-2 ml-2 gap-4 bg-gray-300 rounded-lg">
       <div className="w-1/5 p-4 border rounded-lg shadow-md justify-center text-center bg-gray-200">
         {!showForm ? (
           <button
@@ -109,12 +113,13 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
         )}
       </div>
 
-      <div className="w-4/5 p-4 border rounded-lg shadow-md h-full bg-gray-200">
+      <div className="w-4/5 p-4 border rounded-lg shadow-md h-full bg-gray-200 overflow-auto">
         <h2 className="text-xl font-semibold">Formulär</h2>
+        <p className="mt-4">Antal frågor: {submittedQuestions.length}</p>
         <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={submittedQuestions} strategy={verticalListSortingStrategy}>
             {submittedQuestions.map((question) => (
-              <SortableQuestion
+              <QuestionCard
                 key={question.id}
                 question={question}
                 handleAnswerSubmit={handleAnswerSubmit}
@@ -126,112 +131,4 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
     </div>
   );
 }
-
-const SortableQuestion = ({
-  question,
-  handleAnswerSubmit,
-}: {
-  question: { id: number; text: string; answerType: string; answer: string | null };
-  handleAnswerSubmit: (id: number, answer: string) => void;
-}) => {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: question.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="relative mt-2 p-4 border rounded-lg bg-gray-100 shadow-sm"
-    >
-      <div
-        {...listeners}
-        {...attributes}
-        className="text-2xl absolute top-2 right-2 cursor-grab opacity-60 hover:opacity-100"
-      >
-        ≡
-      </div>
-
-      <p className="font-semibold">{question.text}</p>
-
-      {question.answerType === "truefalse" ? (
-        <div className="flex gap-4 mt-2">
-          <button
-            onClick={() => handleAnswerSubmit(question.id, "Ja")}
-            className={`px-4 py-2 rounded-md ${
-              question.answer === "Ja" ? "bg-green-600 text-white" : "bg-green-500 text-white hover:bg-green-600 opacity-60 hover:opacity-100"
-            }`}
-          >
-            Ja
-          </button>
-          <button
-            onClick={() => handleAnswerSubmit(question.id, "Nej")}
-            className={`px-4 py-2 rounded-md ${
-              question.answer === "Nej" ? "bg-red-600 text-white" : "bg-red-500 text-white hover:bg-red-600 opacity-60 hover:opacity-100"
-            }`}
-          >
-            Nej
-          </button>
-        </div>
-      ) : question.answerType === "trafficlight" ? (
-        <div className="flex gap-4 mt-2">
-          {["Röd", "Gul", "Grön"].map((color) => (
-            <label key={color} className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name={`traffic-${question.id}`}
-                value={color}
-                checked={question.answer === color}
-                onChange={() => handleAnswerSubmit(question.id, color)}
-                className="hidden"
-              />
-              <span
-                className={`px-4 py-2 rounded-md ${
-                  color === "Röd" ? "bg-red-500" : color === "Gul" ? "bg-yellow-500" : "bg-green-500"
-                } ${question.answer === color ? "opacity-100" : "opacity-60 hover:opacity-100"}`}
-              >
-                {color}
-              </span>
-            </label>
-          ))}
-        </div>
-      ) : question.answerType === "freetext" ? (
-        <div className="mt-2">
-          <textarea
-            value={question.answer || ""}
-            onChange={(e) => handleAnswerSubmit(question.id, e.target.value)}
-            className="w-full p-2 border rounded-md"
-            placeholder="Skriv ditt svar här..."
-          />
-        </div>
-      ) : question.answerType === "scale" ? (
-        <div className="flex gap-4 mt-2">
-          {[1, 2, 3, 4, 5].map((num) => (
-            <label key={num} className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="radio"
-                name={`scale-${question.id}`}
-                value={num}
-                checked={question.answer === num.toString()}
-                onChange={() => handleAnswerSubmit(question.id, num.toString())}
-                className="hidden"
-              />
-              <span
-                className={`px-4 py-2 rounded-md ${
-                  question.answer === num.toString() ? "bg-red-600 text-white" : "bg-red-500 text-white hover:bg-red-600 opacity-60 hover:opacity-100"
-                }`}
-              >
-                {num}
-              </span>
-            </label>
-          ))}
-        </div>
-      ) : null}
-    </div>
-  );
-};
-
 export default SurveyQuestionForm;
