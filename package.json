@@ -4,7 +4,7 @@
   "version": "0.5",
   "type": "module",
   "scripts": {
-    "backend": "npx cross-env NODE_ENV=development dotnet run --project backend",
+    "backend": "npx cross-env NODE_ENV=development dotnet watch run --project backend",
     "frontend": "npx cross-env NODE_ENV=development npm run dev --prefix frontend",
     "start": "npx cross-env NODE_ENV=development concurrently \"npm run backend\" \"npm run frontend\""
   },
