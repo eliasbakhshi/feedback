@@ -11,6 +11,8 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
   enum AnswerTypes {
     TRUE_FALSE = "truefalse",
     TRAFFIC_LIGHT = "trafficlight",
+    FREE_TEXT = "freetext",
+    SCALE = "scale"
   }
   const [answerType, setAnswerType] = useState<AnswerTypes>(AnswerTypes.TRUE_FALSE);
   const [submittedQuestions, setSubmittedQuestions] = useState<
@@ -54,8 +56,8 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
   };
 
   return (
-    <div className="flex h-full">
-      <div className="w-1/3 p-4 border rounded-lg shadow-md justify-center text-center">
+    <div className="flex h-full mr-2 ml-2 mt-2 gap-4 bg-gray-300 rounded-lg">
+      <div className="w-1/5 p-4 border rounded-lg shadow-md justify-center text-center bg-gray-200">
         {!showForm ? (
           <button
             onClick={() => setShowForm(true)}
@@ -79,7 +81,9 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
               className="w-full mt-2 p-2 border rounded-md"
             >
               <option value="truefalse">Ja / Nej</option>
-              <option value="trafficlight">Traffic Light (Röd/Gul/Grön)</option>
+              <option value="trafficlight">Trafikljus (Röd/Gul/Grön)</option>
+              <option value="freetext">Fritext</option>
+              <option value="scale">1-5</option>
             </select>
 
             <div className="flex justify-between mt-2">
@@ -102,7 +106,8 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
         )}
       </div>
 
-      <div className="w-2/3 p-4">
+      <div className="w-4/5 p-4 border rounded-lg shadow-md h-full bg-gray-200">
+        <h2 className="text-xl font-semibold">Formulär</h2>
         <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={submittedQuestions} strategy={verticalListSortingStrategy}>
             {submittedQuestions.map((question) => (
@@ -142,7 +147,7 @@ const SortableQuestion = ({
       <div
         {...listeners}
         {...attributes}
-        className="text-xl absolute top-2 right-2 cursor-grab opacity-50 hover:opacity-100"
+        className="text-2xl absolute top-2 right-2 cursor-grab opacity-60 hover:opacity-100"
       >
         ≡
       </div>
@@ -154,7 +159,7 @@ const SortableQuestion = ({
           <button
             onClick={() => handleAnswerSubmit(question.id, "Ja")}
             className={`px-4 py-2 rounded-md ${
-              question.answer === "Ja" ? "bg-green-600 text-white" : "bg-green-500 text-white hover:bg-green-600"
+              question.answer === "Ja" ? "bg-green-600 text-white" : "bg-green-500 text-white hover:bg-green-600 opacity-60 hover:opacity-100"
             }`}
           >
             Ja
@@ -162,13 +167,13 @@ const SortableQuestion = ({
           <button
             onClick={() => handleAnswerSubmit(question.id, "Nej")}
             className={`px-4 py-2 rounded-md ${
-              question.answer === "Nej" ? "bg-red-600 text-white" : "bg-red-500 text-white hover:bg-red-600"
+              question.answer === "Nej" ? "bg-red-600 text-white" : "bg-red-500 text-white hover:bg-red-600 opacity-60 hover:opacity-100"
             }`}
           >
             Nej
           </button>
         </div>
-      ) : (
+      ) : question.answerType === "trafficlight" ? (
         <div className="flex gap-4 mt-2">
           {["Röd", "Gul", "Grön"].map((color) => (
             <label key={color} className="flex items-center gap-2 cursor-pointer">
@@ -183,14 +188,45 @@ const SortableQuestion = ({
               <span
                 className={`px-4 py-2 rounded-md ${
                   color === "Röd" ? "bg-red-500" : color === "Gul" ? "bg-yellow-500" : "bg-green-500"
-                } ${question.answer === color ? "opacity-100" : "opacity-50 hover:opacity-100"}`}
+                } ${question.answer === color ? "opacity-100" : "opacity-60 hover:opacity-100"}`}
               >
                 {color}
               </span>
             </label>
           ))}
         </div>
-      )}
+      ) : question.answerType === "freetext" ? (
+        <div className="mt-2">
+          <textarea
+            value={question.answer || ""}
+            onChange={(e) => handleAnswerSubmit(question.id, e.target.value)}
+            className="w-full p-2 border rounded-md"
+            placeholder="Skriv ditt svar här..."
+          />
+        </div>
+      ) : question.answerType === "scale" ? (
+        <div className="flex gap-4 mt-2">
+          {[1, 2, 3, 4, 5].map((num) => (
+            <label key={num} className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name={`scale-${question.id}`}
+                value={num}
+                checked={question.answer === num.toString()}
+                onChange={() => handleAnswerSubmit(question.id, num.toString())}
+                className="hidden"
+              />
+              <span
+                className={`px-4 py-2 rounded-md ${
+                  question.answer === num.toString() ? "bg-red-600 text-white" : "bg-red-500 text-white hover:bg-red-600 opacity-60 hover:opacity-100"
+                }`}
+              >
+                {num}
+              </span>
+            </label>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 };
