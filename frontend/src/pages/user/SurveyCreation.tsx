@@ -21,14 +21,16 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
   const { data: existingQuestions } = useGetSurveyQuestionsQuery({ SurveyId: 1 }); /* 1 hårdkodat */
 
   useEffect(() => {
-        const formattedQuestions = existingQuestions.map((q: any) => ({
+    if (existingQuestions) {
+        const questions = existingQuestions.map((q: any) => ({
             id: q.id,
             text: q.question,
             answerType: q.answer_type,
             answer: null,
         }));
-        setSubmittedQuestions(formattedQuestions);
-  }, [existingQuestions]);
+        setSubmittedQuestions(questions);
+    }
+}, [existingQuestions]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,4 +133,5 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
     </div>
   );
 }
+
 export default SurveyQuestionForm;
