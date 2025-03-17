@@ -185,5 +185,78 @@ namespace backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to update user email.");
             }
         }
+
+        [HttpPut("register")]
+        public IActionResult Register([FromBody] AdminRegistrationModel registration)
+        {
+            try
+            {
+                using (var dbCheck = dbManager.connect())
+                {
+                    string checkEmail = $"SELECT COUNT(*) FROM accounts WHERE email = '{registration.Email}';";
+                    var check = dbManager.select(dbCheck, checkEmail);
+                    var result = check.FirstOrDefault()?["count"] as long?;
+                    bool exists = result.HasValue && result.Value > 0;
+
+                    if (exists)
+                    {
+                        return BadRequest(new { message = "Failed to register user; user already exists." });
+                    }
+                }
+
+                using (var dbInsert = dbManager.connect())
+                {
+                    if (registration.Password?.Length < 6)
+                    {
+                        return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; password must be at least 6 characters.");
+                    }
+
+                    var query = @$"CALL create_account('{registration.FirstName}', '{registration.LastName}', '{registration.Email}', '{registration.Password}', '{registration.Role}')";
+
+                    if (dbManager.insert(dbInsert, query))
+                    {
+                        _logger.LogInformation($"User {registration.Email} registered successfully.");
+                        return Ok(new { message = "User registered successfully." });
+                    }
+                    else
+                    {
+                        return BadRequest(new { message = "Failed to register user; database error." });
+                    }
+                }
+            }
+            catch (NullReferenceException ex)
+            {
+                _logger.LogError(ex, "An error occurred while registering a new user.");
+                return StatusCode(StatusCodes.Status400BadRequest, "Failed to register user; missing arguments.");
+            }
+        }
+        [HttpDelete("delete/{userId}")]
+        public IActionResult RemoveUser(int userId)
+        {
+            Console.WriteLine("line:  " + userId);
+            try
+            {
+            using (var db = dbManager.connect())
+            {
+                var query = $"DELETE FROM accounts WHERE id = {userId};";
+
+                int affectedRows = dbManager.update(db, query);
+                dbManager.close(db);
+
+                if (affectedRows == 0)
+                {
+                return NotFound("User not found.");
+                }
+            }
+
+            _logger.LogInformation($"User with ID {userId} removed successfully.");
+            return Ok(new { message = "User removed successfully." });
+            }
+            catch (Exception ex)
+            {
+            _logger.LogError(ex, "An error occurred while removing user.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "Failed to remove user.");
+            }
+        }
     }
 }
