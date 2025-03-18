@@ -157,15 +157,15 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
 
       <div className="w-4/5 p-4 border rounded-lg shadow-md h-full bg-slate-100 overflow-auto">
       <div className="flex justify-end gap-6 mt-2 mr-6">
-        <button className="px-4 py-2 text-gray-700 flex items-center hover:text-gray-900 group">
+        <button className="px-4 py-2 text-gray-700 text-sm flex items-center hover:text-gray-900 group">
           <LuEye className="mr-2 group-hover:hidden" />
           <LuScanEye className="mr-2 hidden group-hover:block" /> Förhandsvisning
         </button>
-        <button className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 flex items-center">
+        <button className="px-4 py-2 bg-red-500 text-white text-sm rounded-full flex items-center hover:bg-red-600 ">
           <LuSend className="mr-2" />
           Dela
         </button>
-        <button className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 flex items-center">
+        <button className="px-4 py-2 bg-red-500 text-white text-sm rounded-full flex items-center hover:bg-red-600 ">
           <LuChartNoAxesCombined className="mr-2" />
           Resultat
         </button>
