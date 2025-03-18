@@ -14,20 +14,13 @@ DROP TABLE IF EXISTS questions;
 DROP TABLE IF EXISTS surveys;
 DROP TABLE IF EXISTS accounts;
 
-DROP PROCEDURE IF EXISTS create_account;
-DROP PROCEDURE IF EXISTS create_survey;
-DROP PROCEDURE IF EXISTS add_question;
-
-DROP FUNCTION IF EXISTS check_login_credentials;
-DROP FUNCTION IF EXISTS get_firstname;
-DROP FUNCTION IF EXISTS get_user_surveys;
 
 DROP EXTENSION IF EXISTS pgcrypto;
 
 \c postgres
 DROP DATABASE IF EXISTS feedbacker;
-CREATE DATABASE feedbacker;
 
+CREATE DATABASE feedbacker;
 \c feedbacker
 
 CREATE ROLE dbadm LOGIN PASSWORD 'dbadm';
@@ -63,7 +56,8 @@ CREATE TABLE accounts (
     lastname VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role ROLES DEFAULT 'operator'
+    role ROLES DEFAULT 'operator',
+    token VARCHAR(64)
 );
 
 CREATE TABLE surveys (

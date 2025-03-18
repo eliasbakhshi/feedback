@@ -1,3 +1,12 @@
+DROP PROCEDURE IF EXISTS create_account;
+DROP PROCEDURE IF EXISTS create_survey;
+DROP PROCEDURE IF EXISTS add_question;
+DROP FUNCTION IF EXISTS get_hashed_token;
+
+DROP FUNCTION IF EXISTS add_token;
+DROP FUNCTION IF EXISTS check_login_credentials;
+
+
 /* procedures */
 CREATE PROCEDURE create_account(
     firstname VARCHAR(255),
@@ -34,6 +43,17 @@ AS $$
     VALUES (survey_id, question, answer_type);
 $$;
 
+CREATE PROCEDURE add_token(
+    new_token VARCHAR(64),
+    userID INT
+)
+LANGUAGE SQL
+AS $$
+    UPDATE accounts
+    SET token = new_token
+    WHERE id = userID
+$$;
+
 /* functions */
 CREATE FUNCTION check_login_credentials(
     user_email VARCHAR(255),
@@ -48,24 +68,13 @@ AS $$
     AND password = crypt(user_password, password);
 $$;
 
-CREATE FUNCTION get_firstname(
-    IN userID INT
+CREATE FUNCTION get_hashed_token(
+    userID INT
 )
-RETURNS TABLE (firstname VARCHAR(255))
+RETURNS VARCHAR(64)
 LANGUAGE SQL
 AS $$
-    SELECT firstname
-    FROM accounts
+    SELECT crypt(token, gen_salt('bf')) 
+    FROM accounts 
     WHERE id = userID;
-$$;
-
-CREATE FUNCTION get_user_surveys(
-    IN userID INT
-)
-RETURNS TABLE (title VARCHAR(255), created_at TIMESTAMP)
-LANGUAGE SQL
-AS $$
-    SELECT title, created_at
-    FROM surveys
-    WHERE creator = userID;
 $$;
