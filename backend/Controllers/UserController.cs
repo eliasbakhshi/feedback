@@ -256,5 +256,36 @@ namespace backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to retrieve questions." });
             }
         }
+
+        [HttpGet("")]
+        public IActionResult getSurveys([FromQuery] int userId, string token)
+        {
+            try {
+            // checka token
+
+            // hämta en användares förnamn
+            string? firstname = "";
+            using (var db = dbManager.connect()) {
+                var query = @$"SELECT * FROM get_firstname({userId})";
+                var result = dbManager.select(db, query);
+                Console.WriteLine(result[0]);
+                firstname = result[0]["firstname"].ToString();
+            }
+
+            // hämta en användares alla formulär(titel, created at)
+            using (var db = dbManager.connect()){
+                var query = @$"SELECT * FROM get_user_surveys({userId})";
+                var result = dbManager.select(db, query);
+            }
+            //returnera förnamn och alla formulären
+            return Ok(new {
+                Message = "Ok",
+                firstname
+            });
+            } catch {
+
+            }
+            return Ok();
+        }
     }
 }

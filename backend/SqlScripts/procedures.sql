@@ -1,7 +1,3 @@
-DROP PROCEDURE IF EXISTS create_account;
-DROP FUNCTION IF EXISTS check_login_credentials;
-
-
 /* procedures */
 CREATE PROCEDURE create_account(
     firstname VARCHAR(255),
@@ -50,4 +46,26 @@ AS $$
     FROM accounts
     WHERE email = user_email 
     AND password = crypt(user_password, password);
+$$;
+
+CREATE FUNCTION get_firstname(
+    IN userID INT
+)
+RETURNS TABLE (firstname VARCHAR(255))
+LANGUAGE SQL
+AS $$
+    SELECT firstname
+    FROM accounts
+    WHERE id = userID;
+$$;
+
+CREATE FUNCTION get_user_surveys(
+    IN userID INT
+)
+RETURNS TABLE (title VARCHAR(255), created_at TIMESTAMP)
+LANGUAGE SQL
+AS $$
+    SELECT title, created_at
+    FROM surveys
+    WHERE creator = userID;
 $$;
