@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { setCredentials } from "../../store/authSlice";
 import { useLoginMutation } from "../../store/api/userApiSlice";
 import { toast } from "react-toastify";
+import Cookies from "js-cookie"; // import till cookies
 import "react-toastify/dist/ReactToastify.css";
 import ReCAPTCHA from "react-google-recaptcha";
 
@@ -31,21 +32,35 @@ const LoginPage = () => {
         try {
             const userData = { email, password, recaptchaToken };
             const response = await loginUser(userData).unwrap();
+            //Cookie istället för sessionStorage
+            Cookies.set('userId', response.userId, { expires: 7, secure: true, sameSite: 'strict' }); //skydd mot CSRF
+            Cookies.set('userRole', response.role, { expires: 7, secure: true });
+            Cookies.set('token', response.token, { expires: 7, secure: true, sameSite: 'strict' });
+            //Om backend skickar en auth token
+            if (response.token) {
+                Cookies.set('authToken', response.token, { expires: 7, secure: true, sameSite: 'strict' });
+            }
+            // omdirigera baserat på användarens roll
+            if (response.role === 'admin') {
+                navigate("/admin/dashboard"); //Byt rendering ifall behövs
+            } else {
+                navigate("/account"); //Byt rendering ifall behövs
+            }
 
-            dispatch(setCredentials({ user: response }));
 
-            sessionStorage.setItem("userId", response.userId);
-            sessionStorage.setItem("userRole", response.role);
-
-            toast.success("Välkommen!");
-
-            navigate("/account", { replace: true });
-        } catch (error: any) {
-            const errorMessage = error.data?.message || "Något gick fel!";
-            toast.error(errorMessage);
+            toast.success("Välkommen!", { position: "top-right" });
         }
-    };
-
+        catch (error: any) {
+            const errorMessage = error.data?.Message || "Något gick fel!";
+            switch (error.originalStatus) {
+                case 401:
+                    toast.error("Fel e-post eller lösenord!", { position: "top-right" });
+                    break;
+                default:
+                    toast.error(errorMessage, { position: "top-right" });
+            }
+        }
+    }
     return (
         <div
             className="flex justify-center items-center h-screen bg-gray-900 bg-[url('./highway.jpg')] bg-cover bg-center"
@@ -86,4 +101,3 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-
