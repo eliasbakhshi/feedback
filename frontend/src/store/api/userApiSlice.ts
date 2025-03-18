@@ -63,7 +63,7 @@ export const mainApi = apiSlice.injectEndpoints({
             }),
           }),
           // SURVEY
-          addSurvey: builder.mutation<any, { SurveyCreator: string; SurveyName: string; SurveyDescription: string }>({
+          addSurvey: builder.mutation<any, { SurveyCreator: number; SurveyName: string; SurveyDescription: string }>({
             query: (surveyData) => ({
                 url: "/api/user/survey/create-survey",
                 method: "POST",

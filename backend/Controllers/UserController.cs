@@ -162,20 +162,32 @@ namespace backend.Controllers
         [HttpPost("survey/create-survey")]
         public IActionResult CreateSurvey([FromBody] SurveyCreationModel surveyModel)
         {
-            var db = dbManager.connect();
-            var query = @$"CALL create_survey('{surveyModel.SurveyCreator}', '{surveyModel.SurveyName}', '{surveyModel.SurveyDescription}');";
-            if (dbManager.insert(db, query))
+            try
             {
-                _logger.LogInformation($"Survey {surveyModel.SurveyName} created successfully.");
+                using (var db = dbManager.connect())
+                {
+                    var query = @$"CALL create_survey('{surveyModel.SurveyCreator}', '{surveyModel.SurveyName}', '{surveyModel.SurveyDescription}');";
+                    dbManager.insert(db, query);
+
+                    var surveyIdQuery = @$"SELECT id FROM surveys WHERE title = '{surveyModel.SurveyName}';";
+                    var surveyData = dbManager.select(db, surveyIdQuery);
+
+                    _logger.LogInformation($"Survey {surveyModel.SurveyName} created successfully.");
+
+                    return Ok(new
+                    {
+                        message = "Survey created successfully.",
+                        surveyId = surveyData[0]["id"]
+                    });
+
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status400BadRequest, "Failed to create survey; database error.");
+                _logger.LogError(ex, "An error occurred when creating survey.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to create survey." });
             }
-            dbManager.close(db);
 
-
-            return Ok(new { message = "Survey created successfully." });
         }
 
         [HttpPost("survey/add-question")]
