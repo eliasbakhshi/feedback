@@ -82,5 +82,19 @@ namespace backend.UserDataAccess
                 return 0;
             }
         }
+
+        public int delete(NpgsqlConnection db, string? query) // function for DELETE sql query
+        {
+            try
+            {
+                var cmd = new NpgsqlCommand(query, db);
+                return cmd.ExecuteNonQuery();
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Bad input error: \n" + ex.Message);
+                return 0;
+            }
+        }
     }
 }

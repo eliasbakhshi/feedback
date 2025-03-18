@@ -41,6 +41,13 @@ BEGIN
     END IF;
 END $$;
 
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'answer_types') THEN
+        CREATE TYPE ANSWER_TYPES AS ENUM('freetext', 'truefalse', 'scale', 'trafficlight');
+    END IF;
+END $$;
+
 /* tables */
 CREATE TABLE accounts (
     id SERIAL PRIMARY KEY,
@@ -49,6 +56,32 @@ CREATE TABLE accounts (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role ROLES DEFAULT 'operator'
+);
+
+CREATE TABLE surveys (
+    id SERIAL PRIMARY KEY,
+    creator INT REFERENCES accounts(id),
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE questions (
+    id SERIAL PRIMARY KEY,
+    survey_id INT REFERENCES surveys(id),
+    question TEXT NOT NULL,
+    answer_type ANSWER_TYPES NOT NULL        /* FreeText, TrueFalse, Scale, TrafficLight */
+);
+
+CREATE TABLE answers
+(
+    id SERIAL PRIMARY KEY,
+    question_id INT REFERENCES questions(id),
+    yes_no_answer BOOLEAN,
+    scale_answer INT CHECK (scale_answer BETWEEN 1 AND 5),
+    text_answer TEXT,
+    traffic_light_answer TRAFFIC_LIGHTS,
+    answer_type ANSWER_TYPES NOT NULL        
 );
 
 \i procedures.sql

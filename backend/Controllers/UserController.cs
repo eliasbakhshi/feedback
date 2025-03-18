@@ -22,10 +22,12 @@ namespace backend.Controllers
             _logger = logger;
         }
 
+        //Get user
         [HttpGet("{id}")]
         public IActionResult GetUser(int id)
         {
-            try {
+            try
+            {
                 var db = dbManager.connect();
                 var query = $"SELECT * FROM accounts where id = {id};";
                 var result = dbManager.select(db, query);
@@ -45,10 +47,12 @@ namespace backend.Controllers
             }
         }
 
+        //User info update
         [HttpPut("update-password")]
         public IActionResult UpdatePassword([FromBody] UpdateRequest updatePasswordRequest)
         {
-            try {
+            try
+            {
                 if (updatePasswordRequest.CurrentPassword == updatePasswordRequest.NewPassword)
                 {
                     return BadRequest("New password must be different from the current password.");
@@ -95,7 +99,8 @@ namespace backend.Controllers
         [HttpPut("update-first-name")]
         public IActionResult UpdateFirstName([FromBody] UpdateRequest updateNameRequest)
         {
-            try {
+            try
+            {
                 var db = dbManager.connect();
                 var query = $"UPDATE accounts SET firstname = '{updateNameRequest.NewFirstName}' WHERE id = {updateNameRequest.UserId};";
 
@@ -125,7 +130,8 @@ namespace backend.Controllers
         [HttpPut("update-last-name")]
         public IActionResult UpdateLastName([FromBody] UpdateRequest updateNameRequest)
         {
-            try {
+            try
+            {
                 var db = dbManager.connect();
                 var query = $"UPDATE accounts SET lastname = '{updateNameRequest.NewLastName}' WHERE id = {updateNameRequest.UserId};";
 
@@ -152,6 +158,7 @@ namespace backend.Controllers
             }
         }
 
+        //Survey creation
         [HttpPost("survey/create-survey")]
         public IActionResult CreateSurvey([FromBody] SurveyCreationModel surveyModel)
         {
@@ -187,6 +194,55 @@ namespace backend.Controllers
             dbManager.close(db);
 
             return Ok(new { message = "Question added successfully." });
+        }
+
+        [HttpDelete("survey/delete-question")]
+        public IActionResult DeleteQuestion([FromQuery] int questionId)
+        {
+            try
+            {
+                using (var db = dbManager.connect())
+                {
+                    var query = @$"DELETE FROM questions WHERE id = '{questionId}';";
+                    if (dbManager.delete(db, query) > 0)
+                    {
+                        _logger.LogInformation($"Question deleted successfully.");
+                        return Ok(new { message = "Question deleted successfully." });
+                    }
+                    else
+                    {
+                        return StatusCode(StatusCodes.Status400BadRequest, new { message = "Failed to delete question; database error." });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred when deleting question.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to delete question." });
+            }
+        }
+
+        [HttpGet("survey/get-survey-questions")]
+        public IActionResult GetSurveyQuestions([FromQuery] int surveyId)
+        {
+            try
+            {
+                using (var db = dbManager.connect())
+                {
+                    var query = @$"SELECT * FROM questions WHERE survey_id = '{surveyId}';";
+                    var result = dbManager.select(db, query);
+                    if (result.Count == 0)
+                    {
+                        return StatusCode(StatusCodes.Status400BadRequest, new { message = "Failed to retrieve questions; no questions found." });
+                    }
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred when retrieving questions.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to retrieve questions." });
+            }
         }
     }
 }

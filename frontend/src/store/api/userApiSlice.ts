@@ -62,17 +62,43 @@ export const mainApi = apiSlice.injectEndpoints({
               body: userData,
             }),
           }),
-
-        // createUser: builder.mutation<any, any>({
-        //   query: (info) => ({
-        //     url: "/api/users",
-        //     method: "POST",
-        //     body: info,
-        //   }),
-        //   invalidatesTags: ["User"],
-        // }),
+          // SURVEY
+          addSurvey: builder.mutation<any, { SurveyCreator: string; SurveyName: string; SurveyDescription: string }>({
+            query: (surveyData) => ({
+                url: "/api/user/survey/create-survey",
+                method: "POST",
+                body: surveyData,
+                headers: { "Content-Type": "application/json" } 
+            }),
+            invalidatesTags: ["User"],
+        }),
+        addQuestion: builder.mutation<any, { SurveyId: number; QuestionText: string; AnswerType: string }>({
+            query: (surveyData) => ({
+                url: "/api/user/survey/add-question",
+                method: "POST",
+                body: surveyData,
+                headers: { "Content-Type": "application/json" } 
+            }),
+            invalidatesTags: ["Question"],
+        }),
+        deleteQuestion: builder.mutation<any, { QuestionId: number }>({
+            query: ({ QuestionId }) => ({
+                url: `/api/user/survey/delete-question?questionId=${QuestionId}`,
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" }
+            }),
+            invalidatesTags: ["Question"],
+        }),
+        getSurveyQuestions: builder.query<any, { SurveyId: number }>({
+            query: ({ SurveyId }) => ({
+                url: `/api/user/survey/get-survey-questions?surveyId=${SurveyId}`,
+                method: "GET",
+            }),
+            providesTags: ["Question"],
+        }),
     }),
-});
+ });
+
 
 export const {
     useGetUsersQuery,
@@ -82,5 +108,8 @@ export const {
     useUpdateFirstNameMutation,
     useUpdateLastNameMutation,
     useLoginMutation,
-    // useCreateUserMutation,
+    useAddSurveyMutation,
+    useAddQuestionMutation,
+    useDeleteQuestionMutation,
+    useGetSurveyQuestionsQuery,
 } = mainApi;
