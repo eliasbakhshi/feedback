@@ -1,6 +1,10 @@
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+var startup = new Startup(builder.Configuration);
+
+startup.ConfigureServices(builder.Services);
+
+builder.Services.AddControllers(); 
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -10,8 +14,8 @@ builder.Services.AddCors(options =>
                       policy =>
                       {
                           policy.AllowAnyOrigin()
-                          .AllowAnyMethod()
-                          .AllowAnyHeader();
+                                .AllowAnyMethod()
+                                .AllowAnyHeader();
                       });
 });
 
@@ -21,6 +25,8 @@ builder.Services.AddSingleton<RecaptchaService>();
 var app = builder.Build();
 
 app.UseCors(MyAllowSpecificOrigins);
+
+startup.Configure(app, builder.Environment);
 
 app.UseAuthorization();
 app.MapControllers();

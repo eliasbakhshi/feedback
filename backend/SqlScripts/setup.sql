@@ -55,7 +55,8 @@ CREATE TABLE accounts (
     lastname VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role ROLES DEFAULT 'operator'
+    role ROLES DEFAULT 'operator',
+    verified BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE surveys (
