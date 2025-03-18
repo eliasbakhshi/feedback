@@ -170,7 +170,7 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
           <LuChartNoAxesCombined className="mr-2" />
           Resultat
         </button>
-        </div>
+      </div>
         <h2 className="text-xl font-semibold">Formulär</h2>
         <p className="mt-4">Antal frågor: {submittedQuestions.length}</p>
         <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
