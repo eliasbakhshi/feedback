@@ -13,7 +13,7 @@ const MembersPage = () => {
   const [members, setMembers] = useState<Member[]>([]); // members är en array av Member
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/members") //Hämtar datan från backend
+    fetch("http://localhost:5000/api/users") //Hämtar datan från backend
       .then((res) => res.json()) // Gör om datan till json
       .then((data: Member[]) => setMembers(data)) // Definiera typen för data
       .catch((error) => console.error("Error fetching members:", error));
