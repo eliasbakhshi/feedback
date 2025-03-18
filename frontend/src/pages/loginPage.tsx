@@ -25,11 +25,11 @@ const LoginPage = () => {
             Cookies.set('userRole', response.role, { expires: 7, secure: true });
             Cookies.set('token', response.token, { expires: 7, secure: true, sameSite: 'strict' });
             //Om backend skickar en auth token
-            if (response.Token) {
+            if (response.token) {
                 Cookies.set('authToken', response.token, { expires: 7, secure: true, sameSite: 'strict' });
             }
             // omdirigera baserat på användarens roll
-            if (response.Role === 'admin') {
+            if (response.role === 'admin') {
                 navigate("/admin/dashboard"); //Byt rendering ifall behövs
             } else {
                 navigate("/user/account"); //Byt rendering ifall behövs
