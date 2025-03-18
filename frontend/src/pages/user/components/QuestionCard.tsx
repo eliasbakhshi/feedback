@@ -7,9 +7,11 @@ import { LuTrash2 } from "react-icons/lu";
 const QuestionCard = ({
     question,
     handleAnswerSubmit,
+    handleDeleteFromSession,
   }: {
-    question: { id: number; text: string; answerType: string; answer: string | null };
+    question: { id: number; text: string; answerType: string; answer: string | null; session?: boolean };
     handleAnswerSubmit: (id: number, answer: string) => void;
+    handleDeleteFromSession: (id: number) => void;
   }) => {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: question.id });
   
@@ -21,11 +23,14 @@ const QuestionCard = ({
     const [deleteQuestion] = useDeleteQuestionMutation();
   
     const handleDeleteQuestion = async () => {
+        if (question.session) {
+            handleDeleteFromSession(question.id);
+            return;
+        }
         try {
             await deleteQuestion({ QuestionId: question.id }).unwrap();
-            toast.success("Frågan har tagits bort!");
         } catch (error) {
-            toast.error("Misslyckades med att ta bort frågan.");
+            toast.error("Något fel har inträffats");
         }
     };
   

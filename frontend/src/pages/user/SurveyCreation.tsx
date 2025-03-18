@@ -5,6 +5,7 @@ import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { arrayMove } from "@dnd-kit/sortable";
 import { toast } from "react-toastify";
 import QuestionCard from "./components/QuestionCard";
+import { LuEye,LuScanEye,LuSend, LuChartNoAxesCombined } from "react-icons/lu";
 
 function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
   const [showForm, setShowForm] = useState(false);
@@ -19,6 +20,10 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
   const [submittedQuestions, setSubmittedQuestions] = useState< {id: number; text: string; answerType: string; answer: string | null }[] >([]);
   const [addQuestion, { isLoading }] = useAddQuestionMutation();
   const { data: existingQuestions } = useGetSurveyQuestionsQuery({ SurveyId: 1 }); /* 1 hårdkodat */
+
+  const [localQuestions, setLocalQuestions] = useState<{ id: number; text: string; answerType: string; answer: string | null;}[]>([]); /* session */
+
+
 
   useEffect(() => {
     if (existingQuestions) {
@@ -39,15 +44,43 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
       return;
     }
 
-    await addQuestion({
-      SurveyId: 1, /* 1 hårdkodat */
-      QuestionText: questionText,
-      AnswerType: answerType,
-    });
+    const newQuestion = {
+      id: Date.now(),
+      text: questionText,
+      answerType: answerType,
+      answer: null,
+      session: true,
+    };
 
+    setLocalQuestions((prev) => [...prev, newQuestion]);
     setShowForm(false);
     setQuestionText("");
   };
+
+
+  const handleSaveAll = async () => {
+    if (localQuestions.length === 0) {
+        toast.warning("Inga frågor att spara!");
+        return;
+    }
+
+    try {
+        await Promise.all(localQuestions.map(async (question) => {
+            await addQuestion({
+                SurveyId: 1,
+                QuestionText: question.text,
+                AnswerType: question.answerType,
+            }).unwrap();
+        }));
+
+        toast.success("Alla frågor har sparats!");
+        setLocalQuestions([]);
+    } catch (error) {
+        console.error("Misslyckades att spara frågor:", error);
+        toast.error("Misslyckades att spara frågor.");
+    }
+};
+
 
   const handleAnswerSubmit = (id: number, answer: string) => {
     setSubmittedQuestions((prev) =>
@@ -55,24 +88,35 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
     );
   };
 
+  const handleDeleteFromSession = (id: number) => {
+    setLocalQuestions((prev) => prev.filter((q) => q.id !== id));
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const oldIndex = submittedQuestions.findIndex((q) => q.id === active.id);
-    const newIndex = submittedQuestions.findIndex((q) => q.id === over.id);
+    const submittedList = submittedQuestions || [];
+    const localList = localQuestions || [];
 
-    setSubmittedQuestions((prev) => arrayMove(prev, oldIndex, newIndex));
+    const allQuestions = [...submittedList, ...localList];
+    const oldIndex = allQuestions.findIndex((q) => q.id === active.id);
+    const newIndex = allQuestions.findIndex((q) => q.id === over.id);
+
+    const newOrder = arrayMove(allQuestions, oldIndex, newIndex);
+
+
+    setSubmittedQuestions(newOrder.filter(q => submittedQuestions.some(sq => sq.id === q.id)).map(q => ({ ...q, answer: q.answer || null })));
+    setLocalQuestions(newOrder.filter(q => localQuestions.some(lq => lq.id === q.id)));
   };
 
   return (
-    <div className="flex h-full mr-2 ml-2 gap-4 bg-gray-300 rounded-lg">
-      <div className="w-1/5 p-4 border rounded-lg shadow-md justify-center text-center bg-gray-200">
+    <div className="flex h-full mr-2 ml-2 gap-4 bg-slate-300 rounded-lg">
+      <div className="w-1/5 p-4 border rounded-lg shadow-md justify-center text-center bg-slate-200">
         {!showForm ? (
           <button
             onClick={() => setShowForm(true)}
-            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-          >
+            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
             Skapa fråga
           </button>
         ) : (
@@ -87,8 +131,7 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
             <select
               value={answerType}
               onChange={(e) => setAnswerType(e.target.value as AnswerTypes)}
-              className="w-full mt-2 p-2 border rounded-md"
-            >
+              className="w-full mt-2 p-2 border rounded-md">
               <option value="truefalse">Ja / Nej</option>
               <option value="trafficlight">Trafikljus (Röd/Gul/Grön)</option>
               <option value="freetext">Fritext</option>
@@ -99,15 +142,13 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
               <button
                 type="submit"
                 className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                disabled={isLoading}
-              >
+                disabled={isLoading}>
                 Lägg till fråga
               </button>
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-              >
+                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
                 Avbryt
               </button>
             </div>
@@ -115,20 +156,40 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
         )}
       </div>
 
-      <div className="w-4/5 p-4 border rounded-lg shadow-md h-full bg-gray-200 overflow-auto">
+      <div className="w-4/5 p-4 border rounded-lg shadow-md h-full bg-slate-200 overflow-auto">
+      <div className="flex justify-end gap-6 mt-2 mr-6">
+        <button className="px-4 py-2 text-gray-700 flex items-center hover:text-gray-900 group">
+          <LuEye className="mr-2 group-hover:hidden" />
+          <LuScanEye className="mr-2 hidden group-hover:block" /> Förhandsvisning
+        </button>
+        <button className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 flex items-center">
+          <LuSend className="mr-2" />
+          Dela
+        </button>
+        <button className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 flex items-center">
+          <LuChartNoAxesCombined className="mr-2" />
+          Resultat
+        </button>
+        </div>
         <h2 className="text-xl font-semibold">Formulär</h2>
         <p className="mt-4">Antal frågor: {submittedQuestions.length}</p>
         <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={submittedQuestions} strategy={verticalListSortingStrategy}>
-            {submittedQuestions.map((question) => (
+          <SortableContext items={[...submittedQuestions, ...localQuestions]} strategy={verticalListSortingStrategy}>
+            {[...submittedQuestions, ...localQuestions].map((question) => (
               <QuestionCard
                 key={question.id}
                 question={question}
                 handleAnswerSubmit={handleAnswerSubmit}
+                handleDeleteFromSession={handleDeleteFromSession}
               />
             ))}
           </SortableContext>
         </DndContext>
+        {localQuestions.length > 0 && (
+          <button onClick={handleSaveAll} className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
+              Spara frågorna
+          </button>
+        )}
       </div>
     </div>
   );
