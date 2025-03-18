@@ -22,6 +22,7 @@ namespace backend.Controllers
             _logger = logger;
         }
 
+        //Get user
         [HttpGet("{id}")]
         public IActionResult GetUser(int id)
         {
@@ -46,6 +47,7 @@ namespace backend.Controllers
             }
         }
 
+        //User info update
         [HttpPut("update-password")]
         public IActionResult UpdatePassword([FromBody] UpdateRequest updatePasswordRequest)
         {
@@ -156,6 +158,7 @@ namespace backend.Controllers
             }
         }
 
+        //Survey creation
         [HttpPost("survey/create-survey")]
         public IActionResult CreateSurvey([FromBody] SurveyCreationModel surveyModel)
         {
