@@ -1,4 +1,9 @@
 DROP PROCEDURE IF EXISTS create_account;
+DROP PROCEDURE IF EXISTS create_survey;
+DROP PROCEDURE IF EXISTS add_question;
+DROP FUNCTION IF EXISTS get_hashed_token;
+
+DROP FUNCTION IF EXISTS add_token;
 DROP FUNCTION IF EXISTS check_login_credentials;
 
 
@@ -38,6 +43,17 @@ AS $$
     VALUES (survey_id, question, answer_type);
 $$;
 
+CREATE PROCEDURE add_token(
+    new_token VARCHAR(64),
+    userID INT
+)
+LANGUAGE SQL
+AS $$
+    UPDATE accounts
+    SET token = new_token
+    WHERE id = userID
+$$;
+
 /* functions */
 CREATE FUNCTION check_login_credentials(
     user_email VARCHAR(255),
@@ -50,4 +66,15 @@ AS $$
     FROM accounts
     WHERE email = user_email 
     AND password = crypt(user_password, password);
+$$;
+
+CREATE FUNCTION get_hashed_token(
+    userID INT
+)
+RETURNS VARCHAR(64)
+LANGUAGE SQL
+AS $$
+    SELECT crypt(token, gen_salt('bf')) 
+    FROM accounts 
+    WHERE id = userID;
 $$;

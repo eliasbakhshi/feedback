@@ -7,7 +7,6 @@ BEGIN
       AND pid <> pg_backend_pid();
 END $$;
 
-DROP DATABASE IF EXISTS feedbacker;
 DROP ROLE IF EXISTS dbadm;
 
 DROP TABLE IF EXISTS answers;
@@ -18,8 +17,10 @@ DROP TABLE IF EXISTS accounts;
 
 DROP EXTENSION IF EXISTS pgcrypto;
 
-CREATE DATABASE feedbacker;
+\c postgres
+DROP DATABASE IF EXISTS feedbacker;
 
+CREATE DATABASE feedbacker;
 \c feedbacker
 
 CREATE ROLE dbadm LOGIN PASSWORD 'dbadm';
@@ -55,7 +56,8 @@ CREATE TABLE accounts (
     lastname VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role ROLES DEFAULT 'operator'
+    role ROLES DEFAULT 'operator',
+    token VARCHAR(64)
 );
 
 CREATE TABLE surveys (
