@@ -17,24 +17,26 @@ const Registration = () => {
 
   const handleRegistration = async () => {
     if (!firstName.trim() || !lastName.trim() || !email.trim() || !password.trim()) {
-      toast.error("Alla fält måste fyllas i!", { position: "top-right" });
-      return;
-    }
-    // // /* Check the recaptcha before submitting */
-    const recaptchaToken = recaptcha.current?.getValue();
-    if(!recaptchaToken){
-      toast.error('Vänligen skicka in Captcha')
+      toast.error("Alla fält måste fyllas i!");
       return;
     }
 
     const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!validEmail.test(email)) {
+      recaptcha.current?.reset();
       toast.error("Ange en giltig e-postadress!");
       return;
     }
 
     if (password.length < 6) {
+      recaptcha.current?.reset();
       toast.warning("Lösenordet måste vara minst 6 tecken långt!");
+      return;
+    }
+    // // /* Check the recaptcha before submitting */
+    const recaptchaToken = recaptcha.current?.getValue();
+    if(!recaptchaToken){
+      toast.error('Vänligen skicka in Captcha');
       return;
     }
 
@@ -44,8 +46,8 @@ const Registration = () => {
       toast.success(`Välkommen!`);
       navigate("/login");
     } catch (error: any) {
-      console.log(error);
       const errorMessage = error.data?.message || "Något gick fel!";
+      recaptcha.current?.reset();
       toast.error(errorMessage);
     }
   };
