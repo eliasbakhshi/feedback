@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { useAddSurveyMutation } from "../../store/api/userApiSlice";
+import { useAddSurveyMutation, useGetSurveysQuery } from "../../store/api/userApiSlice";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 const UserDashboard = () => {
     const [surveys, setSurveys] = useState<{ title: string; description: string }[]>([]);
@@ -12,13 +13,22 @@ const UserDashboard = () => {
     const [description, setDescription] = useState("");
     const navigate = useNavigate();
 
+    const userId = Cookies.get("userId");
+    const { data } = useGetSurveysQuery({ userId: Number(userId) });
+
     useEffect(() => {
-        setLoading(false);
-    }, []);
+        if (Array.isArray(data)) { 
+            setSurveys(data);
+            setLoading(false);
+        } else {
+            setSurveys([]);
+        }
+    }, [data]);
+    
 
     const handleCreateSurvey = async () => {
         if (title && description) {
-            const response = await addSurvey({ SurveyCreator: 1, SurveyName: title, SurveyDescription: description });
+            const response = await addSurvey({ SurveyCreator: Number(userId), SurveyName: title, SurveyDescription: description });
             console.log(response?.data);
             if (response?.data?.surveyId) {
                 setSurveys([...surveys, { title, description }]);
@@ -39,7 +49,7 @@ const UserDashboard = () => {
             <div className="flex justify-end bg-slate-100 p-4">
                 <h1 className="text-sm text-gray-800">Andy gud</h1>
             </div>
-            <div className="w-full h-full bg-red-100">
+            <div className="w-full h-full">
                 <button onClick={() => setIsModalOpen(true)} className="px-4 py-2 bg-red-500 text-white rounded-md mt-4 ml-4 hover:bg-red-600">
                     Skapa formulär
                 </button>
@@ -72,17 +82,15 @@ const UserDashboard = () => {
                         </div>
                     </div>
                 )}
-
-                {/* Survey List */}
                 <div className="mt-4">
                     {loading ? (
                         <p>Loading surveys...</p>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mx-4">
                             {surveys.map((survey, index) => (
-                                <div key={index} className="p-4 bg-white rounded-md shadow-md">
-                                    <h2 className="text-lg font-semibold">{survey.title}</h2>
-                                    <p>{survey.description}</p>
+                                <div key={index} className="bg-white rounded-md shadow-lg overflow-hidden">
+                                    <div className="h-20 bg-red-600"></div>
+                                    <h2 className="text-lg py-2 pl-2">{survey.title}</h2>
                                 </div>
                             ))}
                         </div>
