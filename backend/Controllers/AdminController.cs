@@ -258,5 +258,26 @@ namespace backend.Controllers
             return StatusCode(StatusCodes.Status500InternalServerError, "Failed to remove user.");
             }
         }
+
+        [HttpGet("all-users")]
+        public IActionResult AllUsers()
+        {
+            try
+            {
+                var db = dbManager.connect();
+                var query = "SELECT * FROM get_all_users();";
+                
+                var result = dbManager.select(db, query);
+                dbManager.close(db);
+                
+                return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching all users.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to fetch all users.");
+            }
+        }
     }
 }
