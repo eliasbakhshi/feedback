@@ -1,4 +1,4 @@
-import {useDeleteQuestionMutation} from "../../../store/api/mainApiSlice";
+import {useDeleteQuestionMutation} from "../../../store/api/userApiSlice";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { toast } from "react-toastify";

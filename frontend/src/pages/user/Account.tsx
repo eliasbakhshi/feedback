@@ -1,24 +1,23 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useGetAccountInfoQuery, useUpdatePasswordMutation, useUpdateNameMutation } from "../../store/api/userApiSlice";
+import { useGetAccountInfoQuery, useUpdatePasswordMutation, useUpdateFirstNameMutation, useUpdateLastNameMutation } from "../../store/api/userApiSlice";
 import "react-toastify/dist/ReactToastify.css";
 
 const Account = () => {
-  const navigate = useNavigate();
   const userId = sessionStorage.getItem("userId");
 
   const { data: userData } = useGetAccountInfoQuery(Number(userId)); {/* använd userId från session storage */}
-  const [updateName] = useUpdateNameMutation();
   const [updatePassword] = useUpdatePasswordMutation();
-
-  const [fullname, setFullname] = useState("");
+  const [updateFirstName] = useUpdateFirstNameMutation();
+  const [updateLastName] = useUpdateLastNameMutation();
+  const [firstName, setfirstName] = useState("");
+  const [lastName, setlastName] = useState("");
   const [email, setEmail] = useState("");
-
   useEffect(() => {
     if (userData && userData.length > 0) {
       const user = userData[0];
-      setFullname(user.fullname);
+      setfirstName(user.firstname);
+      setlastName(user.lastname);
       setEmail(user.email);
     }
   }, [userData]);
@@ -32,11 +31,12 @@ const Account = () => {
 
   const handleSaveName = async () => {
     try {
-      if (!fullname.trim()) {
+      if (!firstName.trim() || !lastName.trim()) {
         toast.error("Fältet måste fyllas i!", { position: "top-right" });
       } else {
         if (userId) {
-          await updateName({ UserId: userId, NewName: fullname });
+          await updateFirstName({ UserId: userId, newFirstName: firstName });
+          await updateLastName({ UserId: userId, newLastName: lastName });
         } else {
           toast.error("Något gick fel!", { position: "top-right" });
         }
@@ -91,19 +91,13 @@ const Account = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <button 
-        onClick={() => navigate("/")}
-        className="text-2xl absolute top-4 left-4 p-2 cursor-pointer text-gray-800 hover:text-gray-600"
-      >
-        ←
-      </button>
       <div className="w-full max-w-md">
         <div className="space-y-4">
           <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">Konto inställningar</h1>
           <div className="flex items-center space-x-4 mb-4">
             <img src="/TV_logo_Master_Symbol_rgb.png" alt="logo" className="w-20 rounded-full"/>
             <div>
-              <p className="text-3xl font-medium text-gray-600">{fullname}</p>
+              <p className="text-3xl font-medium text-gray-600">{`${firstName} ${lastName}`}</p>
               <hr className="w-full mt-2 border border-gray-300"/>
             </div>
           </div>
@@ -120,15 +114,24 @@ const Account = () => {
                   />
                 </div>
                 {isEditingName ? (
-                  <input 
-                    type="text" 
-                    value={fullname} 
-                    onChange={(e) => setFullname(e.target.value)}
-                    className="w-full p-2 border rounded-md"
-                    aria-label="Namn"
-                  />
+                  <>
+                    <input 
+                      type="text" 
+                      value={firstName} 
+                      onChange={(e) => setfirstName(e.target.value)}
+                      className="w-full p-2 border rounded-md"
+                      aria-label="Förnamn"
+                    />
+                    <input 
+                      type="text" 
+                      value={lastName} 
+                      onChange={(e) => setlastName(e.target.value)}
+                      className="w-full p-2 border rounded-md"
+                      aria-label="Efternamn"
+                    />
+                  </>
                 ) : (
-                  <p className="text-sm font-medium text-gray-600">{fullname}</p>
+                  <p className="text-sm font-medium text-gray-600">{`${firstName} ${lastName}`}</p>
                 )}
               </div>
               <div className="mt-2 mb-2">

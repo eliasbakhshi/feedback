@@ -51,7 +51,8 @@ END $$;
 /* tables */
 CREATE TABLE accounts (
     id SERIAL PRIMARY KEY,
-    fullname VARCHAR(255) NOT NULL,
+    firstname VARCHAR(255) NOT NULL,
+    lastname VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role ROLES DEFAULT 'operator'

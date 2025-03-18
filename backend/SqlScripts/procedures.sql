@@ -1,21 +1,19 @@
 DROP PROCEDURE IF EXISTS create_account;
-DROP PROCEDURE IF EXISTS create_survey;
-DROP PROCEDURE IF EXISTS add_question;
-
 DROP FUNCTION IF EXISTS check_login_credentials;
 
 
 /* procedures */
 CREATE PROCEDURE create_account(
-    fullname VARCHAR(255),
+    firstname VARCHAR(255),
+    lastname VARCHAR(255),
     email VARCHAR(255),
     password VARCHAR(255),
-    role ROLES DEFAULT 'operator'
+    role ROLES
 )
 LANGUAGE SQL
 AS $$
-    INSERT INTO accounts (fullname, email, password, role)
-    VALUES (fullname, email, crypt(password, gen_salt('bf')), role::ROLES);
+    INSERT INTO accounts ( firstname, lastname, email, password, role)
+    VALUES ( firstname, lastname, email, crypt(password, gen_salt('bf')), role::ROLES);
 $$;
 
 CREATE PROCEDURE create_survey(
