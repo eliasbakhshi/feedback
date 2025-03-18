@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useGetAccountInfoQuery, useUpdatePasswordMutation, useUpdateNameMutation } from "../../store/api/userApiSlice";
 import "react-toastify/dist/ReactToastify.css";
+import Cookies from "js-cookie"; 
 
 const Account = () => {
   const navigate = useNavigate();
-  const userId = sessionStorage.getItem("userId");
+  const userId = Cookies.get("userId");
 
   const { data: userData } = useGetAccountInfoQuery(Number(userId)); {/* använd userId från session storage */}
   const [updateName] = useUpdateNameMutation();
