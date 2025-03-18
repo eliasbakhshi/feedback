@@ -257,35 +257,28 @@ namespace backend.Controllers
             }
         }
 
-        [HttpGet("")]
-        public IActionResult getSurveys([FromQuery] int userId, string token)
+        [HttpGet("survey/get-surveys")]
+
+        public IActionResult GetSurveys([FromQuery] int userId)
         {
-            try {
-            // checka token
-
-            // hämta en användares förnamn
-            string? firstname = "";
-            using (var db = dbManager.connect()) {
-                var query = @$"SELECT * FROM get_firstname({userId})";
-                var result = dbManager.select(db, query);
-                Console.WriteLine(result[0]);
-                firstname = result[0]["firstname"].ToString();
+            try
+            {
+                using (var db = dbManager.connect())
+                {
+                    var query = @$"SELECT * FROM get_user_surveys({userId});";
+                    var result = dbManager.select(db, query);
+                    if (result.Count == 0)
+                    {
+                        return StatusCode(StatusCodes.Status400BadRequest, new { message = "Failed to retrieve surveys; no surveys found." });
+                    }
+                    return Ok(result);
+                }
             }
-
-            // hämta en användares alla formulär(titel, created at)
-            using (var db = dbManager.connect()){
-                var query = @$"SELECT * FROM get_user_surveys({userId})";
-                var result = dbManager.select(db, query);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred when retrieving surveys.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to retrieve surveys." });
             }
-            //returnera förnamn och alla formulären
-            return Ok(new {
-                Message = "Ok",
-                firstname
-            });
-            } catch {
-
-            }
-            return Ok();
         }
     }
 }
