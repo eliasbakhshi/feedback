@@ -14,6 +14,9 @@ const UserDashboard = () => {
     const navigate = useNavigate();
 
     const userId = Cookies.get("userId");
+    if (!userId) {
+        navigate("/login");
+    }
     const { data } = useGetSurveysQuery({ userId: Number(userId) });
 
     useEffect(() => {
