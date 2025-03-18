@@ -21,12 +21,12 @@ const LoginPage = () => {
             const userData = { email, password };
             const response = await loginUser(userData).unwrap();
             //Cookie istället för sessionStorage
-            Cookies.set('userId', response.UserId, { expires: 7, secure: true, sameSite: 'strict' }); //skydd mot CSRF
-            Cookies.set('userRole', response.Role, { expires: 7, secure: true });
-            Cookies.set('token', response.Token, { expires: 7, secure: true, sameSite: 'strict' });
+            Cookies.set('userId', response.userId, { expires: 7, secure: true, sameSite: 'strict' }); //skydd mot CSRF
+            Cookies.set('userRole', response.role, { expires: 7, secure: true });
+            Cookies.set('token', response.token, { expires: 7, secure: true, sameSite: 'strict' });
             //Om backend skickar en auth token
             if (response.Token) {
-                Cookies.set('authToken', response.Token, { expires: 7, secure: true, sameSite: 'strict' });
+                Cookies.set('authToken', response.token, { expires: 7, secure: true, sameSite: 'strict' });
             }
             // omdirigera baserat på användarens roll
             if (response.Role === 'admin') {
@@ -34,9 +34,6 @@ const LoginPage = () => {
             } else {
                 navigate("/user/account"); //Byt rendering ifall behövs
             }
-            //if response.roll = 'admin' 
-            //sessionStorage.setItem("userId", response.userId);
-            //sessionStorage.setItem("userRole", response.role);
 
 
             toast.success("Välkommen!", { position: "top-right" });
