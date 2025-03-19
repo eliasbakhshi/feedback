@@ -21,12 +21,13 @@ const LoginPage = () => {
         e.preventDefault();
         if (!email.trim() || !password.trim()) {
             toast.error("Alla fält måste fyllas i!");
+            recaptcha.current?.reset();
             return;
         }
         // /* Check the recaptcha before submitting */
         const recaptchaToken = recaptcha.current?.getValue();
         if(!recaptchaToken){
-            toast.error('Vänligen skicka in Captcha')
+            toast.error('Vänligen skicka in Captcha');
             return;
         }
         try {
@@ -51,14 +52,10 @@ const LoginPage = () => {
             toast.success("Välkommen!", { position: "top-right" });
         }
         catch (error: any) {
-            const errorMessage = error.data?.Message || "Något gick fel!";
-            switch (error.originalStatus) {
-                case 401:
-                    toast.error("Fel e-post eller lösenord!", { position: "top-right" });
-                    break;
-                default:
-                    toast.error(errorMessage, { position: "top-right" });
-            }
+            console.log(error)
+            const errorMessage = error.data?.message || "Något gick fel!";
+            recaptcha.current?.reset();
+            toast.error(errorMessage);
         }
     }
     return (
