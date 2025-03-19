@@ -261,6 +261,30 @@ namespace backend.Controllers
             }
         }
 
+        [HttpDelete("survey/delete-survey")]
+        public IActionResult DeleteSurveyById([FromBody] SurveyModel surveyModel)
+        {
+            try {
+                using (var db = dbManager.connect())
+                {
+                    var query = @$"DELETE FROM questions WHERE survey_id = '{surveyModel.SurveyId}';";
+                    dbManager.delete(db, query);
+
+                    query = @$"DELETE FROM surveys WHERE id = '{surveyModel.SurveyId}';";
+                    dbManager.delete(db, query);
+                    dbManager.close(db);
+
+                    _logger.LogInformation($"Survey with ID {surveyModel.SurveyId} deleted successfully.");
+                    return Ok(new { message = "Survey deleted successfully." });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting survey.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to delete survey." });
+            }
+        }
+
         [HttpGet("survey/get-survey-questions")]
         public IActionResult GetSurveyQuestions([FromQuery] int surveyId)
         {
