@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
 const UserDashboard = () => {
-    const [surveys, setSurveys] = useState<{ title: string; description: string; created_at: string }[]>([]);
+    const [surveys, setSurveys] = useState<{ surveyId: number; title: string; description: string; created_at: string }[]>([]);
     const [loading, setLoading] = useState(true);
     const [addSurvey] = useAddSurveyMutation();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,6 +22,7 @@ const UserDashboard = () => {
     useEffect(() => {
         if (Array.isArray(data)) { 
             setSurveys(data.map(survey => ({
+                surveyId: survey.id,
                 title: survey.title,
                 description: survey.description,
                 created_at: survey.created_at
@@ -39,6 +40,7 @@ const UserDashboard = () => {
             console.log(response?.data);
             if (response?.data?.surveyId) {
                 setSurveys([...surveys, {
+                    surveyId: response.data.surveyId,
                     title, description,
                     created_at: ""
                 }]);
@@ -98,13 +100,13 @@ const UserDashboard = () => {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mx-4">
                             {surveys.map((survey, index) => (
-                                <div key={index} className="bg-white rounded-md shadow-lg overflow-hidden">
+                                <a key={index} href={`/survey-creation/${survey.surveyId}`} className="bg-white rounded-md shadow-lg overflow-hidden">
                                     <div className="h-20 bg-red-600"></div>
                                     <div className="flex justify-between items-center p-4">
                                         <h2 className="text-lg">{survey.title}</h2>
                                         <p className="text-sm text-gray-500">{new Date(survey.created_at).toLocaleDateString()}</p>
                                     </div>
-                                </div>
+                                </a>
                             ))}
                         </div>
                     )}
