@@ -13,7 +13,6 @@ namespace backend.Models
         public string? Email { get; set; }
         public string? Password { get; set; }
         public string? Role { get; set; } = "operator";
-        public required string RecaptchaToken { get; set; }
     }
 
     public class LoginModel
@@ -21,5 +20,25 @@ namespace backend.Models
         public required string Email { get; set; }
         public required string Password { get; set; }
         public required string RecaptchaToken { get; set; }
+    }
+
+    public class VerificationRequest
+    {
+        public string Email { get; set; }
+        public string Code { get; set; }
+    }
+
+    public class EmailSettings
+    {
+        public string SmtpServer { get; set; }
+        public int Port { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public bool EnableSsl { get; set; } 
+    }
+
+    public class EmailRequest
+    {
+        public string Email { get; set; }
     }
 }
