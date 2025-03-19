@@ -85,5 +85,6 @@ LANGUAGE SQL
 AS $$
     SELECT id, title, description, created_at
     FROM surveys
-    WHERE creator = userId;
+    WHERE creator = userId
+    ORDER BY created_at DESC;
 $$;
