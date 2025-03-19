@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using backend.Models;
 using backend.UserDataAccess;
@@ -224,34 +225,58 @@ namespace backend.Controllers
                     return BadRequest(new { message = "reCAPTCHA verification failed." });
                 }
 
-                using var db = _dbManager.connect();
-                var query = @$"
-                    SELECT * 
-                    FROM check_login_credentials('{loginCredentials.Email}', '{loginCredentials.Password}')
-                ";
+                int? userID = null;
+                string? role = null;
 
-                var user = _dbManager.select(db, query);
+                using (var db = dbManager.connect()) {
+                    var query = @$"SELECT * FROM check_login_credentials('{loginCredentials.Email}', '{loginCredentials.Password}')";
+                    var user = dbManager.select(db, query);
 
-                if (user == null || user.Count == 0)
-                {
-                    return Unauthorized(new { message = "Invalid email or password" });
+                    if (user == null || user.Count == 0)
+                        return Unauthorized(new { Message = "Invalid email or password" });
+
+                    var userData = user[0];
+                    _logger.LogInformation($"User with email {loginCredentials.Email} logged in.");
+
+                    userID = (int)userData["id"] as int?;
+                    role = userData["role"]?.ToString();
                 }
 
-                var userData = user[0];
-                _logger.LogInformation($"User with email {loginCredentials.Email} logged in.");
+                using (var db = dbManager.connect()) {
+                    string token = createToken();
 
-                return Ok(new
-                {
-                    message = "Login successful",
-                    UserId = (int)userData["id"],
-                    Role = userData["role"].ToString()
+                    string saveTokenQuery = @$"CALL add_token('{token}', {userID})";
+                    var result = dbManager.select(db, saveTokenQuery);
+                }
+
+                string? hashedToken = null;
+                using (var db = dbManager.connect()) {
+                    var getTokenQuery = @$"SELECT * FROM get_hashed_token({userID})";
+                    var result = dbManager.select(db, getTokenQuery);
+
+                    if (result != null && result.Count > 0)
+                        hashedToken = result[0]["get_hashed_token"]?.ToString();
+                }
+
+                if (hashedToken == null)
+                    return StatusCode(StatusCodes.Status500InternalServerError, new {Message = "Failed to get token"});
+
+                return Ok(new {
+                    Message = "Login successful",
+                    Token = hashedToken,
+                    UserId = userID,
+                    Role = role
                 });
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 _logger.LogError(ex, "An error occurred when logging in.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to login user." });
             }
+        }
+
+        public string createToken() {
+            byte[] tokenBytes = RandomNumberGenerator.GetBytes(32);
+            return Convert.ToBase64String(tokenBytes);
         }
     }
 }

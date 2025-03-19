@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { setCredentials } from "../../store/authSlice";
 import { useLoginMutation } from "../../store/api/userApiSlice";
 import { toast } from "react-toastify";
+import Cookies from "js-cookie"; // import till cookies
 import "react-toastify/dist/ReactToastify.css";
 import ReCAPTCHA from "react-google-recaptcha";
 
@@ -20,32 +21,43 @@ const LoginPage = () => {
         e.preventDefault();
         if (!email.trim() || !password.trim()) {
             toast.error("Alla fält måste fyllas i!");
+            recaptcha.current?.reset();
             return;
         }
         // /* Check the recaptcha before submitting */
         const recaptchaToken = recaptcha.current?.getValue();
         if(!recaptchaToken){
-            toast.error('Vänligen skicka in Captcha')
+            toast.error('Vänligen skicka in Captcha');
             return;
         }
         try {
             const userData = { email, password, recaptchaToken };
             const response = await loginUser(userData).unwrap();
+            //Cookie istället för sessionStorage
+            Cookies.set('userId', response.userId, { expires: 7, secure: true, sameSite: 'strict' }); //skydd mot CSRF
+            Cookies.set('userRole', response.role, { expires: 7, secure: true });
+            Cookies.set('token', response.token, { expires: 7, secure: true, sameSite: 'strict' });
+            //Om backend skickar en auth token
+            if (response.token) {
+                Cookies.set('authToken', response.token, { expires: 7, secure: true, sameSite: 'strict' });
+            }
+            // omdirigera baserat på användarens roll
+            if (response.role === 'admin') {
+                navigate("/admin/dashboard"); //Byt rendering ifall behövs
+            } else {
+                navigate("/account"); //Byt rendering ifall behövs
+            }
 
-            dispatch(setCredentials({ user: response }));
 
-            sessionStorage.setItem("userId", response.userId);
-            sessionStorage.setItem("userRole", response.role);
-
-            toast.success("Välkommen!");
-
-            navigate("/account", { replace: true });
-        } catch (error: any) {
+            toast.success("Välkommen!", { position: "top-right" });
+        }
+        catch (error: any) {
+            console.log(error)
             const errorMessage = error.data?.message || "Något gick fel!";
+            recaptcha.current?.reset();
             toast.error(errorMessage);
         }
-    };
-
+    }
     return (
         <div
             className="flex justify-center items-center h-screen bg-gray-900 bg-[url('./highway.jpg')] bg-cover bg-center"
@@ -86,4 +98,3 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-
