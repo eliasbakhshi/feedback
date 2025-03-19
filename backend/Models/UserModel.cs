@@ -5,14 +5,15 @@ using System.Threading.Tasks;
 
 namespace backend.Models
 {
-    public class SurveyCreationModel
+    public class SurveyModel
     {
+        public int SurveyId { get; set; }
         public int SurveyCreator { get; set; }
         public string? SurveyName { get; set; }
         public string? SurveyDescription { get; set; }
     }
 
-    public class QuestionCreationModel
+    public class QuestionModel
     {
         public int SurveyId { get; set; }
         public string? QuestionText { get; set; }
