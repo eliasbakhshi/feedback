@@ -158,7 +158,7 @@ namespace backend.Controllers
             }
         }
 
-        //Survey creation
+        //Survey and question CRUD
         [HttpPost("survey/create-survey")]
         public IActionResult CreateSurvey([FromBody] SurveyModel surveyModel)
         {
@@ -188,50 +188,6 @@ namespace backend.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to create survey." });
             }
 
-        }
-
-        [HttpPost("survey/add-question")]
-        public IActionResult AddQuestion([FromBody] QuestionModel questionCreationModel)
-        {
-            var db = dbManager.connect();
-            var query = @$"CALL add_question('{questionCreationModel.SurveyId}', '{questionCreationModel.QuestionText}', '{questionCreationModel.AnswerType}');";
-            if (dbManager.insert(db, query))
-            {
-                _logger.LogInformation($"Question added successfully.");
-            }
-            else
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, "Failed to add question; database error.");
-            }
-            dbManager.close(db);
-
-            return Ok(new { message = "Question added successfully." });
-        }
-
-        [HttpDelete("survey/delete-question")]
-        public IActionResult DeleteQuestion([FromQuery] int questionId)
-        {
-            try
-            {
-                using (var db = dbManager.connect())
-                {
-                    var query = @$"DELETE FROM questions WHERE id = '{questionId}';";
-                    if (dbManager.delete(db, query) > 0)
-                    {
-                        _logger.LogInformation($"Question deleted successfully.");
-                        return Ok(new { message = "Question deleted successfully." });
-                    }
-                    else
-                    {
-                        return StatusCode(StatusCodes.Status400BadRequest, new { message = "Failed to delete question; database error." });
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred when deleting question.");
-                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to delete question." });
-            }
         }
 
         [HttpPut("survey/edit-survey")]
@@ -271,8 +227,13 @@ namespace backend.Controllers
                     dbManager.delete(db, query);
 
                     query = @$"DELETE FROM surveys WHERE id = '{surveyModel.SurveyId}';";
-                    dbManager.delete(db, query);
+                    int affectedRows = dbManager.delete(db, query);
                     dbManager.close(db);
+
+                    if (affectedRows == 0)
+                    {
+                        return NotFound( new {message = "Survey not found."});
+                    }
 
                     _logger.LogInformation($"Survey with ID {surveyModel.SurveyId} deleted successfully.");
                     return Ok(new { message = "Survey deleted successfully." });
@@ -282,6 +243,77 @@ namespace backend.Controllers
             {
                 _logger.LogError(ex, "An error occurred while deleting survey.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to delete survey." });
+            }
+        }
+
+        [HttpPost("survey/add-question")]
+        public IActionResult AddQuestion([FromBody] QuestionModel questionCreationModel)
+        {
+            var db = dbManager.connect();
+            var query = @$"CALL add_question('{questionCreationModel.SurveyId}', '{questionCreationModel.QuestionText}', '{questionCreationModel.AnswerType}');";
+            if (dbManager.insert(db, query))
+            {
+                _logger.LogInformation($"Question added successfully.");
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, "Failed to add question; database error.");
+            }
+            dbManager.close(db);
+
+            return Ok(new { message = "Question added successfully." });
+        }
+
+        [HttpPut("survey/edit-question")]
+        public IActionResult EditQuestion([FromBody] QuestionModel questionEditModel)
+        {
+            try
+            {
+                using (var db = dbManager.connect())
+                {
+                    var query = @$"UPDATE questions SET question = '{questionEditModel.QuestionText}' WHERE id = {questionEditModel.QuestionId};";
+                    int affectedRows = dbManager.update(db, query);
+                    dbManager.close(db);
+
+                    if (affectedRows == 0)
+                    {
+                        return NotFound( new { message = "Question not found." });
+                    }
+
+                    _logger.LogInformation($"Question with ID {questionEditModel.QuestionId} updated successfully.");
+                    return Ok(new { message = "Question updated successfully." });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred when updating question.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to update question." });
+            }
+        }
+
+        [HttpDelete("survey/delete-question")]
+        public IActionResult DeleteQuestion([FromQuery] int questionId)
+        {
+            try
+            {
+                using (var db = dbManager.connect())
+                {
+                    var query = @$"DELETE FROM questions WHERE id = '{questionId}';";
+                    if (dbManager.delete(db, query) > 0)
+                    {
+                        _logger.LogInformation($"Question deleted successfully.");
+                        return Ok(new { message = "Question deleted successfully." });
+                    }
+                    else
+                    {
+                        return StatusCode(StatusCodes.Status400BadRequest, new { message = "Failed to delete question; database error." });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred when deleting question.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to delete question." });
             }
         }
 
