@@ -160,7 +160,7 @@ namespace backend.Controllers
 
         //Survey creation
         [HttpPost("survey/create-survey")]
-        public IActionResult CreateSurvey([FromBody] SurveyCreationModel surveyModel)
+        public IActionResult CreateSurvey([FromBody] SurveyModel surveyModel)
         {
             try
             {
@@ -191,7 +191,7 @@ namespace backend.Controllers
         }
 
         [HttpPost("survey/add-question")]
-        public IActionResult AddQuestion([FromBody] QuestionCreationModel questionCreationModel)
+        public IActionResult AddQuestion([FromBody] QuestionModel questionCreationModel)
         {
             var db = dbManager.connect();
             var query = @$"CALL add_question('{questionCreationModel.SurveyId}', '{questionCreationModel.QuestionText}', '{questionCreationModel.AnswerType}');";
@@ -231,6 +231,33 @@ namespace backend.Controllers
             {
                 _logger.LogError(ex, "An error occurred when deleting question.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to delete question." });
+            }
+        }
+
+        [HttpPut("survey/edit-survey")]
+        public IActionResult EditSurveyById([FromBody] SurveyModel surveyEditModel)
+        {
+            try
+            {
+            using (var db = dbManager.connect())
+            {
+                var query = @$"UPDATE surveys SET title = '{surveyEditModel.SurveyName}', description = '{surveyEditModel.SurveyDescription}' WHERE id = {surveyEditModel.SurveyId};";
+                int affectedRows = dbManager.update(db, query);
+                dbManager.close(db);
+
+                if (affectedRows == 0)
+                {
+                    return NotFound("Survey not found.");
+                }
+
+                _logger.LogInformation($"Survey with ID {surveyEditModel.SurveyId} updated successfully.");
+                return Ok(new { message = "Survey updated successfully." });
+            }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating survey.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to update survey." });
             }
         }
 
