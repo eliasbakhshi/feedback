@@ -1,10 +1,10 @@
+using backend.Services;
+using backend.UserDataAccess;
+using backend.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
-var startup = new Startup(builder.Configuration);
-
-startup.ConfigureServices(builder.Services);
-
-builder.Services.AddControllers(); 
+builder.Services.AddControllers();
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
@@ -19,14 +19,16 @@ builder.Services.AddCors(options =>
                       });
 });
 
+builder.Services.AddLogging();
+builder.Services.AddSingleton<DBManager>();
+builder.Services.AddSingleton<EmailService>();
 builder.Services.AddHttpClient<RecaptchaService>();
 builder.Services.AddSingleton<RecaptchaService>();
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 var app = builder.Build();
 
 app.UseCors(MyAllowSpecificOrigins);
-
-startup.Configure(app, builder.Environment);
 
 app.UseAuthorization();
 app.MapControllers();

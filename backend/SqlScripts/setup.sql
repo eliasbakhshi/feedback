@@ -56,7 +56,8 @@ CREATE TABLE accounts (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role ROLES DEFAULT 'operator',
-    verified BOOLEAN DEFAULT FALSE
+    verified BOOLEAN DEFAULT FALSE,
+    verification_token VARCHAR(255)
 );
 
 CREATE TABLE surveys (
