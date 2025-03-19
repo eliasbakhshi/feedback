@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
 const UserDashboard = () => {
-    const [surveys, setSurveys] = useState<{ title: string; description: string }[]>([]);
+    const [surveys, setSurveys] = useState<{ title: string; description: string; created_at: string }[]>([]);
     const [loading, setLoading] = useState(true);
     const [addSurvey] = useAddSurveyMutation();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,7 +21,11 @@ const UserDashboard = () => {
 
     useEffect(() => {
         if (Array.isArray(data)) { 
-            setSurveys(data);
+            setSurveys(data.map(survey => ({
+                title: survey.title,
+                description: survey.description,
+                created_at: survey.created_at
+            })));
             setLoading(false);
         } else {
             setSurveys([]);
@@ -34,7 +38,10 @@ const UserDashboard = () => {
             const response = await addSurvey({ SurveyCreator: Number(userId), SurveyName: title, SurveyDescription: description });
             console.log(response?.data);
             if (response?.data?.surveyId) {
-                setSurveys([...surveys, { title, description }]);
+                setSurveys([...surveys, {
+                    title, description,
+                    created_at: ""
+                }]);
                 setIsModalOpen(false);
                 setTitle("");
                 setDescription("");
@@ -87,13 +94,16 @@ const UserDashboard = () => {
                 )}
                 <div className="mt-4">
                     {loading ? (
-                        <p>Loading surveys...</p>
+                        <p className="ml-4">Laddar formulär...</p>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mx-4">
                             {surveys.map((survey, index) => (
                                 <div key={index} className="bg-white rounded-md shadow-lg overflow-hidden">
                                     <div className="h-20 bg-red-600"></div>
-                                    <h2 className="text-lg py-2 pl-2">{survey.title}</h2>
+                                    <div className="flex justify-between items-center p-4">
+                                        <h2 className="text-lg">{survey.title}</h2>
+                                        <p className="text-sm text-gray-500">{new Date(survey.created_at).toLocaleDateString()}</p>
+                                    </div>
                                 </div>
                             ))}
                         </div>
