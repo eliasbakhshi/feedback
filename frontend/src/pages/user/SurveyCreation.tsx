@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { useAddQuestionMutation, useGetSurveyQuestionsQuery } from "../../store/api/userApiSlice";
+import { useAddQuestionMutation, useGetSurveyQuestionsQuery, useGetSurveysQuery, useEditSurveyMutation } from "../../store/api/userApiSlice";
 import { DndContext, closestCenter, DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { arrayMove } from "@dnd-kit/sortable";
 import { toast } from "react-toastify";
 import QuestionCard from "./components/QuestionCard";
-import { LuEye,LuScanEye,LuSend, LuChartNoAxesCombined } from "react-icons/lu";
+import { LuEye,LuScanEye,LuSend, LuChartNoAxesCombined,LuPencil  } from "react-icons/lu";
 import { useParams } from "react-router-dom";
+import Cookies from "js-cookie";
+
+const userId = Cookies.get("userId");
+
 
 function SurveyQuestionForm() {
   const { surveyId } = useParams<{ surveyId: string }>();
@@ -26,7 +30,10 @@ function SurveyQuestionForm() {
 
   const [localQuestions, setLocalQuestions] = useState<{ id: number; text: string; answerType: string; answer: string | null;}[]>([]); /* session */
 
-
+  const [editSurvey] = useEditSurveyMutation();
+  const [surveyTitle, setSurveyTitle] = useState("");
+  const [surveyDescription, setSurveyDescription] = useState("");
+  const [isEditingSurvey, setIsEditingSurvey] = useState(false);
 
   useEffect(() => {
     if (existingQuestions) {
@@ -112,6 +119,21 @@ function SurveyQuestionForm() {
     setLocalQuestions(newOrder.filter(q => localQuestions.some(lq => lq.id === q.id)));
   };
 
+  const handleEditSurvey = async () => {
+    try {
+      await editSurvey({
+        SurveyId: numericSurveyId,
+        SurveyName: surveyTitle,
+        SurveyDescription: surveyDescription,
+      }).unwrap();
+      toast.success("Formuläret har uppdaterats!");
+      setIsEditingSurvey(false);
+    } catch (error) {
+      console.error("Misslyckades att uppdatera formuläret:", error);
+      toast.error("Misslyckades att uppdatera formuläret.");
+    }
+  };
+
   return (
     <div className="flex h-full mr-2 ml-2 gap-4 rounded-lg">
       <div className="w-1/5 p-4 border rounded-lg shadow-md justify-center text-center bg-slate-100">
@@ -159,6 +181,46 @@ function SurveyQuestionForm() {
       </div>
 
       <div className="w-4/5 p-4 border rounded-lg shadow-md h-full bg-slate-100 overflow-auto">
+        <div className="flex justify-between items-center">
+          {isEditingSurvey ? (
+            <div className="flex flex-col gap-2">
+              <input
+                type="text"
+                value={surveyTitle}
+                onChange={(e) => setSurveyTitle(e.target.value)}
+                placeholder="Formulärets titel"
+                className="p-2 border rounded-md"
+              />
+              <textarea
+                value={surveyDescription}
+                onChange={(e) => setSurveyDescription(e.target.value)}
+                placeholder="Formulärets beskrivning"
+                className="p-2 border rounded-md"
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={handleEditSurvey}
+                  className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                >
+                  Spara
+                </button>
+                <button
+                  onClick={() => setIsEditingSurvey(false)}
+                  className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                >
+                  Avbryt
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => setIsEditingSurvey(true)}
+              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+            >
+              Redigera formulär
+            </button>
+          )}
+        </div>
       <div className="flex justify-end gap-6 mt-2 mr-6">
         <button className="px-4 py-2 text-gray-700 text-sm flex items-center hover:text-gray-900 group">
           <LuEye className="mr-2 group-hover:hidden" />

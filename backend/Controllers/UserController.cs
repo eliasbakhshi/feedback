@@ -239,20 +239,20 @@ namespace backend.Controllers
         {
             try
             {
-            using (var db = dbManager.connect())
-            {
-                var query = @$"UPDATE surveys SET title = '{surveyEditModel.SurveyName}', description = '{surveyEditModel.SurveyDescription}' WHERE id = {surveyEditModel.SurveyId};";
-                int affectedRows = dbManager.update(db, query);
-                dbManager.close(db);
-
-                if (affectedRows == 0)
+                using (var db = dbManager.connect())
                 {
-                    return NotFound("Survey not found.");
-                }
+                    var query = @$"UPDATE surveys SET title = '{surveyEditModel.SurveyName}', description = '{surveyEditModel.SurveyDescription}' WHERE id = {surveyEditModel.SurveyId};";
+                    int affectedRows = dbManager.update(db, query);
+                    dbManager.close(db);
 
-                _logger.LogInformation($"Survey with ID {surveyEditModel.SurveyId} updated successfully.");
-                return Ok(new { message = "Survey updated successfully." });
-            }
+                    if (affectedRows == 0)
+                    {
+                        return NotFound("Survey not found.");
+                    }
+
+                    _logger.LogInformation($"Survey with ID {surveyEditModel.SurveyId} updated successfully.");
+                    return Ok(new { message = "Survey updated successfully." });
+                }
             }
             catch (Exception ex)
             {
