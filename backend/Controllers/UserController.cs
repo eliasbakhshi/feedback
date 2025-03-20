@@ -318,6 +318,30 @@ namespace backend.Controllers
             }
         }
 
+
+        [HttpGet("survey/get-survey-information")]
+        public IActionResult GetSurveyInformation([FromQuery] int surveyId, [FromQuery] int userId)
+        {
+            try
+            {
+                using (var db = dbManager.connect())
+                {
+                    var query = @$" SELECT id, title, description, created_at FROM surveys WHERE creator = {userId} AND id = {surveyId}";
+                    var result = dbManager.select(db, query);
+                    if (result.Count == 0)
+                    {
+                        return NotFound(new { message = "Survey not found." });
+                    }
+                    return Ok(result[0]);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred when retrieving survey information.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to retrieve survey information." });
+            }
+        }
+
         [HttpGet("survey/get-survey-questions")]
         public IActionResult GetSurveyQuestions([FromQuery] int surveyId)
         {
@@ -329,7 +353,8 @@ namespace backend.Controllers
                     var result = dbManager.select(db, query);
                     if (result.Count == 0)
                     {
-                        return StatusCode(StatusCodes.Status400BadRequest, new { message = "Failed to retrieve questions; no questions found." });
+                        _logger.LogInformation($"No questions found for survey ID {surveyId}.");
+                        return Ok(new List<object>());
                     }
                     return Ok(result);
                 }

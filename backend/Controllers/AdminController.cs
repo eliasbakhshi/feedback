@@ -73,7 +73,7 @@ namespace backend.Controllers
                 }
 
                 _logger.LogInformation($"User with ID {updateNameRequest.UserId} updated name to {updateNameRequest.NewFirstName}.");
-                return Ok(new { message = "Name updated successfully."});
+                return Ok(new { message = "Name updated successfully." });
             }
             catch (NullReferenceException ex)
             {
@@ -106,7 +106,7 @@ namespace backend.Controllers
                 }
 
                 _logger.LogInformation($"User with ID {updateNameRequest.UserId} updated name to {updateNameRequest.NewLastName}.");
-                return Ok(new { message = "Name updated successfully."});
+                return Ok(new { message = "Name updated successfully." });
             }
             catch (NullReferenceException ex)
             {
@@ -139,7 +139,7 @@ namespace backend.Controllers
                 }
 
                 _logger.LogInformation($"User with ID {updateRoleRequest.UserId} updated role to {updateRoleRequest.NewRole}.");
-                return Ok(new { message = "Role updated successfully."});
+                return Ok(new { message = "Role updated successfully." });
             }
             catch (NullReferenceException ex)
             {
@@ -172,7 +172,7 @@ namespace backend.Controllers
                 }
 
                 _logger.LogInformation($"User with ID {updateEmailRequest.UserId} updated email to {updateEmailRequest.NewEmail}.");
-                return Ok(new { message = "Email updated successfully."});
+                return Ok(new { message = "Email updated successfully." });
             }
             catch (NullReferenceException ex)
             {
@@ -236,26 +236,26 @@ namespace backend.Controllers
             Console.WriteLine("line:  " + userId);
             try
             {
-            using (var db = dbManager.connect())
-            {
-                var query = $"DELETE FROM accounts WHERE id = {userId};";
-
-                int affectedRows = dbManager.update(db, query);
-                dbManager.close(db);
-
-                if (affectedRows == 0)
+                using (var db = dbManager.connect())
                 {
-                return NotFound("User not found.");
-                }
-            }
+                    var query = $"DELETE FROM accounts WHERE id = {userId};";
 
-            _logger.LogInformation($"User with ID {userId} removed successfully.");
-            return Ok(new { message = "User removed successfully." });
+                    int affectedRows = dbManager.update(db, query);
+                    dbManager.close(db);
+
+                    if (affectedRows == 0)
+                    {
+                        return NotFound("User not found.");
+                    }
+                }
+
+                _logger.LogInformation($"User with ID {userId} removed successfully.");
+                return Ok(new { message = "User removed successfully." });
             }
             catch (Exception ex)
             {
-            _logger.LogError(ex, "An error occurred while removing user.");
-            return StatusCode(StatusCodes.Status500InternalServerError, "Failed to remove user.");
+                _logger.LogError(ex, "An error occurred while removing user.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to remove user.");
             }
         }
 
@@ -266,10 +266,10 @@ namespace backend.Controllers
             {
                 var db = dbManager.connect();
                 var query = "SELECT * FROM get_all_users();";
-                
+
                 var result = dbManager.select(db, query);
                 dbManager.close(db);
-                
+
                 return Ok(result);
 
             }

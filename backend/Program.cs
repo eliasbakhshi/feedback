@@ -1,3 +1,7 @@
+using backend.Services;
+using backend.UserDataAccess;
+using backend.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -10,13 +14,17 @@ builder.Services.AddCors(options =>
                       policy =>
                       {
                           policy.AllowAnyOrigin()
-                          .AllowAnyMethod()
-                          .AllowAnyHeader();
+                                .AllowAnyMethod()
+                                .AllowAnyHeader();
                       });
 });
 
+builder.Services.AddLogging();
+builder.Services.AddSingleton<DBManager>();
+builder.Services.AddSingleton<EmailService>();
 builder.Services.AddHttpClient<RecaptchaService>();
 builder.Services.AddSingleton<RecaptchaService>();
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 var app = builder.Build();
 
