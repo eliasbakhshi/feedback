@@ -41,10 +41,7 @@ const Sidebar = () => {
           {!collapsed && <p>Konto</p>}
         </Link>
       </nav>
-      <button 
-        onClick={handleLogout} 
-        className="p-2 rounded hover:bg-gray-300 flex items-center gap-2 mt-auto"
-      >
+      <button onClick={handleLogout} className="p-2 rounded hover:bg-gray-300 flex items-center gap-2 mt-auto">
         <LiaSignOutAltSolid size={28} />
         {!collapsed && <p>Logga ut</p>}
       </button>
