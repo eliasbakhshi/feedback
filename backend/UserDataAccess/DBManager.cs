@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Npgsql;
+using Microsoft.Extensions.Configuration;
 
 namespace backend.UserDataAccess
 {
@@ -19,7 +20,7 @@ namespace backend.UserDataAccess
             settings.Database = "feedbacker";
         }
 
-        public NpgsqlConnection connect() // connect to the database
+        public NpgsqlConnection connect() 
         {
             var db = new NpgsqlConnection(settings?.ConnectionString);
             db.Open();
@@ -27,32 +28,43 @@ namespace backend.UserDataAccess
             return db;
         }
 
-        public void close(NpgsqlConnection db) // close database connection
+        public void close(NpgsqlConnection db) 
         {
             db.Close();
         }
 
-        public List<Dictionary<string, object>> select(NpgsqlConnection db, string? query) // function for SELECT sql query
+        public List<Dictionary<string, object>> select(NpgsqlConnection db, string? query)
         {
-            var cmd = new NpgsqlCommand(query, db);
-            var reader = cmd.ExecuteReader();
-
             var results = new List<Dictionary<string, object>>();
 
-            while (reader.Read())
+            try
             {
-                var row = new Dictionary<string, object>();
-                for (int i = 0; i < reader.FieldCount; i++)
+                using (var cmd = new NpgsqlCommand(query, db))
                 {
-                    row[reader.GetName(i)] = reader.GetValue(i);
+                    using (var reader = cmd.ExecuteReader()) 
+                    {
+                        while (reader.Read())
+                        {
+                            var row = new Dictionary<string, object>();
+                            for (int i = 0; i < reader.FieldCount; i++)
+                            {
+                                row[reader.GetName(i)] = reader.GetValue(i);
+                            }
+                            results.Add(row);
+                        }
+                    }
                 }
-                results.Add(row);
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Bad input error: \n" + ex.Message);
             }
 
             return results;
         }
 
-        public bool insert(NpgsqlConnection db, string? query) // function for INSERT sql query
+
+        public bool insert(NpgsqlConnection db, string? query) 
         {
             bool success = false;
             try
@@ -69,7 +81,21 @@ namespace backend.UserDataAccess
             return success;
         }
 
-        public int update(NpgsqlConnection db, string? query) // function for UPDATE sql query
+        public int update(NpgsqlConnection db, string? query) 
+        {
+            try
+            {
+                var cmd = new NpgsqlCommand(query, db);
+                return cmd.ExecuteNonQuery();
+            }
+            catch (NpgsqlException ex)
+            {
+                Console.WriteLine("Bad input error: \n" + ex.Message);
+                return 0;
+            }
+        }
+
+        public int delete(NpgsqlConnection db, string? query)
         {
             try
             {
