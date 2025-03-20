@@ -33,6 +33,7 @@ const LoginPage = () => {
         try {
             const userData = { email, password, recaptchaToken };
             const response = await loginUser(userData).unwrap();
+            dispatch(setCredentials({ user: response, remember: true }));
             //Cookie istället för sessionStorage
             Cookies.set('userId', response.userId, { expires: 7, secure: true, sameSite: 'strict' }); //skydd mot CSRF
             Cookies.set('userRole', response.role, { expires: 7, secure: true });
