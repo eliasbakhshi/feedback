@@ -353,7 +353,8 @@ namespace backend.Controllers
                     var result = dbManager.select(db, query);
                     if (result.Count == 0)
                     {
-                        return StatusCode(StatusCodes.Status400BadRequest, new { message = "Failed to retrieve questions; no questions found." });
+                        _logger.LogInformation($"No questions found for survey ID {surveyId}.");
+                        return Ok(new List<object>());
                     }
                     return Ok(result);
                 }
