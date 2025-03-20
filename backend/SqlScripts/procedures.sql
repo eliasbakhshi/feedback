@@ -66,7 +66,8 @@ AS $$
     SELECT id, role
     FROM accounts
     WHERE email = user_email 
-    AND password = crypt(user_password, password);
+    AND password = crypt(user_password, password)
+    AND verified = TRUE;
 $$;
 
 CREATE FUNCTION get_hashed_token(
@@ -78,4 +79,14 @@ AS $$
     SELECT crypt(token, gen_salt('bf')) 
     FROM accounts 
     WHERE id = userID;
+$$;
+
+CREATE FUNCTION get_user_surveys(userId INT)
+RETURNS TABLE (id INT, title VARCHAR(255), description TEXT, created_at TIMESTAMP)
+LANGUAGE SQL
+AS $$
+    SELECT id, title, description, created_at
+    FROM surveys
+    WHERE creator = userId
+    ORDER BY created_at DESC;
 $$;
