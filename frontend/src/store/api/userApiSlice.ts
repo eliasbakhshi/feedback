@@ -104,6 +104,14 @@ export const mainApi = apiSlice.injectEndpoints({
             }),
             providesTags: ["Question"],
         }),
+        deleteSurvey: builder.mutation<any, { SurveyId: number }>({
+            query: ({ SurveyId }) => ({
+                url: `/api/user/survey/delete-survey?SurveyId=${SurveyId}`,
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" }
+            }),
+            invalidatesTags: ["Question"],
+        }),
     }),
  });
 
@@ -121,4 +129,5 @@ export const {
     useDeleteQuestionMutation,
     useGetSurveyQuestionsQuery,
     useGetSurveysQuery,
+    useDeleteSurveyMutation,
 } = mainApi;

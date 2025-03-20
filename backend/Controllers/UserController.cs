@@ -218,7 +218,7 @@ namespace backend.Controllers
         }
 
         [HttpDelete("survey/delete-survey")]
-        public IActionResult DeleteSurveyById([FromBody] SurveyModel surveyModel)
+        public IActionResult DeleteSurveyById([FromQuery] SurveyModel surveyModel)
         {
             try
             {

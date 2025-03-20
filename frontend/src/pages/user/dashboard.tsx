@@ -1,25 +1,28 @@
 import { useState, useEffect } from "react";
-import { useAddSurveyMutation, useGetSurveysQuery } from "../../store/api/userApiSlice";
+import { useAddSurveyMutation, useGetSurveysQuery, useDeleteSurveyMutation, useGetAccountInfoQuery } from "../../store/api/userApiSlice";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import { LuTrash } from "react-icons/lu";
 
 const UserDashboard = () => {
     const [surveys, setSurveys] = useState<{ surveyId: number; title: string; description: string; created_at: string }[]>([]);
     const [loading, setLoading] = useState(true);
     const [addSurvey] = useAddSurveyMutation();
+    const [deleteSurvey] = useDeleteSurveyMutation();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+    const [name, setName] = useState("");
     const navigate = useNavigate();
 
     const userId = Cookies.get("userId");
     const token = Cookies.get("token");
-    console.log(token);
-    if (!userId) {
+    if (!userId || !token) {
         navigate("/login");
     }
     const { data } = useGetSurveysQuery({ userId: Number(userId), token: token  || "" });
+    const { data: accountInfo } = useGetAccountInfoQuery(Number(userId));
 
     useEffect(() => {
         if (Array.isArray(data)) { 
@@ -35,6 +38,11 @@ const UserDashboard = () => {
         }
     }, [data]);
     
+    useEffect(() => {
+        if (accountInfo) {
+            setName(accountInfo[0].firstname + " " + accountInfo[0].lastname || "Error");
+        }
+    }, [accountInfo]);
 
     const handleCreateSurvey = async () => {
         if (title && description) {
@@ -50,6 +58,7 @@ const UserDashboard = () => {
                 setTitle("");
                 setDescription("");
                 navigate(`/survey-creation/${response.data.surveyId}`);
+                window.location.reload()
             } else {
                 toast.error("Misslyckades att skapa formulär");
             }
@@ -58,10 +67,22 @@ const UserDashboard = () => {
         }
     };
 
+    const handleDeleteSurvey = async (surveyId: number) => {
+        try {
+            const response = await deleteSurvey({ SurveyId: surveyId });
+            if (response?.data?.message === "Survey deleted successfully.") {
+                setSurveys(surveys.filter(survey => survey.surveyId !== surveyId));
+                toast.success("Formulär raderat");
+            }
+        } catch (error) {
+            toast.error("Ett fel inträffade");
+        }
+    };
+
     return (
         <>
             <div className="flex justify-end bg-slate-100 p-4">
-                <h1 className="text-sm text-gray-800">Andy gud</h1>
+                <h1 className="text-sm text-gray-800">{name}</h1>
             </div>
             <div className="w-full h-full">
                 <button onClick={() => setIsModalOpen(true)} className="px-4 py-2 bg-red-500 text-white rounded-md mt-4 ml-4 hover:bg-red-600">
@@ -102,13 +123,20 @@ const UserDashboard = () => {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mx-4">
                             {surveys.map((survey, index) => (
-                                <a key={index} href={`/survey-creation/${survey.surveyId}`} className="bg-white rounded-md shadow-lg overflow-hidden">
-                                    <div className="h-20 bg-red-600"></div>
-                                    <div className="flex justify-between items-center p-4">
-                                        <h2 className="text-lg">{survey.title}</h2>
-                                        <p className="text-sm text-gray-500">{new Date(survey.created_at).toLocaleDateString()}</p>
+                                <div key={index} className="bg-white rounded-md shadow-lg overflow-hidden">
+                                    <a href={`/survey-creation/${survey.surveyId}`} className="block">
+                                        <div className="h-24 bg-red-600"></div>
+                                        <div className="flex justify-between items-center py-2 px-4">
+                                            <h2 className="text-lg">{survey.title}</h2>
+                                            <p className="text-sm text-gray-500">{new Date(survey.created_at).toLocaleDateString()}</p>
+                                        </div>
+                                    </a>
+                                    <div className="flex justify-end p-2">
+                                        <button onClick={() => handleDeleteSurvey(survey.surveyId)} className="text-gray-700 hover:text-red-600 flex items-center pr-2">
+                                            <LuTrash size={20} />
+                                        </button>
                                     </div>
-                                </a>
+                                </div>
                             ))}
                         </div>
                     )}
