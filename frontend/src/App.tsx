@@ -5,7 +5,7 @@ import Sidebar from "./navbar";
 
 function App() {
   const location = useLocation();
-  const hideSidebar = location.pathname === "/login" || location.pathname === "/register";
+  const hideSidebar = location.pathname === "/login" || location.pathname === "/register" || location.pathname === "/error404";
 
   return (
     <>
