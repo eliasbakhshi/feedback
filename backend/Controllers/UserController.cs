@@ -342,23 +342,27 @@ namespace backend.Controllers
 
         [HttpGet("survey/get-surveys")]
 
-        public IActionResult GetSurveys([FromQuery] int userId)
+        public IActionResult GetSurveys([FromQuery] int userId, string token)
         {
-            try
-            {
-                using (var db = dbManager.connect())
-                {
+            try {
+                // checka token
+                using (var db = dbManager.connect()) {
+                    var query = @$"SELECT * FROM check_token({userId});";
+                    var result = dbManager.select(db, query);
+                    System.Console.WriteLine(result);
+                }
+
+                using (var db = dbManager.connect()) {
                     var query = @$"SELECT * FROM get_user_surveys({userId});";
                     var result = dbManager.select(db, query);
+
                     if (result.Count == 0)
-                    {
                         return StatusCode(StatusCodes.Status400BadRequest, new { message = "Failed to retrieve surveys; no surveys found." });
-                    }
+
                     return Ok(result);
                 }
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 _logger.LogError(ex, "An error occurred when retrieving surveys.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to retrieve surveys." });
             }

@@ -88,3 +88,12 @@ AS $$
     WHERE creator = userId
     ORDER BY created_at DESC;
 $$;
+
+CREATE FUNCTION check_token(userId INT, token_to_check VARCHAR(64))
+RETURNS BOOLEAN
+LANGUAGE SQL
+AS $$
+    SELECT crypt(token, token_to_check) = token_to_check
+    FROM accounts
+    WHERE id = userID;
+$$;
