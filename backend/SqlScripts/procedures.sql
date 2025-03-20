@@ -13,12 +13,13 @@ CREATE PROCEDURE create_account(
     lastname VARCHAR(255),
     email VARCHAR(255),
     password VARCHAR(255),
-    role ROLES
+    role ROLES,
+    verification_token VARCHAR
 )
 LANGUAGE SQL
 AS $$
-    INSERT INTO accounts ( firstname, lastname, email, password, role)
-    VALUES ( firstname, lastname, email, crypt(password, gen_salt('bf')), role::ROLES);
+    INSERT INTO accounts ( firstname, lastname, email, password, role, verified, verification_token)
+    VALUES ( firstname, lastname, email, crypt(password, gen_salt('bf')), role::ROLES, FALSE, verification_token);
 $$;
 
 CREATE PROCEDURE create_survey(
@@ -65,7 +66,8 @@ AS $$
     SELECT id, role
     FROM accounts
     WHERE email = user_email 
-    AND password = crypt(user_password, password);
+    AND password = crypt(user_password, password)
+    AND verified = TRUE;
 $$;
 
 CREATE FUNCTION get_hashed_token(
