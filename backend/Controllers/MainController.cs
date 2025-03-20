@@ -82,22 +82,13 @@ namespace backend.Controllers
 
                     if (dbManager.insert(dbInsert, query))
                     {
-                        _logger.LogInformation($"User {registration.Email} registered successfully.");
-                        _logger.LogInformation($"First Name: {registration.FirstName}");
-                        _logger.LogInformation($"Last Name: {registration.LastName}");
-                        _logger.LogInformation($"Email: {registration.Email}");
-                        _logger.LogInformation($"Role: {registration.Role}");
-                        _logger.LogInformation($"Token: {token}");
-
-                        // ✅ Send the verification email
                         string verificationUrl = $"http://localhost:5173/verified/{token}";
                         string emailBody = $@"
-                            <p>Click the link below to verify your account:</p>
-                            <a href=""{verificationUrl}"">Verify My Account</a>
+                            <p>Klicka på länken nedan för att verifiera ditt konto:</p>
+                            <a href=""{verificationUrl}"">Verifiera mitt konto</a>
                         ";
-                        System.Console.WriteLine(token);
 
-                        var emailSent = await _emailService.SendEmail(registration.Email, "Verify Your Account", emailBody);
+                        var emailSent = await _emailService.SendEmail(registration.Email, "Verifiera ditt konto för Feedbacker", emailBody);
                         if (!emailSent)
                         {
                             _logger.LogError("Failed to send verification email.");
