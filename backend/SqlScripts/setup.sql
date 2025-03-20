@@ -58,7 +58,7 @@ CREATE TABLE accounts (
     password VARCHAR(255) NOT NULL,
     role ROLES DEFAULT 'operator',
     verified BOOLEAN DEFAULT FALSE,
-    verification_token VARCHAR(255)
+    verification_token VARCHAR(255),
     token VARCHAR(64)
 );
 

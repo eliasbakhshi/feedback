@@ -41,7 +41,6 @@ namespace backend.Controllers
                 if (!isHuman)
                 {
                     return BadRequest(new { message = "reCAPTCHA verification failed." });
-
                 }
 
                 if (string.IsNullOrEmpty(registration.Email) || string.IsNullOrEmpty(registration.Password))

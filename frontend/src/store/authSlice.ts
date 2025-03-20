@@ -1,22 +1,23 @@
 import { createSlice } from "@reduxjs/toolkit";
+import Cookies from "js-cookie";
 
 // TODO: Get the current expirationTime and set it again if there is not any other remember option
 
 
 const initialState = (() => {
-  const userInfo = localStorage.getItem("userInfo")
-    ? JSON.parse(localStorage.getItem("userInfo"))
+  const userInfo = Cookies.get("userInfo")
+    ? JSON.parse(Cookies.get("userInfo") || 'null')
     : null;
-  const expirationTime = localStorage.getItem("expirationTime")
-    ? JSON.parse(localStorage.getItem("expirationTime"))
+  const expirationTime = Cookies.get("expirationTime")
+    ? JSON.parse(Cookies.get("expirationTime") || 'null')
     : null;
 
   // Check if the expirationTime is less than the current time
   if (expirationTime) {
     const expirationDate = new Date(expirationTime);
     if (new Date().getTime() > expirationDate.getTime()) {
-      localStorage.removeItem("userInfo");
-      localStorage.removeItem("expirationTime");
+      Cookies.remove("userInfo");
+      Cookies.remove("expirationTime");
       return {
         userInfo: null,
         expirationTime: null,
@@ -40,13 +41,13 @@ export const authSlice = createSlice({
         new Date().getTime() + 24 * 60 * 60 * 1000 * duration;
       state.userInfo = action.payload.user;
       state.expirationTime = expirationTime;
-      localStorage.setItem("userInfo", JSON.stringify(action.payload.user));
-      localStorage.setItem("expirationTime", expirationTime);
+      Cookies.set("userInfo", JSON.stringify(action.payload.user));
+      Cookies.set("expirationTime", expirationTime.toString());
     },
     removeCredentials: (state) => {
       state.userInfo = null;
-      localStorage.removeItem("userInfo");
-      localStorage.removeItem("expirationTime");
+      Cookies.remove("userInfo");
+      Cookies.remove("expirationTime");
     },
   },
 });

@@ -66,7 +66,8 @@ AS $$
     SELECT id, role
     FROM accounts
     WHERE email = user_email 
-    AND password = crypt(user_password, password);
+    AND password = crypt(user_password, password)
+    AND verified = TRUE;
 $$;
 
 CREATE FUNCTION get_hashed_token(
