@@ -6,6 +6,9 @@ DROP FUNCTION IF EXISTS get_hashed_token;
 DROP FUNCTION IF EXISTS add_token;
 DROP FUNCTION IF EXISTS check_login_credentials;
 
+DROP FUNCTION IF EXISTS get_user_surveys;
+DROP FUNCTION IF EXISTS get_user_survey;
+
 
 /* procedures */
 CREATE PROCEDURE create_account(
@@ -89,4 +92,13 @@ AS $$
     FROM surveys
     WHERE creator = userId
     ORDER BY created_at DESC;
+$$;
+
+CREATE FUNCTION get_user_survey(userId INT, survey_id INT)
+RETURNS TABLE (id INT, title VARCHAR(255), description TEXT, created_at TIMESTAMP)
+LANGUAGE SQL
+AS $$
+    SELECT id, title, description, created_at
+    FROM surveys
+    WHERE creator = userId AND id = survey_id;
 $$;

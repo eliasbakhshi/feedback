@@ -103,6 +103,13 @@ export const mainApi = apiSlice.injectEndpoints({
             }),
             providesTags: ["Question"],
         }),
+        getSurveyInformation: builder.query<any, { SurveyId: number; userId: number }>({
+            query: ({ SurveyId, userId }) => ({
+                url: `/api/user/survey/get-survey-information?surveyId=${SurveyId}&userId=${userId}`,
+                method: "GET",
+            }),
+            providesTags: ["Question"],
+        }),
         editSurvey: builder.mutation<any, { SurveyId: number; SurveyName: string; SurveyDescription: string }>({
             query: (surveyData) => ({
                 url: "/api/user/survey/edit-survey",
@@ -129,5 +136,6 @@ export const {
     useDeleteQuestionMutation,
     useGetSurveyQuestionsQuery,
     useGetSurveysQuery,
+    useGetSurveyInformationQuery,
     useEditSurveyMutation,
 } = mainApi;
