@@ -1,5 +1,6 @@
 import apiSlice from "./apiSlice";
-
+import Cookies from "js-cookie";
+const token = Cookies.get("token");
 export const mainApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getUsers: builder.query<any, void>({
@@ -96,6 +97,15 @@ export const mainApi = apiSlice.injectEndpoints({
             }),
             providesTags: ["Question"],
         }),
+        editQuestion: builder.mutation<any, { QuestionText: string; QuestionId: number; }>({
+            query: (surveyData) => ({
+                url: "/api/user/survey/edit-question",
+                method: "PUT",
+                body: surveyData,
+                headers: { "Content-Type": "application/json" }
+            }),
+            invalidatesTags: ["Question"],
+        }),
         getSurveys: builder.query<any, { userId: number }>({
             query: ({ userId }) => ({
                 url: `/api/user/survey/get-surveys?userId=${userId}`,
@@ -138,4 +148,5 @@ export const {
     useGetSurveysQuery,
     useGetSurveyInformationQuery,
     useEditSurveyMutation,
+    useEditQuestionMutation,
 } = mainApi;
