@@ -93,6 +93,13 @@ const LoginPage = () => {
                     >
                         {isLoading ? "Loggar in..." : "Logga in"}
                     </button>
+                    <p className="text-gray-700 text-sm mt-4">
+                        Har du inget konto? {" "}
+                        <a
+                            href="/register" className="text-red-500 hover:underline">
+                            Registrera dig här
+                        </a>
+                    </p>
                 </form>
             </div>
         </div>
