@@ -346,12 +346,9 @@ namespace backend.Controllers
         {
             try {
                 // checka token
-                using (var db = dbManager.connect()) {
-                    var query = @$"SELECT * FROM check_token({userId});";
-                    var result = dbManager.select(db, query);
-                    System.Console.WriteLine(result);
-                }
-
+                if (!CheckToken(userId, token))
+                    return Unauthorized("Invalid token");
+                
                 using (var db = dbManager.connect()) {
                     var query = @$"SELECT * FROM get_user_surveys({userId});";
                     var result = dbManager.select(db, query);
@@ -366,6 +363,20 @@ namespace backend.Controllers
                 _logger.LogError(ex, "An error occurred when retrieving surveys.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to retrieve surveys." });
             }
+        }
+
+        public bool CheckToken(int userId, string token)
+        {
+            /* Compares if the hashed token is equal to the unhashed token in database */
+            bool tokenOk = false;
+            using (var db = dbManager.connect()) {
+                var query = @$"SELECT check_token({userId}, '{token}') AS is_valid;";
+                var result = dbManager.select(db, query);
+
+                if (result.Count > 0)
+                    tokenOk = Convert.ToBoolean(result[0]["is_valid"]);
+            }
+            return tokenOk;
         }
     }
 }
