@@ -42,6 +42,7 @@ function SurveyQuestionForm() {
             text: q.question,
             answerType: q.answer_type,
             answer: null,
+            session: false,
         }));
         setSubmittedQuestions(questions);
     }
@@ -79,7 +80,7 @@ function SurveyQuestionForm() {
 
   const handleDeleteFromSession = (id: number) => {
     setLocalQuestions((prev) => prev.filter((q) => q.id !== id));
-  };
+  };  
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;

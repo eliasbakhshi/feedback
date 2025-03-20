@@ -21,16 +21,13 @@ const QuestionCard = ({
     };
   
     const [deleteQuestion] = useDeleteQuestionMutation();
-  
     const handleDeleteQuestion = async () => {
-        if (question.session) {
-            handleDeleteFromSession(question.id);
-            return;
-        }
-        try {
-            await deleteQuestion({ QuestionId: question.id }).unwrap();
-        } catch (error) {
-            toast.error("Något fel har inträffats");
+        if (question.session === false) {
+          await deleteQuestion({ QuestionId: question.id });
+          return;
+        } else {
+          handleDeleteFromSession(question.id);
+          toast.success("Frågan har tagits bort");
         }
     };
   
