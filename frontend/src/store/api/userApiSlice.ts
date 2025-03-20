@@ -63,7 +63,7 @@ export const mainApi = apiSlice.injectEndpoints({
             }),
           }),
           // SURVEY
-          addSurvey: builder.mutation<any, { SurveyCreator: string; SurveyName: string; SurveyDescription: string }>({
+          addSurvey: builder.mutation<any, { SurveyCreator: number; SurveyName: string; SurveyDescription: string }>({
             query: (surveyData) => ({
                 url: "/api/user/survey/create-survey",
                 method: "POST",
@@ -96,6 +96,13 @@ export const mainApi = apiSlice.injectEndpoints({
             }),
             providesTags: ["Question"],
         }),
+        getSurveys: builder.query<any, { userId: number }>({
+            query: ({ userId }) => ({
+                url: `/api/user/survey/get-surveys?userId=${userId}`,
+                method: "GET",
+            }),
+            providesTags: ["Question"],
+        }),
     }),
  });
 
@@ -112,4 +119,5 @@ export const {
     useAddQuestionMutation,
     useDeleteQuestionMutation,
     useGetSurveyQuestionsQuery,
+    useGetSurveysQuery,
 } = mainApi;

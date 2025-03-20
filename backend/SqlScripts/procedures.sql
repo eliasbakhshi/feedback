@@ -80,3 +80,13 @@ AS $$
     FROM accounts 
     WHERE id = userID;
 $$;
+
+CREATE FUNCTION get_user_surveys(userId INT)
+RETURNS TABLE (id INT, title VARCHAR(255), description TEXT, created_at TIMESTAMP)
+LANGUAGE SQL
+AS $$
+    SELECT id, title, description, created_at
+    FROM surveys
+    WHERE creator = userId
+    ORDER BY created_at DESC;
+$$;

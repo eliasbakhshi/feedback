@@ -6,8 +6,11 @@ import { arrayMove } from "@dnd-kit/sortable";
 import { toast } from "react-toastify";
 import QuestionCard from "./components/QuestionCard";
 import { LuEye,LuScanEye,LuSend, LuChartNoAxesCombined } from "react-icons/lu";
+import { useParams } from "react-router-dom";
 
-function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
+function SurveyQuestionForm() {
+  const { surveyId } = useParams<{ surveyId: string }>();
+  const numericSurveyId = parseInt(surveyId || "0", 10);
   const [showForm, setShowForm] = useState(false);
   const [questionText, setQuestionText] = useState("");
   enum AnswerTypes {
@@ -19,7 +22,7 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
   const [answerType, setAnswerType] = useState<AnswerTypes>(AnswerTypes.TRUE_FALSE);
   const [submittedQuestions, setSubmittedQuestions] = useState< {id: number; text: string; answerType: string; answer: string | null }[] >([]);
   const [addQuestion, { isLoading }] = useAddQuestionMutation();
-  const { data: existingQuestions } = useGetSurveyQuestionsQuery({ SurveyId: 1 }); /* 1 hårdkodat */
+  const { data: existingQuestions } = useGetSurveyQuestionsQuery({ SurveyId: numericSurveyId });
 
   const [localQuestions, setLocalQuestions] = useState<{ id: number; text: string; answerType: string; answer: string | null;}[]>([]); /* session */
 
@@ -66,7 +69,7 @@ function SurveyQuestionForm({ surveyId }: { surveyId: number }) {
     try {
         await Promise.all(localQuestions.map(async (question) => {
             await addQuestion({
-                SurveyId: 1,
+                SurveyId: numericSurveyId,
                 QuestionText: question.text,
                 AnswerType: question.answerType,
             }).unwrap();

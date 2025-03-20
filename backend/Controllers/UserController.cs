@@ -160,26 +160,38 @@ namespace backend.Controllers
 
         //Survey creation
         [HttpPost("survey/create-survey")]
-        public IActionResult CreateSurvey([FromBody] SurveyCreationModel surveyModel)
+        public IActionResult CreateSurvey([FromBody] SurveyModel surveyModel)
         {
-            var db = dbManager.connect();
-            var query = @$"CALL create_survey('{surveyModel.SurveyCreator}', '{surveyModel.SurveyName}', '{surveyModel.SurveyDescription}');";
-            if (dbManager.insert(db, query))
+            try
             {
-                _logger.LogInformation($"Survey {surveyModel.SurveyName} created successfully.");
+                using (var db = dbManager.connect())
+                {
+                    var query = @$"CALL create_survey('{surveyModel.SurveyCreator}', '{surveyModel.SurveyName}', '{surveyModel.SurveyDescription}');";
+                    dbManager.insert(db, query);
+
+                    var surveyIdQuery = @$"SELECT id FROM surveys WHERE title = '{surveyModel.SurveyName}';";
+                    var surveyData = dbManager.select(db, surveyIdQuery);
+
+                    _logger.LogInformation($"Survey {surveyModel.SurveyName} created successfully.");
+
+                    return Ok(new
+                    {
+                        message = "Survey created successfully.",
+                        surveyId = surveyData[0]["id"]
+                    });
+
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status400BadRequest, "Failed to create survey; database error.");
+                _logger.LogError(ex, "An error occurred when creating survey.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to create survey." });
             }
-            dbManager.close(db);
 
-
-            return Ok(new { message = "Survey created successfully." });
         }
 
         [HttpPost("survey/add-question")]
-        public IActionResult AddQuestion([FromBody] QuestionCreationModel questionCreationModel)
+        public IActionResult AddQuestion([FromBody] QuestionModel questionCreationModel)
         {
             var db = dbManager.connect();
             var query = @$"CALL add_question('{questionCreationModel.SurveyId}', '{questionCreationModel.QuestionText}', '{questionCreationModel.AnswerType}');";
@@ -222,6 +234,33 @@ namespace backend.Controllers
             }
         }
 
+        [HttpPut("survey/edit-survey")]
+        public IActionResult EditSurveyById([FromBody] SurveyModel surveyEditModel)
+        {
+            try
+            {
+            using (var db = dbManager.connect())
+            {
+                var query = @$"UPDATE surveys SET title = '{surveyEditModel.SurveyName}', description = '{surveyEditModel.SurveyDescription}' WHERE id = {surveyEditModel.SurveyId};";
+                int affectedRows = dbManager.update(db, query);
+                dbManager.close(db);
+
+                if (affectedRows == 0)
+                {
+                    return NotFound("Survey not found.");
+                }
+
+                _logger.LogInformation($"Survey with ID {surveyEditModel.SurveyId} updated successfully.");
+                return Ok(new { message = "Survey updated successfully." });
+            }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating survey.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to update survey." });
+            }
+        }
+
         [HttpGet("survey/get-survey-questions")]
         public IActionResult GetSurveyQuestions([FromQuery] int surveyId)
         {
@@ -242,6 +281,30 @@ namespace backend.Controllers
             {
                 _logger.LogError(ex, "An error occurred when retrieving questions.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to retrieve questions." });
+            }
+        }
+
+        [HttpGet("survey/get-surveys")]
+
+        public IActionResult GetSurveys([FromQuery] int userId)
+        {
+            try
+            {
+                using (var db = dbManager.connect())
+                {
+                    var query = @$"SELECT * FROM get_user_surveys({userId});";
+                    var result = dbManager.select(db, query);
+                    if (result.Count == 0)
+                    {
+                        return StatusCode(StatusCodes.Status400BadRequest, new { message = "Failed to retrieve surveys; no surveys found." });
+                    }
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred when retrieving surveys.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to retrieve surveys." });
             }
         }
     }
