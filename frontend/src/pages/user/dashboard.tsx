@@ -14,10 +14,12 @@ const UserDashboard = () => {
     const navigate = useNavigate();
 
     const userId = Cookies.get("userId");
+    const token = Cookies.get("token");
+    console.log(token);
     if (!userId) {
         navigate("/login");
     }
-    const { data } = useGetSurveysQuery({ userId: Number(userId) });
+    const { data } = useGetSurveysQuery({ userId: Number(userId), token: token  || "" });
 
     useEffect(() => {
         if (Array.isArray(data)) { 

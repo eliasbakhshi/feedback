@@ -195,20 +195,20 @@ namespace backend.Controllers
         {
             try
             {
-            using (var db = dbManager.connect())
-            {
-                var query = @$"UPDATE surveys SET title = '{surveyEditModel.SurveyName}', description = '{surveyEditModel.SurveyDescription}' WHERE id = {surveyEditModel.SurveyId};";
-                int affectedRows = dbManager.update(db, query);
-                dbManager.close(db);
-
-                if (affectedRows == 0)
+                using (var db = dbManager.connect())
                 {
-                    return NotFound("Survey not found.");
-                }
+                    var query = @$"UPDATE surveys SET title = '{surveyEditModel.SurveyName}', description = '{surveyEditModel.SurveyDescription}' WHERE id = {surveyEditModel.SurveyId};";
+                    int affectedRows = dbManager.update(db, query);
+                    dbManager.close(db);
 
-                _logger.LogInformation($"Survey with ID {surveyEditModel.SurveyId} updated successfully.");
-                return Ok(new { message = "Survey updated successfully." });
-            }
+                    if (affectedRows == 0)
+                    {
+                        return NotFound("Survey not found.");
+                    }
+
+                    _logger.LogInformation($"Survey with ID {surveyEditModel.SurveyId} updated successfully.");
+                    return Ok(new { message = "Survey updated successfully." });
+                }
             }
             catch (Exception ex)
             {
@@ -220,7 +220,8 @@ namespace backend.Controllers
         [HttpDelete("survey/delete-survey")]
         public IActionResult DeleteSurveyById([FromBody] SurveyModel surveyModel)
         {
-            try {
+            try
+            {
                 using (var db = dbManager.connect())
                 {
                     var query = @$"DELETE FROM questions WHERE survey_id = '{surveyModel.SurveyId}';";
@@ -232,7 +233,7 @@ namespace backend.Controllers
 
                     if (affectedRows == 0)
                     {
-                        return NotFound( new {message = "Survey not found."});
+                        return NotFound(new { message = "Survey not found." });
                     }
 
                     _logger.LogInformation($"Survey with ID {surveyModel.SurveyId} deleted successfully.");
@@ -277,7 +278,7 @@ namespace backend.Controllers
 
                     if (affectedRows == 0)
                     {
-                        return NotFound( new { message = "Question not found." });
+                        return NotFound(new { message = "Question not found." });
                     }
 
                     _logger.LogInformation($"Question with ID {questionEditModel.QuestionId} updated successfully.");
@@ -341,15 +342,23 @@ namespace backend.Controllers
         }
 
         [HttpGet("survey/get-surveys")]
-
-        public IActionResult GetSurveys([FromQuery] int userId, string token)
+        public IActionResult GetSurveys([FromQuery] int userId)
         {
-            try {
-                // checka token
-                //if (!CheckToken(userId, token))
-                //    return Unauthorized("Invalid token");
-                
-                using (var db = dbManager.connect()) {
+            try
+            {
+
+                if (!Request.Headers.TryGetValue("Authorization", out var token))
+                {
+                    return Unauthorized("Token is missing.");
+                }
+                Console.WriteLine(token);
+                if (!CheckToken(userId, token))
+                {
+                    return Unauthorized("Invalid token.");
+                }
+
+                using (var db = dbManager.connect())
+                {
                     var query = @$"SELECT * FROM get_user_surveys({userId});";
                     var result = dbManager.select(db, query);
 
@@ -359,7 +368,8 @@ namespace backend.Controllers
                     return Ok(result);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 _logger.LogError(ex, "An error occurred when retrieving surveys.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to retrieve surveys." });
             }
@@ -369,7 +379,8 @@ namespace backend.Controllers
         {
             /* Compares if the hashed token is equal to the unhashed token in database */
             bool tokenOk = false;
-            using (var db = dbManager.connect()) {
+            using (var db = dbManager.connect())
+            {
                 var query = @$"SELECT check_token({userId}, '{token}') AS is_valid;";
                 var result = dbManager.select(db, query);
 

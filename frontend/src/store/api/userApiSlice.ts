@@ -96,10 +96,11 @@ export const mainApi = apiSlice.injectEndpoints({
             }),
             providesTags: ["Question"],
         }),
-        getSurveys: builder.query<any, { userId: number }>({
-            query: ({ userId }) => ({
+        getSurveys: builder.query<any, { userId: number; token: string }>({
+            query: ({ userId, token }) => ({
                 url: `/api/user/survey/get-surveys?userId=${userId}`,
                 method: "GET",
+                headers: { Authorization: token },
             }),
             providesTags: ["Question"],
         }),
