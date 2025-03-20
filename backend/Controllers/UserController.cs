@@ -346,8 +346,8 @@ namespace backend.Controllers
         {
             try {
                 // checka token
-                if (!CheckToken(userId, token))
-                    return Unauthorized("Invalid token");
+                //if (!CheckToken(userId, token))
+                //    return Unauthorized("Invalid token");
                 
                 using (var db = dbManager.connect()) {
                     var query = @$"SELECT * FROM get_user_surveys({userId});";
