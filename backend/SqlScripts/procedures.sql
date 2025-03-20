@@ -5,6 +5,7 @@ DROP FUNCTION IF EXISTS get_hashed_token;
 
 DROP FUNCTION IF EXISTS add_token;
 DROP FUNCTION IF EXISTS check_login_credentials;
+DROP FUNCTION IF EXISTS check_token;
 
 
 /* procedures */
