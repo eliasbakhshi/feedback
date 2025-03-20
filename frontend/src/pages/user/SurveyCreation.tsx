@@ -29,7 +29,6 @@ function SurveyQuestionForm() {
 
   useEffect(() => {
     if (surveyInfo) {
-      console.log(surveyInfo);
         setSurveyTitle(surveyInfo.title || "Ingen titel");
         setSurveyDescription(surveyInfo.description || "Ingen beskrivning");
     }
