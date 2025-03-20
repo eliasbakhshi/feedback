@@ -1,6 +1,6 @@
 import { LiaMailBulkSolid } from "react-icons/lia";
-const verify = () => {
 
+const verify = () => {
   return (
     <div className="flex justify-center items-start min-h-screen bg-gray-100">
         <div className="w-200 bg-white p-4 mt-8 rounded-lg mt-4 jsutify-center items-center flex flex-col shadow-md">
