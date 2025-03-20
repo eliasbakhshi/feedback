@@ -117,13 +117,18 @@ function SurveyQuestionForm() {
       toast.error("Misslyckades att uppdatera formuläret.");
     }
   };
-  
+
+  const handleEditQuestion = (id: number, newText: string) => {
+    setLocalQuestions((prev) =>
+      prev.map((q) => (q.id === id ? { ...q, text: newText } : q))
+    );
+  };
 
   return (
     <div className="flex h-full mr-2 ml-2 gap-4 rounded-lg">
       < QuestionContainer setLocalQuestions={setLocalQuestions} />
       <div className="w-4/5 p-4 border rounded-lg shadow-md h-full bg-slate-100 overflow-auto">
-      <SurveyHeader />
+        <SurveyHeader />
         <input
           type="text"
           value={surveyTitle}
@@ -147,6 +152,7 @@ function SurveyQuestionForm() {
                 question={question}
                 handleAnswerSubmit={handleAnswerSubmit}
                 handleDeleteFromSession={handleDeleteFromSession}
+                handleEditQuestion={handleEditQuestion}
               />
             ))}
           </SortableContext>
