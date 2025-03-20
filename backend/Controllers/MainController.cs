@@ -14,7 +14,7 @@ namespace backend.Controllers
     [Route("api/main")]
     public class MainController : Controller
     {
-        private readonly DBManager _dbManager;
+        private readonly DBManager dbManager;
         private readonly ILogger<MainController> _logger;
         private readonly RecaptchaService _recaptchaService;
         private readonly EmailService _emailService;
@@ -27,25 +27,32 @@ namespace backend.Controllers
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _recaptchaService = recaptchaService ?? throw new ArgumentNullException(nameof(recaptchaService));
-            _dbManager = dbManager ?? throw new ArgumentNullException(nameof(dbManager));
+            this.dbManager = dbManager ?? throw new ArgumentNullException(nameof(dbManager));
             _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
         }
 
 
-        [HttpPost("registration")]
+        [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegistrationModel registration)
         {
             try
             {
+                var isHuman = await _recaptchaService.VerifyRecaptchaAsync(registration.RecaptchaToken);
+                if (!isHuman)
+                {
+                    return BadRequest(new { message = "reCAPTCHA verification failed." });
+
+                }
+
                 if (string.IsNullOrEmpty(registration.Email) || string.IsNullOrEmpty(registration.Password))
                 {
                     return BadRequest(new { message = "Email and password are required." });
                 }
 
-                using (var dbCheck = _dbManager.connect())
+                using (var dbCheck = dbManager.connect())
                 {
                     string checkEmail = $"SELECT COUNT(*) FROM accounts WHERE email = '{registration.Email}';";
-                    var check = _dbManager.select(dbCheck, checkEmail);
+                    var check = dbManager.select(dbCheck, checkEmail);
                     var result = check.FirstOrDefault()?["count"] as long?;
                     bool exists = result.HasValue && result.Value > 0;
 
@@ -57,7 +64,7 @@ namespace backend.Controllers
 
                 string token = Guid.NewGuid().ToString();
 
-                using (var dbInsert = _dbManager.connect())
+                using (var dbInsert = dbManager.connect())
                 {
                     if (registration.Password.Length < 6)
                     {
@@ -74,7 +81,7 @@ namespace backend.Controllers
                             '{token}'
                         )";
 
-                    if (_dbManager.insert(dbInsert, query))
+                    if (dbManager.insert(dbInsert, query))
                     {
                         _logger.LogInformation($"User {registration.Email} registered successfully.");
                         _logger.LogInformation($"First Name: {registration.FirstName}");
@@ -117,7 +124,7 @@ namespace backend.Controllers
         [HttpPost("send-code")]
         public async Task<IActionResult> SendVerificationCode([FromBody] EmailRequest request)
         {
-            using var conn = _dbManager.connect();
+            using var conn = dbManager.connect();
 
             string selectSql = $@"
                 SELECT verified
@@ -126,24 +133,24 @@ namespace backend.Controllers
                 LIMIT 1
             ";
 
-            var rows = _dbManager.select(conn, selectSql);
+            var rows = dbManager.select(conn, selectSql);
 
             if (rows.Count == 0)
             {
-                _dbManager.close(conn);
+                dbManager.close(conn);
                 return BadRequest(new { message = "Account does not exist" });
             }
 
             bool isVerified = (bool)rows[0]["verified"];
             if (isVerified)
             {
-                _dbManager.close(conn);
+                dbManager.close(conn);
                 return Ok(new { message = "Account is already verified" });
             }
 
             bool success = await _emailService.SendVerificationCode(request.Email);
 
-            _dbManager.close(conn);
+            dbManager.close(conn);
 
             if (success)
             {
@@ -159,7 +166,7 @@ namespace backend.Controllers
         [HttpGet("confirm")]
         public IActionResult ConfirmAccount(string token)
         {
-            using var conn = _dbManager.connect();
+            using var conn = dbManager.connect();
 
             try
             {
@@ -170,7 +177,7 @@ namespace backend.Controllers
                     LIMIT 1
                 ";
 
-                var rows = _dbManager.select(conn, selectSql);
+                var rows = dbManager.select(conn, selectSql);
 
                 if (rows.Count == 0)
                 {
@@ -190,7 +197,7 @@ namespace backend.Controllers
                     WHERE verification_token = '{token}'
                 ";
 
-                int rowsAffected = _dbManager.update(conn, updateSql);
+                int rowsAffected = dbManager.update(conn, updateSql);
                 conn.Close(); 
 
                 if (rowsAffected > 0)
