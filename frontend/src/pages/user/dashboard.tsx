@@ -21,7 +21,7 @@ const UserDashboard = () => {
     if (!userId || !token) {
         navigate("/login");
     }
-    const { data } = useGetSurveysQuery({ userId: Number(userId), token: token  || "" });
+    const { data } = useGetSurveysQuery({ userId: Number(userId) });
     const { data: accountInfo } = useGetAccountInfoQuery(Number(userId));
 
     useEffect(() => {
