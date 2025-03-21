@@ -146,7 +146,7 @@ namespace backend.Controllers
                 ";
 
                 int rowsAffected = dbManager.update(db, updateQuery);
-                db.Close(); 
+                db.Close();
 
                 if (rowsAffected > 0)
                 {
@@ -183,7 +183,8 @@ namespace backend.Controllers
                 int? userID = null;
                 string? role = null;
 
-                using (var db = dbManager.connect()) {
+                using (var db = dbManager.connect())
+                {
                     var query = @$"SELECT * FROM check_login_credentials('{loginCredentials.Email}', '{loginCredentials.Password}')";
                     var user = dbManager.select(db, query);
 
@@ -197,7 +198,8 @@ namespace backend.Controllers
                     role = userData["role"]?.ToString();
                 }
 
-                using (var db = dbManager.connect()) {
+                using (var db = dbManager.connect())
+                {
                     string token = createToken();
 
                     string saveTokenQuery = @$"CALL add_token('{token}', {userID})";
@@ -205,7 +207,8 @@ namespace backend.Controllers
                 }
 
                 string? hashedToken = null;
-                using (var db = dbManager.connect()) {
+                using (var db = dbManager.connect())
+                {
                     var getTokenQuery = @$"SELECT * FROM get_hashed_token({userID})";
                     var result = dbManager.select(db, getTokenQuery);
 
@@ -214,22 +217,25 @@ namespace backend.Controllers
                 }
 
                 if (hashedToken == null)
-                    return StatusCode(StatusCodes.Status500InternalServerError, new {Message = "Failed to get token"});
+                    return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Failed to get token" });
 
-                return Ok(new {
+                return Ok(new
+                {
                     Message = "Login successful",
                     Token = hashedToken,
                     UserId = userID,
                     Role = role
                 });
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 _logger.LogError(ex, "An error occurred when logging in.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to login user." });
             }
         }
 
-        public string createToken() {
+        public string createToken()
+        {
             byte[] tokenBytes = RandomNumberGenerator.GetBytes(32);
             return Convert.ToBase64String(tokenBytes);
         }

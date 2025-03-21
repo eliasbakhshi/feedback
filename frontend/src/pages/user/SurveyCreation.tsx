@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { useAddQuestionMutation, useGetSurveyQuestionsQuery, useGetSurveysQuery, useEditSurveyMutation } from "../../store/api/userApiSlice";
+import { useState, useEffect } from "react";
+import { useAddQuestionMutation, useGetSurveyQuestionsQuery, useEditSurveyMutation, useGetSurveyInformationQuery } from "../../store/api/userApiSlice";
 import { DndContext, closestCenter, DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { arrayMove } from "@dnd-kit/sortable";
 import { toast } from "react-toastify";
 import QuestionCard from "./components/QuestionCard";
-import { LuEye,LuScanEye,LuSend, LuChartNoAxesCombined,LuPencil  } from "react-icons/lu";
+import SurveyHeader from "./components/SurveyCreationHeader";
+import QuestionContainer from "./components/surveyQuestionContainer";
 import { useParams } from "react-router-dom";
 import Cookies from "js-cookie";
 
@@ -15,25 +16,23 @@ const userId = Cookies.get("userId");
 function SurveyQuestionForm() {
   const { surveyId } = useParams<{ surveyId: string }>();
   const numericSurveyId = parseInt(surveyId || "0", 10);
-  const [showForm, setShowForm] = useState(false);
-  const [questionText, setQuestionText] = useState("");
-  enum AnswerTypes {
-    TRUE_FALSE = "truefalse",
-    TRAFFIC_LIGHT = "trafficlight",
-    FREE_TEXT = "freetext",
-    SCALE = "scale"
-  }
-  const [answerType, setAnswerType] = useState<AnswerTypes>(AnswerTypes.TRUE_FALSE);
   const [submittedQuestions, setSubmittedQuestions] = useState< {id: number; text: string; answerType: string; answer: string | null }[] >([]);
-  const [addQuestion, { isLoading }] = useAddQuestionMutation();
+  const [addQuestion, _] = useAddQuestionMutation();
   const { data: existingQuestions } = useGetSurveyQuestionsQuery({ SurveyId: numericSurveyId });
+  const { data: surveyInfo } = useGetSurveyInformationQuery({ SurveyId: numericSurveyId, userId: parseInt(userId || "0", 10) });
 
   const [localQuestions, setLocalQuestions] = useState<{ id: number; text: string; answerType: string; answer: string | null;}[]>([]); /* session */
 
   const [editSurvey] = useEditSurveyMutation();
   const [surveyTitle, setSurveyTitle] = useState("");
   const [surveyDescription, setSurveyDescription] = useState("");
-  const [isEditingSurvey, setIsEditingSurvey] = useState(false);
+
+  useEffect(() => {
+    if (surveyInfo) {
+        setSurveyTitle(surveyInfo.title || "Ingen titel");
+        setSurveyDescription(surveyInfo.description || "Ingen beskrivning");
+    }
+}, [surveyInfo]);
 
   useEffect(() => {
     if (existingQuestions) {
@@ -42,30 +41,11 @@ function SurveyQuestionForm() {
             text: q.question,
             answerType: q.answer_type,
             answer: null,
+            session: false,
         }));
         setSubmittedQuestions(questions);
     }
 }, [existingQuestions]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!questionText.trim()) {
-      toast.error("Frågetexten får inte vara tom!");
-      return;
-    }
-
-    const newQuestion = {
-      id: Date.now(),
-      text: questionText,
-      answerType: answerType,
-      answer: null,
-      session: true,
-    };
-
-    setLocalQuestions((prev) => [...prev, newQuestion]);
-    setShowForm(false);
-    setQuestionText("");
-  };
 
 
   const handleSaveAll = async () => {
@@ -99,7 +79,7 @@ function SurveyQuestionForm() {
 
   const handleDeleteFromSession = (id: number) => {
     setLocalQuestions((prev) => prev.filter((q) => q.id !== id));
-  };
+  };  
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -119,123 +99,49 @@ function SurveyQuestionForm() {
     setLocalQuestions(newOrder.filter(q => localQuestions.some(lq => lq.id === q.id)));
   };
 
-  const handleEditSurvey = async () => {
+  const handleSaveSurvey = async () => {
     try {
       await editSurvey({
         SurveyId: numericSurveyId,
         SurveyName: surveyTitle,
         SurveyDescription: surveyDescription,
       }).unwrap();
-      toast.success("Formuläret har uppdaterats!");
-      setIsEditingSurvey(false);
+
+      const activeElement = document.activeElement as HTMLElement;
+      if (activeElement) activeElement.blur();
+
+      toast.success("Formuläret uppdaterat!");
     } catch (error) {
       console.error("Misslyckades att uppdatera formuläret:", error);
       toast.error("Misslyckades att uppdatera formuläret.");
     }
   };
 
+  const handleEditQuestion = (id: number, newText: string) => {
+    setLocalQuestions((prev) =>
+      prev.map((q) => (q.id === id ? { ...q, text: newText } : q))
+    );
+  };
+
   return (
     <div className="flex h-full mr-2 ml-2 gap-4 rounded-lg">
-      <div className="w-1/5 p-4 border rounded-lg shadow-md justify-center text-center bg-slate-100">
-        {!showForm ? (
-          <button
-            onClick={() => setShowForm(true)}
-            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
-            Skapa fråga
-          </button>
-        ) : (
-          <form onSubmit={handleSubmit} className="mt-4">
-            <input
-              type="text"
-              value={questionText}
-              onChange={(e) => setQuestionText(e.target.value)}
-              placeholder="Skriv din fråga här..."
-              className="w-full p-2 border rounded-md"
-            />
-            <select
-              value={answerType}
-              onChange={(e) => setAnswerType(e.target.value as AnswerTypes)}
-              className="w-full mt-2 p-2 border rounded-md">
-              <option value="truefalse">Ja / Nej</option>
-              <option value="trafficlight">Trafikljus (Röd/Gul/Grön)</option>
-              <option value="freetext">Fritext</option>
-              <option value="scale">1-5</option>
-            </select>
-
-            <div className="flex justify-between mt-2">
-              <button
-                type="submit"
-                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                disabled={isLoading}>
-                Lägg till fråga
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowForm(false)}
-                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">
-                Avbryt
-              </button>
-            </div>
-          </form>
-        )}
-      </div>
-
+      < QuestionContainer setLocalQuestions={setLocalQuestions} />
       <div className="w-4/5 p-4 border rounded-lg shadow-md h-full bg-slate-100 overflow-auto">
-        <div className="flex justify-between items-center">
-          {isEditingSurvey ? (
-            <div className="flex flex-col gap-2">
-              <input
-                type="text"
-                value={surveyTitle}
-                onChange={(e) => setSurveyTitle(e.target.value)}
-                placeholder="Formulärets titel"
-                className="p-2 border rounded-md"
-              />
-              <textarea
-                value={surveyDescription}
-                onChange={(e) => setSurveyDescription(e.target.value)}
-                placeholder="Formulärets beskrivning"
-                className="p-2 border rounded-md"
-              />
-              <div className="flex gap-2">
-                <button
-                  onClick={handleEditSurvey}
-                  className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                >
-                  Spara
-                </button>
-                <button
-                  onClick={() => setIsEditingSurvey(false)}
-                  className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-                >
-                  Avbryt
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button
-              onClick={() => setIsEditingSurvey(true)}
-              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-            >
-              Redigera formulär
-            </button>
-          )}
-        </div>
-      <div className="flex justify-end gap-6 mt-2 mr-6">
-        <button className="px-4 py-2 text-gray-700 text-sm flex items-center hover:text-gray-900 group">
-          <LuEye className="mr-2 group-hover:hidden" />
-          <LuScanEye className="mr-2 hidden group-hover:block" /> Förhandsvisning
-        </button>
-        <button className="px-4 py-2 bg-red-500 text-white text-sm rounded-full flex items-center hover:bg-red-600 ">
-          <LuSend className="mr-2" />
-          Dela
-        </button>
-        <button className="px-4 py-2 bg-red-500 text-white text-sm rounded-full flex items-center hover:bg-red-600 ">
-          <LuChartNoAxesCombined className="mr-2" />
-          Resultat
-        </button>
-      </div>
-        <h2 className="text-xl font-semibold">Formulär</h2>
+        <SurveyHeader />
+        <input
+          type="text"
+          value={surveyTitle}
+          onChange={(e) => setSurveyTitle(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSaveSurvey()}
+          className="text-xl font-semibold border-b-2 border-gray-300 focus:border-red-500 outline-none w-full"
+        />
+        <input
+          type="text"
+          value={surveyDescription}
+          onChange={(e) => setSurveyDescription(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSaveSurvey()}
+          className="text-sm border-b-2 border-gray-300 focus:border-red-500 outline-none w-full"
+        />
         <p className="mt-4">Antal frågor: {submittedQuestions.length}</p>
         <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={[...submittedQuestions, ...localQuestions]} strategy={verticalListSortingStrategy}>
@@ -245,6 +151,7 @@ function SurveyQuestionForm() {
                 question={question}
                 handleAnswerSubmit={handleAnswerSubmit}
                 handleDeleteFromSession={handleDeleteFromSession}
+                handleEditQuestion={handleEditQuestion}
               />
             ))}
           </SortableContext>

@@ -1,17 +1,20 @@
-import {useDeleteQuestionMutation} from "../../../store/api/userApiSlice";
+import {useDeleteQuestionMutation, useEditQuestionMutation} from "../../../store/api/userApiSlice";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { toast } from "react-toastify";
 import { LuTrash2 } from "react-icons/lu";
+import { useState } from "react";
 
 const QuestionCard = ({
     question,
     handleAnswerSubmit,
     handleDeleteFromSession,
+    handleEditQuestion,
   }: {
     question: { id: number; text: string; answerType: string; answer: string | null; session?: boolean };
     handleAnswerSubmit: (id: number, answer: string) => void;
     handleDeleteFromSession: (id: number) => void;
+    handleEditQuestion: (id: number, newText: string) => void;
   }) => {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: question.id });
   
@@ -21,17 +24,27 @@ const QuestionCard = ({
     };
   
     const [deleteQuestion] = useDeleteQuestionMutation();
-  
+    const [editQuestion] = useEditQuestionMutation();
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedText, setEditedText] = useState(question.text);
+
     const handleDeleteQuestion = async () => {
-        if (question.session) {
-            handleDeleteFromSession(question.id);
-            return;
+        if (question.session === false) {
+          await deleteQuestion({ QuestionId: question.id });
+          return;
+        } else {
+          handleDeleteFromSession(question.id);
+          toast.success("Frågan har tagits bort");
         }
-        try {
-            await deleteQuestion({ QuestionId: question.id }).unwrap();
-        } catch (error) {
-            toast.error("Något fel har inträffats");
-        }
+    };
+
+    const handleSaveEdit = async () => {
+      if (question.session == false) {
+        await editQuestion({ QuestionId: question.id, QuestionText: editedText });
+      } else {
+        handleEditQuestion(question.id, editedText);
+      }
+      setIsEditing(false);
     };
   
     return (
@@ -43,9 +56,25 @@ const QuestionCard = ({
         <div
           className="text-2xl absolute bottom-2 right-2 opacity-60 hover:opacity-100 cursor-pointer"
           onClick={handleDeleteQuestion}> <LuTrash2 /> </div>
-  
-        <p className="font-semibold">{question.text}</p>
-  
+
+        {isEditing ? (
+          <input
+            type="text"
+            value={editedText}
+            onChange={(e) => setEditedText(e.target.value)}
+            onBlur={handleSaveEdit}
+            onKeyDown={(e) => e.key === "Enter" && handleSaveEdit()}
+            className="w-full p-2 border-b-2 border-gray-300 focus:border-red-500 outline-none"
+          />
+        ) : (
+          <p
+            className="font-semibold cursor-pointer"
+            onClick={() => setIsEditing(true)}
+          >
+            {question.text}
+          </p>
+        )}
+
         {question.answerType === "truefalse" ? (
           <div className="flex gap-4 mt-2">
             <button onClick={() => handleAnswerSubmit(question.id, "Ja")}

@@ -158,7 +158,7 @@ namespace backend.Controllers
             }
         }
 
-        //Survey creation
+        //Survey and question CRUD
         [HttpPost("survey/create-survey")]
         public IActionResult CreateSurvey([FromBody] SurveyModel surveyModel)
         {
@@ -190,6 +190,63 @@ namespace backend.Controllers
 
         }
 
+        [HttpPut("survey/edit-survey")]
+        public IActionResult EditSurveyById([FromBody] SurveyModel surveyEditModel)
+        {
+            try
+            {
+                using (var db = dbManager.connect())
+                {
+                    var query = @$"UPDATE surveys SET title = '{surveyEditModel.SurveyName}', description = '{surveyEditModel.SurveyDescription}' WHERE id = {surveyEditModel.SurveyId};";
+                    int affectedRows = dbManager.update(db, query);
+                    dbManager.close(db);
+
+                    if (affectedRows == 0)
+                    {
+                        return NotFound("Survey not found.");
+                    }
+
+                    _logger.LogInformation($"Survey with ID {surveyEditModel.SurveyId} updated successfully.");
+                    return Ok(new { message = "Survey updated successfully." });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating survey.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to update survey." });
+            }
+        }
+
+        [HttpDelete("survey/delete-survey")]
+        public IActionResult DeleteSurveyById([FromQuery] SurveyModel surveyModel)
+        {
+            try
+            {
+                using (var db = dbManager.connect())
+                {
+                    var query = @$"DELETE FROM questions WHERE survey_id = '{surveyModel.SurveyId}';";
+                    dbManager.delete(db, query);
+
+                    query = @$"DELETE FROM surveys WHERE id = '{surveyModel.SurveyId}';";
+                    int affectedRows = dbManager.delete(db, query);
+                    dbManager.close(db);
+
+                    if (affectedRows == 0)
+                    {
+                        return NotFound(new { message = "Survey not found." });
+                    }
+
+                    _logger.LogInformation($"Survey with ID {surveyModel.SurveyId} deleted successfully.");
+                    return Ok(new { message = "Survey deleted successfully." });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting survey.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to delete survey." });
+            }
+        }
+
         [HttpPost("survey/add-question")]
         public IActionResult AddQuestion([FromBody] QuestionModel questionCreationModel)
         {
@@ -206,6 +263,33 @@ namespace backend.Controllers
             dbManager.close(db);
 
             return Ok(new { message = "Question added successfully." });
+        }
+
+        [HttpPut("survey/edit-question")]
+        public IActionResult EditQuestion([FromBody] QuestionModel questionEditModel)
+        {
+            try
+            {
+                using (var db = dbManager.connect())
+                {
+                    var query = @$"UPDATE questions SET question = '{questionEditModel.QuestionText}' WHERE id = {questionEditModel.QuestionId};";
+                    int affectedRows = dbManager.update(db, query);
+                    dbManager.close(db);
+
+                    if (affectedRows == 0)
+                    {
+                        return NotFound(new { message = "Question not found." });
+                    }
+
+                    _logger.LogInformation($"Question with ID {questionEditModel.QuestionId} updated successfully.");
+                    return Ok(new { message = "Question updated successfully." });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred when updating question.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to update question." });
+            }
         }
 
         [HttpDelete("survey/delete-question")]
@@ -234,30 +318,27 @@ namespace backend.Controllers
             }
         }
 
-        [HttpPut("survey/edit-survey")]
-        public IActionResult EditSurveyById([FromBody] SurveyModel surveyEditModel)
+
+        [HttpGet("survey/get-survey-information")]
+        public IActionResult GetSurveyInformation([FromQuery] int surveyId, [FromQuery] int userId)
         {
             try
             {
                 using (var db = dbManager.connect())
                 {
-                    var query = @$"UPDATE surveys SET title = '{surveyEditModel.SurveyName}', description = '{surveyEditModel.SurveyDescription}' WHERE id = {surveyEditModel.SurveyId};";
-                    int affectedRows = dbManager.update(db, query);
-                    dbManager.close(db);
-
-                    if (affectedRows == 0)
+                    var query = @$" SELECT id, title, description, created_at FROM surveys WHERE creator = {userId} AND id = {surveyId}";
+                    var result = dbManager.select(db, query);
+                    if (result.Count == 0)
                     {
-                        return NotFound("Survey not found.");
+                        return NotFound(new { message = "Survey not found." });
                     }
-
-                    _logger.LogInformation($"Survey with ID {surveyEditModel.SurveyId} updated successfully.");
-                    return Ok(new { message = "Survey updated successfully." });
+                    return Ok(result[0]);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while updating survey.");
-                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to update survey." });
+                _logger.LogError(ex, "An error occurred when retrieving survey information.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to retrieve survey information." });
             }
         }
 
@@ -272,7 +353,8 @@ namespace backend.Controllers
                     var result = dbManager.select(db, query);
                     if (result.Count == 0)
                     {
-                        return StatusCode(StatusCodes.Status400BadRequest, new { message = "Failed to retrieve questions; no questions found." });
+                        _logger.LogInformation($"No questions found for survey ID {surveyId}.");
+                        return Ok(new List<object>());
                     }
                     return Ok(result);
                 }
@@ -285,19 +367,29 @@ namespace backend.Controllers
         }
 
         [HttpGet("survey/get-surveys")]
-
         public IActionResult GetSurveys([FromQuery] int userId)
         {
             try
             {
+
+                if (!Request.Headers.TryGetValue("Authorization", out var token))
+                {
+                    return Unauthorized("Token is missing.");
+                }
+                Console.WriteLine(token);
+                if (!CheckToken(userId, token))
+                {
+                    return Unauthorized("Invalid token.");
+                }
+
                 using (var db = dbManager.connect())
                 {
                     var query = @$"SELECT * FROM get_user_surveys({userId});";
                     var result = dbManager.select(db, query);
+
                     if (result.Count == 0)
-                    {
                         return StatusCode(StatusCodes.Status400BadRequest, new { message = "Failed to retrieve surveys; no surveys found." });
-                    }
+
                     return Ok(result);
                 }
             }
@@ -306,6 +398,21 @@ namespace backend.Controllers
                 _logger.LogError(ex, "An error occurred when retrieving surveys.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Failed to retrieve surveys." });
             }
+        }
+
+        public bool CheckToken(int userId, string token)
+        {
+            /* Compares if the hashed token is equal to the unhashed token in database */
+            bool tokenOk = false;
+            using (var db = dbManager.connect())
+            {
+                var query = @$"SELECT check_token({userId}, '{token}') AS is_valid;";
+                var result = dbManager.select(db, query);
+
+                if (result.Count > 0)
+                    tokenOk = Convert.ToBoolean(result[0]["is_valid"]);
+            }
+            return tokenOk;
         }
     }
 }

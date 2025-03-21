@@ -1,5 +1,6 @@
 import apiSlice from "./apiSlice";
-
+import Cookies from "js-cookie";
+const token = Cookies.get("token");
 export const mainApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getUsers: builder.query<any, void>({
@@ -103,9 +104,26 @@ export const mainApi = apiSlice.injectEndpoints({
             }),
             providesTags: ["Question"],
         }),
+        editQuestion: builder.mutation<any, { QuestionText: string; QuestionId: number; }>({
+            query: (surveyData) => ({
+                url: "/api/user/survey/edit-question",
+                method: "PUT",
+                body: surveyData,
+                headers: { "Content-Type": "application/json" }
+            }),
+            invalidatesTags: ["Question"],
+        }),
         getSurveys: builder.query<any, { userId: number }>({
             query: ({ userId }) => ({
                 url: `/api/user/survey/get-surveys?userId=${userId}`,
+                method: "GET",
+                headers: { Authorization: token },
+            }),
+            providesTags: ["Question"],
+        }),
+        getSurveyInformation: builder.query<any, { SurveyId: number; userId: number }>({
+            query: ({ SurveyId, userId }) => ({
+                url: `/api/user/survey/get-survey-information?surveyId=${SurveyId}&userId=${userId}`,
                 method: "GET",
             }),
             providesTags: ["Question"],
@@ -119,9 +137,16 @@ export const mainApi = apiSlice.injectEndpoints({
             }),
             invalidatesTags: ["Question"],
         }),
+        deleteSurvey: builder.mutation<any, { SurveyId: number }>({
+            query: ({ SurveyId }) => ({
+                url: `/api/user/survey/delete-survey?SurveyId=${SurveyId}`,
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" }
+        }),
+        invalidatesTags: ["Question"],
+        }),
     }),
  });
-
 
 export const {
     useGetUsersQuery,
@@ -137,5 +162,8 @@ export const {
     useDeleteQuestionMutation,
     useGetSurveyQuestionsQuery,
     useGetSurveysQuery,
+    useDeleteSurveyMutation,
+    useGetSurveyInformationQuery,
     useEditSurveyMutation,
+    useEditQuestionMutation,
 } = mainApi;
