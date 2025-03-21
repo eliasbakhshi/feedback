@@ -43,8 +43,7 @@ const Registration = () => {
     try {
       const userData = {firstName, lastName, email, password, recaptchaToken, role: "operator" };
       await registerUser(userData).unwrap();
-      toast.success(`Välkommen!`);
-      navigate("/login");
+      navigate("/verify");
     } catch (error: any) {
       const errorMessage = error.data?.message || "Något gick fel!";
       recaptcha.current?.reset();

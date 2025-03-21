@@ -24,7 +24,7 @@ const router = createBrowserRouter(
       <Route path="register" element={<Registration />} />
       <Route path="survey-creation" element={<SurveyCreation />} />
       <Route path="verify" element={<VerifyAccount />} />
-      <Route path="verified" element={<Verified />} />
+      <Route path="verified/:token" element={<Verified />} />
       <Route path="survey-creation/:surveyId" element={<SurveyCreation />} />
       <Route element={<UserRoutes />}>
         <Route path="account" element={<Account />} />

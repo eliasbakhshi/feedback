@@ -21,6 +21,13 @@ export const mainApi = apiSlice.injectEndpoints({
             invalidatesTags: ["User"],
 
         }),
+        confirmUser: builder.mutation<any, { token: string }>({
+            query: ({ token }) => ({
+                url: `/api/main/confirm?token=${token}`,
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            }),
+        }),
         getAccountInfo: builder.query<any, number>({
             query: (id) => ({
                 url: `/api/user/${id}`,
@@ -64,14 +71,14 @@ export const mainApi = apiSlice.injectEndpoints({
             }),
           }),
           // SURVEY
-          addSurvey: builder.mutation<any, { SurveyCreator: number; SurveyName: string; SurveyDescription: string }>({
+        addSurvey: builder.mutation<any, { SurveyCreator: number; SurveyName: string; SurveyDescription: string }>({
             query: (surveyData) => ({
                 url: "/api/user/survey/create-survey",
                 method: "POST",
                 body: surveyData,
                 headers: { "Content-Type": "application/json" } 
             }),
-            invalidatesTags: ["User"],
+        invalidatesTags: ["User"],
         }),
         addQuestion: builder.mutation<any, { SurveyId: number; QuestionText: string; AnswerType: string }>({
             query: (surveyData) => ({
@@ -144,6 +151,7 @@ export const mainApi = apiSlice.injectEndpoints({
 export const {
     useGetUsersQuery,
     useRegisterUserMutation,
+    useConfirmUserMutation,
     useGetAccountInfoQuery,
     useUpdatePasswordMutation,
     useUpdateFirstNameMutation,
