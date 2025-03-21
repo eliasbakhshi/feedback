@@ -82,21 +82,13 @@ namespace backend.Controllers
 
                     if (dbManager.insert(dbInsert, query))
                     {
-                        _logger.LogInformation($"User {registration.Email} registered successfully.");
-                        _logger.LogInformation($"First Name: {registration.FirstName}");
-                        _logger.LogInformation($"Last Name: {registration.LastName}");
-                        _logger.LogInformation($"Email: {registration.Email}");
-                        _logger.LogInformation($"Role: {registration.Role}");
-                        _logger.LogInformation($"Token: {token}");
-
-                        // ✅ Send the verification email
-                        string verificationUrl = $"http://localhost:5172/api/main/confirm?token={token}";
+                        string verificationUrl = $"http://localhost:5173/verified/{token}";
                         string emailBody = $@"
-                            <p>Click the link below to verify your account:</p>
-                            <a href=""{verificationUrl}"">Verify My Account</a>
+                            <p>Klicka på länken nedan för att verifiera ditt konto:</p>
+                            <a href=""{verificationUrl}"">Verifiera mitt konto</a>
                         ";
 
-                        var emailSent = await _emailService.SendEmail(registration.Email, "Verify Your Account", emailBody);
+                        var emailSent = await _emailService.SendEmail(registration.Email, "Verifiera ditt konto för Feedbacker", emailBody);
                         if (!emailSent)
                         {
                             _logger.LogError("Failed to send verification email.");
@@ -119,64 +111,21 @@ namespace backend.Controllers
             }
         }
 
-
-        [HttpPost("send-code")]
-        public async Task<IActionResult> SendVerificationCode([FromBody] EmailRequest request)
-        {
-            using var conn = dbManager.connect();
-
-            string selectSql = $@"
-                SELECT verified
-                FROM accounts
-                WHERE email = '{request.Email}'
-                LIMIT 1
-            ";
-
-            var rows = dbManager.select(conn, selectSql);
-
-            if (rows.Count == 0)
-            {
-                dbManager.close(conn);
-                return BadRequest(new { message = "Account does not exist" });
-            }
-
-            bool isVerified = (bool)rows[0]["verified"];
-            if (isVerified)
-            {
-                dbManager.close(conn);
-                return Ok(new { message = "Account is already verified" });
-            }
-
-            bool success = await _emailService.SendVerificationCode(request.Email);
-
-            dbManager.close(conn);
-
-            if (success)
-            {
-                return Ok(new { message = "Verification code sent successfully" });
-            }
-            else
-            {
-                return StatusCode(500, new { message = "Failed to send verification code" });
-            }
-        }
-
-
-        [HttpGet("confirm")]
+        [HttpPost("confirm")]
         public IActionResult ConfirmAccount(string token)
         {
-            using var conn = dbManager.connect();
+            using var db = dbManager.connect();
 
             try
             {
-                string selectSql = $@"
+                string selectQuery = $@"
                     SELECT email, verified
                     FROM accounts
                     WHERE verification_token = '{token}'
                     LIMIT 1
                 ";
 
-                var rows = dbManager.select(conn, selectSql);
+                var rows = dbManager.select(db, selectQuery);
 
                 if (rows.Count == 0)
                 {
@@ -189,15 +138,15 @@ namespace backend.Controllers
                     return Ok(new { message = "Account is already verified." });
                 }
 
-                string updateSql = $@"
+                string updateQuery = $@"
                     UPDATE accounts
                     SET verified = TRUE,
                         verification_token = NULL
                     WHERE verification_token = '{token}'
                 ";
 
-                int rowsAffected = dbManager.update(conn, updateSql);
-                conn.Close(); 
+                int rowsAffected = dbManager.update(db, updateQuery);
+                db.Close(); 
 
                 if (rowsAffected > 0)
                 {
@@ -215,7 +164,7 @@ namespace backend.Controllers
             }
             finally
             {
-                conn.Close();
+                db.Close();
             }
         }
 

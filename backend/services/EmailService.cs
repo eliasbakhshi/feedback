@@ -13,16 +13,13 @@ namespace backend.Services
     public class EmailService
     {
         private readonly EmailSettings _emailSettings;
-        private readonly DBManager _dbManager;
         private readonly ILogger<EmailService> _logger;
         
         public EmailService(
             IOptions<EmailSettings> emailSettings,
-            DBManager dbManager,
             ILogger<EmailService> logger) 
         {
             _emailSettings = emailSettings.Value;
-            _dbManager = dbManager;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -65,36 +62,5 @@ namespace backend.Services
                 }
             }
         }
-
-        public async Task<bool> SendVerificationCode(string email)
-        {
-            var verificationCode = new Random().Next(100000, 999999).ToString();
-            var verificationToken = Guid.NewGuid().ToString();
-
-            using (var dbConnection = _dbManager.connect())
-            {
-                var updateQuery = $@"
-                    UPDATE accounts
-                    SET verification_code = '{verificationCode}', 
-                        verification_token = '{verificationToken}'
-                    WHERE email = '{email}'";
-
-                var rowsAffected = _dbManager.update(dbConnection, updateQuery);
-                if (rowsAffected == 0)
-                {
-                    Console.WriteLine("[ERROR] Failed to store verification code.");
-                    return false;
-                }
-            }
-
-            string emailBody = $@"
-                <p>Your verification code is: <b>{verificationCode}</b></p>
-                <p>Or click the link below to verify your account:</p>
-                <a href=""https://myapp.com/api/verify/confirm?token={verificationToken}"">Verify My Account</a>
-            ";
-
-            return await SendEmail(email, "Your Verification Code", emailBody);
-        }
-
     }
 }
