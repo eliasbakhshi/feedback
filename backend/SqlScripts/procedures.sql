@@ -103,6 +103,7 @@ AS $$
     FROM surveys
     WHERE creator = userId AND id = survey_id;
 $$;
+
 CREATE FUNCTION check_token(userId INT, token_to_check VARCHAR(64))
 RETURNS BOOLEAN
 LANGUAGE SQL

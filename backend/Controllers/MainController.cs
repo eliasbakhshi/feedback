@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using System.Security.Cryptography;
 using backend.Models;
 using backend.UserDataAccess;
 using backend.Services;
