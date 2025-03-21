@@ -94,7 +94,7 @@ const Account = () => {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md">
         <div className="space-y-4">
-          <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">Konto inställningar</h1>
+          <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">Kontoinställningar</h1>
           <div className="flex items-center space-x-4 mb-4">
             <img src="/TV_logo_Master_Symbol_rgb.png" alt="logo" className="w-20 rounded-full"/>
             <div>

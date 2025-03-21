@@ -372,7 +372,7 @@ namespace backend.Controllers
             try
             {
 
-                if (!Request.Headers.TryGetValue("Authorization", out var token))
+                if (!Request.Headers.TryGetValue("authorization", out var token))
                 {
                     return Unauthorized("Token is missing.");
                 }
@@ -388,7 +388,7 @@ namespace backend.Controllers
                     var result = dbManager.select(db, query);
 
                     if (result.Count == 0)
-                        return StatusCode(StatusCodes.Status400BadRequest, new { message = "Failed to retrieve surveys; no surveys found." });
+                        return Ok(new List<object>());
 
                     return Ok(result);
                 }
